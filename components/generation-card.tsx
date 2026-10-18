@@ -2,6 +2,7 @@ import Link from "next/link";
 import { GenerationPlayer } from "@/components/generation-player";
 import { cn } from "@/lib/cn";
 import { formatWhen } from "@/lib/format";
+import { generationHref } from "@/lib/generation-href";
 import { generationErrorLabel, generationStatusLabel } from "@/lib/generation-status";
 import type { Generation } from "@/lib/api/generations";
 
@@ -17,7 +18,7 @@ export function GenerationCard({ generation, linked }: { generation: Generation;
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className={cn("text-base font-semibold text-text-primary", linked && "line-clamp-3")}>
           {linked ? (
-            <Link href={`/generations/${generation.id}`} className="hover:underline">
+            <Link href={generationHref(generation.id)} className="hover:underline">
               {title}
             </Link>
           ) : (

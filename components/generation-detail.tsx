@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { GenerationCard } from "@/components/generation-card";
 import { useSessionStatus } from "@/components/session";
 import { apiErrorMessage } from "@/lib/api/api-error";
 import { fetchGeneration } from "@/lib/api/generations";
+import { generationHref } from "@/lib/generation-href";
 import { isActiveGenerationStatus } from "@/lib/generation-status";
 
 export function GenerationDetail() {
-  const params = useParams<{ id: string }>();
-  const id = params.id;
+  const id = useSearchParams().get("id")?.trim() ?? "";
   const status = useSessionStatus();
   const query = useQuery({
     queryKey: ["generation", id],
@@ -21,6 +21,10 @@ export function GenerationDetail() {
       current.state.data && isActiveGenerationStatus(current.state.data.status) ? 2000 : false,
   });
 
+  if (!id) {
+    return <p className="text-sm text-text-muted">В ссылке нет песни.</p>;
+  }
+
   if (status === "loading") {
     return <p className="text-sm text-text-muted">Проверяем вход…</p>;
   }
@@ -28,7 +32,7 @@ export function GenerationDetail() {
   if (status === "anonymous") {
     return (
       <p className="text-sm text-text-muted">
-        <Link href={`/auth/login?next=/generations/${id}`} className="text-text-primary underline">
+        <Link href={`/auth/login?next=${encodeURIComponent(generationHref(id))}`} className="text-text-primary underline">
           Войдите
         </Link>
         , чтобы открыть песню.

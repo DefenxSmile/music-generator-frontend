@@ -38,3 +38,5 @@ docker run --rm -p 3000:3000 ai-music
 Проверка: `npm run typecheck`, `npm run lint`, `npm run build`. То же запускает GitHub Actions на `main` и на pull request (`.github/workflows/ci.yml`), плюс сборка Docker-образа.
 
 Образ публикуется в GHCR только с `main`, и только если в репозитории задана переменная `JAVA_API_BASE_URL`. Без неё в бандл попал бы `http://localhost:8080`. Хост, на котором крутится контейнер, в этом репозитории не выбран.
+
+Тестовая ссылка после push в `main`: https://defenxsmile.github.io/music-generator-frontend/ — это GitHub Pages. Вход с этого адреса заработает, когда Java разрешит origin `https://defenxsmile.github.io` и `JAVA_API_BASE_URL` указывает на публичный HTTPS API.

@@ -11,6 +11,7 @@ import { apiErrorMessage, isApiError } from "@/lib/api/api-error";
 import { fetchGenerationQuote } from "@/lib/api/billing";
 import { createGeneration } from "@/lib/api/generations";
 import { creditsLabel } from "@/lib/credits";
+import { generationHref } from "@/lib/generation-href";
 import { collapseIdea, persistHeroIdea, PROMPT_MAX, resolveInitialIdea } from "@/lib/hero-idea";
 
 export function SongComposer() {
@@ -40,7 +41,7 @@ export function SongComposer() {
       await queryClient.invalidateQueries({ queryKey: ["generations"] });
       await queryClient.invalidateQueries({ queryKey: ["generation-quote"] });
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      router.push(`/generations/${generation.id}`);
+      router.push(generationHref(generation.id));
     },
   });
 
@@ -130,7 +131,7 @@ export function SongComposer() {
             {inProgressId ? (
               <>
                 {" "}
-                <Link href={`/generations/${inProgressId}`} className="underline">
+                <Link href={generationHref(inProgressId)} className="underline">
                   Открыть песню в работе
                 </Link>
               </>

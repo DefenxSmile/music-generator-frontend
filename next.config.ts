@@ -10,19 +10,30 @@ const securityHeaders = [
   { key: "X-XSS-Protection", value: "1; mode=block" },
 ];
 
+const githubPages = process.env.GITHUB_PAGES === "1";
+const pagesBase = process.env.GITHUB_PAGES_BASE ?? "";
+
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: githubPages ? "export" : "standalone",
   env: {
     JAVA_API_BASE_URL: process.env.JAVA_API_BASE_URL ?? "",
   },
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: securityHeaders,
-      },
-    ];
-  },
+  ...(githubPages
+    ? {
+        basePath: pagesBase,
+        assetPrefix: pagesBase,
+        trailingSlash: true,
+      }
+    : {
+        async headers() {
+          return [
+            {
+              source: "/(.*)",
+              headers: securityHeaders,
+            },
+          ];
+        },
+      }),
 };
 
 export default nextConfig;

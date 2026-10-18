@@ -8,7 +8,7 @@
 
 `SecurityConfig` разрешает методы `GET`, `POST`, `DELETE`, `OPTIONS`, заголовки `Authorization`, `Content-Type`, `Idempotency-Key` и `allowCredentials`. Origin берётся из `app.corsOrigins` (строка через запятую).
 
-Локальное приложение слушает `http://localhost:3000` (`npm run dev` и `PORT` в Docker). В `application-dev.yml` уже записано `app.cors-origins: http://localhost:3000`. Любой другой origin, включая будущий прод, нужно добавить в `app.corsOrigins`. Java в этой задаче не меняется.
+Локальное приложение слушает `http://localhost:3000` (`npm run dev` и `PORT` в Docker). В `application-dev.yml` уже записано `app.cors-origins: http://localhost:3000`. Тестовый сайт GitHub Pages открывается с origin `https://defenxsmile.github.io` — его нужно добавить в `app.corsOrigins`, иначе браузер отклонит запросы с cookie. Java в этой задаче не меняется.
 
 Другие заголовки (например `x-request-id`) клиент не шлёт: их нет в allow-list, preflight их отвергнет.
 

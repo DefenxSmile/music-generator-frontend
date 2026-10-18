@@ -17,11 +17,11 @@ npm run start
 
 `JAVA_API_BASE_URL` попадает в браузерный бандл на сборке. Для `npm run dev` и `npm run build` его читает Next из окружения или из `.env`. Файл `.env` не коммитить. Образец — `.env.example`.
 
-GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request гоняет lint, typecheck, build и сборку образа. Публикация образа в GHCR — только с `main` и только когда в репозитории задана переменная `JAVA_API_BASE_URL`.
+GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request гоняет lint, typecheck, build и сборку образа. Публикация образа в GHCR — только с `main` и только когда в репозитории задана переменная `JAVA_API_BASE_URL`. Тестовый сайт — GitHub Pages, workflow `.github/workflows/pages.yml`, адрес `https://defenxsmile.github.io/music-generator-frontend/`. Origin для CORS в Java: `https://defenxsmile.github.io`.
 
 ## Папки
 
-- `app/` — маршруты App Router: `/`, `/plans`, `/auth/*`, `/generations`, `/generations/[id]`
+- `app/` — маршруты App Router: `/`, `/plans`, `/auth/*`, `/generations`, `/generations/song`
 - `components/` — оболочка, формы, плеер
 - `lib/api/` — один `fetch-json` и вызовы по доменам (`auth`, `me`, `billing`, `generations`)
 - `lib/auth/` — access token только в памяти

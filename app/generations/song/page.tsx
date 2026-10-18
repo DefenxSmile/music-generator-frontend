@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { GenerationDetail } from "@/components/generation-detail";
 
-export default function GenerationPage() {
+export default function GenerationSongPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12">
       <p className="mb-4 text-sm">
@@ -9,7 +10,9 @@ export default function GenerationPage() {
           Все песни
         </Link>
       </p>
-      <GenerationDetail />
+      <Suspense fallback={<p className="text-sm text-text-muted">Загружаем песню…</p>}>
+        <GenerationDetail />
+      </Suspense>
     </main>
   );
 }
