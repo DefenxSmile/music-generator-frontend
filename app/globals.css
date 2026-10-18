@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+/**
+ * Palette copied from the landing. Token names stay the same.
+ * The gold→coral gradient is only the primary button and the playing state.
+ */
+@theme {
+  --color-bg: #08080a;
+  --color-bg-card: #121216;
+  --color-bg-card-hover: #17171c;
+  --color-bg-elevated: #1b1b21;
+  --color-bg-footer: #050506;
+
+  --color-accent: #ffc043;
+  --color-accent-hover: #ffcf6b;
+  --color-accent-warm: #ff7a4d;
+  --color-on-accent: #1a1206;
+
+  --color-text-primary: #f8f7f4;
+  --color-text-muted: #bab7b0;
+  --color-text-dim: #9d9a92;
+
+  --color-border: #26262c;
+  --color-border-hover: #3c3c44;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+}
+
+.lp-accent-gradient {
+  background-image: linear-gradient(
+    118deg,
+    var(--color-accent) 0%,
+    #ffb03a 46%,
+    var(--color-accent-warm) 100%
+  );
+}
+
+html::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.lp-hero-prompt {
+  border: 1px solid color-mix(in srgb, var(--color-accent) 50%, transparent);
+  background-color: var(--color-bg-elevated);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 40%),
+    radial-gradient(115% 90% at 50% 0%, rgba(255, 192, 67, 0.12) 0%, transparent 58%);
+  box-shadow:
+    0 0 0 1px rgba(255, 192, 67, 0.1),
+    0 18px 40px -10px rgba(0, 0, 0, 0.72),
+    0 18px 48px -22px rgba(255, 150, 60, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.lp-hero-prompt:focus-within {
+  border-color: color-mix(in srgb, var(--color-accent) 78%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(255, 192, 67, 0.18),
+    0 18px 40px -10px rgba(0, 0, 0, 0.72),
+    0 18px 52px -18px rgba(255, 150, 60, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.lp-cta {
+  background-size: 165% 100%;
+  background-position: 0% 50%;
+  transition:
+    background-position 420ms ease,
+    filter 160ms ease;
+}
+
+.lp-cta:hover {
+  background-position: 62% 50%;
+}
+
+.lp-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.85em;
+}
+
+.lp-eq > span {
+  display: block;
+  width: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: bottom;
+}
+
+.lp-eq > span:nth-child(1) {
+  height: 45%;
+}
+.lp-eq > span:nth-child(2) {
+  height: 90%;
+}
+.lp-eq > span:nth-child(3) {
+  height: 62%;
+}
+
+@keyframes lp-eq {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.lp-cta:hover .lp-eq > span,
+.lp-cta:focus-visible .lp-eq > span {
+  animation: lp-eq 0.7s ease-in-out infinite;
+}
+
+.lp-cta:hover .lp-eq > span:nth-child(2),
+.lp-cta:focus-visible .lp-eq > span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.lp-cta:hover .lp-eq > span:nth-child(3),
+.lp-cta:focus-visible .lp-eq > span:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  max-width: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
+  background-color: var(--color-bg);
+  color-scheme: dark;
+}
+
+a[href],
+button:not(:disabled),
+[role="button"] {
+  cursor: pointer;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+  max-width: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+.lp-section-title {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+.lp-body {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .lp-cta,
+  .lp-hero-prompt {
+    transition: none;
+  }
+  .lp-cta:hover .lp-eq > span,
+  .lp-cta:focus-visible .lp-eq > span {
+    animation: none !important;
+  }
+}
