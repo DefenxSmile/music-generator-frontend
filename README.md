@@ -35,4 +35,6 @@ docker build --build-arg JAVA_API_BASE_URL=http://localhost:8080 -t ai-music .
 docker run --rm -p 3000:3000 ai-music
 ```
 
-Проверка: `npm run typecheck`, `npm run lint`, `npm run build`.
+Проверка: `npm run typecheck`, `npm run lint`, `npm run build`. То же запускает GitHub Actions на `main` и на pull request (`.github/workflows/ci.yml`), плюс сборка Docker-образа.
+
+Образ публикуется в GHCR только с `main`, и только если в репозитории задана переменная `JAVA_API_BASE_URL`. Без неё в бандл попал бы `http://localhost:8080`. Хост, на котором крутится контейнер, в этом репозитории не выбран.

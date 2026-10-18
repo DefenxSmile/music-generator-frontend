@@ -1,0 +1,60 @@
+name: CI
+
+# The image can run on any Docker host. It is published to GHCR only when
+# JAVA_API_BASE_URL is set: that origin is compiled into the browser bundle.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+        env:
+          JAVA_API_BASE_URL: ${{ vars.JAVA_API_BASE_URL || 'http://localhost:8080' }}
+
+  image:
+    runs-on: ubuntu-latest
+    needs: check
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.JAVA_API_BASE_URL != ''
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build image
+        env:
+          JAVA_API_BASE_URL: ${{ vars.JAVA_API_BASE_URL || 'http://localhost:8080' }}
+        run: |
+          image="ghcr.io/$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+          docker build \
+            --build-arg JAVA_API_BASE_URL="$JAVA_API_BASE_URL" \
+            -t "$image:${GITHUB_SHA}" \
+            -t "$image:main" \
+            .
+
+      - name: Push image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.JAVA_API_BASE_URL != ''
+        run: |
+          image="ghcr.io/$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+          docker push "$image:${GITHUB_SHA}"
+          docker push "$image:main"
