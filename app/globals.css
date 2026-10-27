@@ -280,7 +280,8 @@ body {
   transition: width var(--duration-move) var(--ease-move);
 }
 
-.lp-sidebar-rail[data-collapsed="true"] {
+.lp-sidebar-rail[data-collapsed="true"],
+html[data-sidebar="collapsed"] {
   --sidebar-width: 3.625rem;
 }
 
@@ -289,7 +290,8 @@ body {
   transition: opacity 260ms var(--ease-move) 80ms;
 }
 
-.lp-sidebar-rail[data-collapsed="true"] .lp-sidebar-mark {
+.lp-sidebar-rail[data-collapsed="true"] .lp-sidebar-mark,
+html[data-sidebar="collapsed"] .lp-sidebar-mark {
   pointer-events: none;
   opacity: 0;
   transition: opacity 170ms var(--ease-move);
@@ -303,7 +305,8 @@ body {
     color 150ms var(--ease-move);
 }
 
-.lp-sidebar-rail[data-collapsed="true"] .lp-sidebar-toggle {
+.lp-sidebar-rail[data-collapsed="true"] .lp-sidebar-toggle,
+html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   left: 50%;
 }
 
@@ -340,6 +343,13 @@ body {
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 8%, transparent),
     0 30px 90px rgb(0 0 0 / 0.65);
+}
+
+.lp-auth-dialog.lp-lyrics-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  width: min(40rem, calc(100% - 2rem));
+  min-height: min(34rem, calc(100dvh - 2rem));
 }
 
 .lp-auth-dialog[open] {
@@ -426,20 +436,9 @@ body {
   animation: lp-generating 2.4s ease-in-out infinite;
 }
 
-@keyframes lp-skeleton {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 .lp-skeleton {
   border-radius: var(--radius-lg);
-  background-color: var(--color-bg-elevated);
-  animation: lp-skeleton 1.6s ease-in-out infinite;
+  background-color: color-mix(in srgb, var(--color-overlay) 6%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -448,7 +447,6 @@ body {
   }
   .lp-wave-bar,
   .lp-generating-bar,
-  .lp-skeleton,
   .lp-auth-dialog,
   .lp-auth-dialog::backdrop,
   .lp-boot-glow {

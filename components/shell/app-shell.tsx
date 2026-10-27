@@ -2,9 +2,10 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { AccountHeader, SidebarMobile, SidebarRail } from "@/components/shell/sidebar";
-import { useSessionStatus } from "@/components/shell/session";
-
+import { AccountHeader } from "@/components/shell/account-header";
+import { SidebarMobile } from "@/components/shell/sidebar-mobile";
+import { SidebarRail } from "@/components/shell/sidebar-rail";
+import { useSessionStatus } from "@/hooks/use-session-status";
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const current = pathname.replace(/\/+$/, "") || "/";

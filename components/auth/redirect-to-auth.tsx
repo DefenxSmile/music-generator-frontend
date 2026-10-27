@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Loading } from "@/components/ui/loading";
-
 /**
  * Old auth URLs stay reachable.
  * A signup link opens the home idea field. A login link opens the sign-in window there.

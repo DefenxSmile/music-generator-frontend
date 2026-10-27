@@ -3,24 +3,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { useState } from "react";
-import { useOpenAuth } from "@/components/auth/auth-dialog";
-import { useSessionStatus } from "@/components/shell/session";
+import { useOpenAuth } from "@/hooks/use-open-auth";
+import { useSessionStatus } from "@/hooks/use-session-status";
+import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import Button from "@/components/ui/Button";
-import { apiErrorMessage } from "@/lib/api/api-error";
-import { fetchGenerationQuote } from "@/lib/api/billing";
-import { cn } from "@/lib/cn";
-import { creditsLabel } from "@/lib/credits";
-import { PRICING_PLANS } from "@/lib/plans/pricing-plans";
-
+import { apiErrorMessage } from "@/requests/api-error";
+import { generationQuoteQueryOptions } from "@/requests/billing-query";
+import { cn } from "@/utils/cn";
+import { creditsLabel } from "@/utils/credits";
+import { PRICING_PLANS } from "@/utils/pricing-plans";
 export function PlansPanel() {
   const status = useSessionStatus();
+  const signedIn = useSignedInHint();
   const openAuth = useOpenAuth();
   const [chosenId, setChosenId] = useState<string | null>(null);
-  const quote = useQuery({
-    queryKey: ["generation-quote"],
-    queryFn: fetchGenerationQuote,
-    enabled: status === "authenticated",
-  });
+  const quote = useQuery(generationQuoteQueryOptions(status === "authenticated"));
 
   function choose(id: string) {
     if (status === "anonymous") {
@@ -36,11 +33,14 @@ export function PlansPanel() {
       <div className="relative mx-auto w-full max-w-5xl">
       <h1 className="lp-section-title text-text-primary">Тарифы</h1>
       <p className="lp-body mt-2 max-w-xl">Платите за генерации, а не за подписку на год. Начните с одной песни.</p>
-      {status === "authenticated" && quote.data ? (
-        <p className="mt-3 text-sm text-text-dim">На балансе {creditsLabel(quote.data.balance)}.</p>
-      ) : null}
-      {status === "authenticated" && quote.isError ? (
-        <p className="mt-3 text-sm text-text-primary">{apiErrorMessage(quote.error)}</p>
+      {status === "authenticated" || (status === "loading" && signedIn) ? (
+        quote.isError ? (
+          <p className="mt-3 text-sm text-text-primary">{apiErrorMessage(quote.error)}</p>
+        ) : (
+          <p className={cn("mt-3 text-sm text-text-dim", quote.data ? undefined : "invisible")}>
+            На балансе {creditsLabel(quote.data?.balance ?? 0)}.
+          </p>
+        )
       ) : null}
 
       <div className="mt-8 grid gap-4 lg:grid-cols-3">

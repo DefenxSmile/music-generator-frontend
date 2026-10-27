@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
-import { refreshAccessToken } from "@/lib/api/fetch-json";
-import { takeAuthNext } from "@/lib/auth/auth-next";
-
+import { refreshAccessToken } from "@/requests/fetch-json";
+import { takeAuthNext } from "@/utils/auth-next";
 export default function OAuthCallbackPage() {
   const router = useRouter();
   const [failed, setFailed] = useState(false);

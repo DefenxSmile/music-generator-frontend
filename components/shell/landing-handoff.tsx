@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { acceptLandingConsent } from "@/lib/lead/consent";
-import { captureMarketingAttribution } from "@/lib/lead/marketing-attribution";
-
+import { acceptLandingConsent } from "@/utils/consent";
+import { captureMarketingAttribution } from "@/utils/marketing-attribution";
 /** Reads lp_consent and campaign params the landing puts on the first URL. */
 export function LandingHandoff() {
   useEffect(() => {

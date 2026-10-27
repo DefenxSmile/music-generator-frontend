@@ -4,20 +4,12 @@ import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { QualificationFields } from "@/components/auth/qualification-fields";
-import { useMe, useSessionStatus } from "@/components/shell/session";
+import { useMe } from "@/hooks/use-me";
+import { useSessionStatus } from "@/hooks/use-session-status";
 import Button from "@/components/ui/Button";
-import { rememberLead } from "@/lib/lead/lead";
-import {
-  markQualificationDone,
-  persistSongFor,
-  persistVisitor,
-  readQualificationDone,
-  readSongFor,
-  readVisitor,
-  type SongFor,
-  type VisitorKind,
-} from "@/lib/lead/qualification";
-
+import { rememberLead } from "@/utils/lead";
+import { markQualificationDone, persistSongFor, persistVisitor, readQualificationDone, readSongFor, readVisitor } from "@/utils/qualification";
+import { type SongFor, type VisitorKind } from "@/types/qualification";
 export function QualificationDialog() {
   const pathname = usePathname();
   const status = useSessionStatus();
@@ -106,7 +98,7 @@ export function QualificationDialog() {
             }}
           />
         </div>
-        <Button type="button" size="lg" className="mt-8 w-full active:scale-[0.98]" onClick={dismiss}>
+        <Button type="button" size="lg" className="mt-8 w-full" onClick={dismiss}>
           К песне
         </Button>
       </div>

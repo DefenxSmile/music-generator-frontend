@@ -1,6 +1,5 @@
 import { Check } from "lucide-react";
-import { cn } from "@/lib/cn";
-
+import { cn } from "@/utils/cn";
 const STAGES = [
   { label: "Пишем текст", statuses: ["PENDING", "WRITING"] },
   { label: "Проверяем", statuses: ["MODERATING"] },

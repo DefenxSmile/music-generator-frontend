@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { cn } from "@/lib/cn";
+import { CtaEqualizer } from "@/components/ui/cta-equalizer";
+import { cn } from "@/utils/cn";
 
 /** One accent only: `primary` is the gold→coral CTA, the rest are neutral surfaces. */
 export type ButtonVariant = "primary" | "outline";
@@ -78,16 +79,5 @@ export default function Button({
       {children}
       {variant === "primary" && size === "lg" ? <CtaEqualizer /> : null}
     </button>
-  );
-}
-
-/** Three static bars; they move only on hover of the parent `.lp-cta`. */
-function CtaEqualizer() {
-  return (
-    <span aria-hidden className="lp-eq">
-      <span />
-      <span />
-      <span />
-    </span>
   );
 }

@@ -2,9 +2,8 @@
 
 import { Pause, Play } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { cn } from "@/lib/cn";
-import { formatClock, songCoverStyle, songWaveform } from "@/lib/song/song-visual";
-
+import { cn } from "@/utils/cn";
+import { formatClock, songCoverStyle, songWaveform } from "@/utils/song-visual";
 export function SongPlayer({
   id,
   src,
@@ -47,7 +46,7 @@ export function SongPlayer({
         aria-label={playing ? `Пауза: ${title}` : `Слушать: ${title}`}
         aria-pressed={playing}
         style={songCoverStyle(id)}
-        className="grid size-16 shrink-0 place-items-center rounded-xl shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-overlay)_18%,transparent)] transition-transform duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 sm:size-20"
+        className="grid size-16 shrink-0 place-items-center rounded-xl shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-overlay)_18%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 sm:size-20"
       >
         <span className="grid size-10 place-items-center rounded-full bg-black/25 backdrop-blur-sm">
           {playing ? (

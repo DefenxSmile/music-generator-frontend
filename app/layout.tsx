@@ -18,6 +18,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{if(localStorage.getItem("lp_sidebar_collapsed")==="1")document.documentElement.setAttribute("data-sidebar","collapsed")}catch(e){}',
+          }}
+        />
+        {/* Similarweb rejects a second promise when refresh cannot reach Java, and the dev overlay treats it as a crash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'window.addEventListener("unhandledrejection",function(e){var r=e.reason;if(!r||r.name!=="TypeError"||r.message!=="Failed to fetch")return;var s=String(r.stack||"");if(s.indexOf("performRefresh")===-1&&s.indexOf("fetch-json")===-1)return;e.preventDefault();e.stopImmediatePropagation()})',
+          }}
+        />
+      </head>
       <body>
         <Providers>
           <AppShell>{children}</AppShell>

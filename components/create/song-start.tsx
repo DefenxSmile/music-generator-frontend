@@ -3,15 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import Button from "@/components/ui/Button";
-import { createWorkspaceHref } from "@/lib/song/generation-href";
-import { persistHeroIdea, PROMPT_MAX, resolveInitialIdea } from "@/lib/lead/hero-idea";
-import { rememberLead } from "@/lib/lead/lead";
-import { readSongFor, songForPlaceholder } from "@/lib/lead/qualification";
-
+import { useAutosizeTextarea } from "@/hooks/use-autosize-textarea";
+import { createWorkspaceHref } from "@/utils/generation-href";
+import { persistHeroIdea, PROMPT_MAX, resolveInitialIdea } from "@/utils/hero-idea";
+import { rememberLead } from "@/utils/lead";
+import { classifyIdea, persistSongDraft } from "@/utils/song-draft";
+import { readSongFor, songForPlaceholder } from "@/utils/qualification";
 /** Home is only the idea. Creating opens the workspace and does not start a song. */
 export function SongStart() {
   const router = useRouter();
-  const [idea, setIdea] = useState<string | null>(null);
+  const [idea, setIdea] = useState("");
   const [placeholder, setPlaceholder] = useState("Песня о нашей первой встрече летом…");
 
   useEffect(() => {
@@ -26,25 +27,14 @@ export function SongStart() {
     const value = (idea ?? "").trim();
     if (!value) return;
     persistHeroIdea(value);
+    persistSongDraft(classifyIdea(value), value);
     rememberLead("idea");
     router.push(createWorkspaceHref());
   }
 
-  if (idea === null) {
-    return (
-      <main className="relative px-4 pb-24 pt-14 sm:pt-20 lg:pt-28">
-        <div aria-hidden className="lp-stage-wash pointer-events-none absolute inset-x-0 top-0 h-[min(100dvh,52rem)]" />
-        <div aria-hidden className="relative mx-auto w-full max-w-2xl">
-          <span className="lp-skeleton mx-auto block h-9 w-64" />
-          <span className="lp-skeleton mx-auto mt-3 block h-4 w-80 max-w-full" />
-          <span className="lp-skeleton mt-8 block h-28 w-full rounded-xl" />
-        </div>
-      </main>
-    );
-  }
-
   const value = idea;
   const canSubmit = value.trim().length > 0;
+  const fieldRef = useAutosizeTextarea(value);
 
   return (
     <main className="relative px-4 pb-24 pt-14 sm:pt-20 lg:pt-28">
@@ -58,6 +48,7 @@ export function SongStart() {
               Идея песни
             </label>
             <textarea
+              ref={fieldRef}
               id="song-idea"
               name="idea"
               rows={2}
@@ -76,7 +67,7 @@ export function SongStart() {
               }}
               placeholder={placeholder}
               autoComplete="off"
-              className="block min-h-14 w-full resize-none bg-transparent px-2 py-1.5 text-base leading-relaxed text-text-primary placeholder:text-text-muted focus:outline-none"
+              className="block min-h-16 w-full resize-none overflow-hidden bg-transparent px-2 py-1.5 text-base leading-relaxed text-text-primary placeholder:text-text-muted focus:outline-none"
             />
             <div className="mt-2 flex justify-end">
               <Button type="submit" variant="primary" size="md" disabled={!canSubmit}>

@@ -2,7 +2,6 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { GenerationDetail } from "@/components/song/generation-detail";
-
 export default function GenerationSongPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-16 pt-6 sm:pt-10">

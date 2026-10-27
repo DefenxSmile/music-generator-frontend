@@ -1,69 +1,77 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useOpenAuth } from "@/components/auth/auth-dialog";
-import { useEffect, useState, type FormEvent } from "react";
+import { Sparkles } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { ComposerField } from "@/components/create/composer-field";
+import { GenerateLyricsDialog } from "@/components/create/generate-lyrics-dialog";
 import { FormMessage } from "@/components/ui/field";
-import { useSessionStatus } from "@/components/shell/session";
 import Button from "@/components/ui/Button";
-import { apiErrorMessage, isApiError } from "@/lib/api/api-error";
-import { fetchGenerationQuote } from "@/lib/api/billing";
-import { createGeneration } from "@/lib/api/generations";
-import { creditsLabel } from "@/lib/credits";
-import { createWorkspaceHref } from "@/lib/song/generation-href";
-import { persistHeroIdea, PROMPT_MAX } from "@/lib/lead/hero-idea";
-import { rememberLead } from "@/lib/lead/lead";
-import { readSongFor, songForPlaceholder } from "@/lib/lead/qualification";
+import { useCreateGeneration } from "@/hooks/use-create-generation";
+import { useOpenAuth } from "@/hooks/use-open-auth";
+import { useSessionStatus } from "@/hooks/use-session-status";
+import { apiErrorMessage, isApiError } from "@/requests/api-error";
+import { generationQuoteQueryOptions } from "@/requests/billing-query";
+import type { SongDraft } from "@/types/song-draft";
+import { createWorkspaceHref } from "@/utils/generation-href";
+import { PROMPT_MAX } from "@/utils/hero-idea";
+import { rememberLead } from "@/utils/lead";
+import { songForPlaceholder, readSongFor } from "@/utils/qualification";
+import { composePrompt, promptFits } from "@/utils/song-draft";
 
-export function SongComposer({ initialIdea }: { initialIdea: string }) {
-  const router = useRouter();
+export function SongComposer({
+  draft,
+  onDraft,
+}: {
+  draft: SongDraft;
+  onDraft: (draft: SongDraft) => void;
+}) {
   const openAuth = useOpenAuth();
-  const queryClient = useQueryClient();
   const status = useSessionStatus();
-  const [prompt, setPrompt] = useState(initialIdea);
   const [placeholder, setPlaceholder] = useState("Песня о нашей первой встрече летом…");
+  const [lyricsOpen, setLyricsOpen] = useState(false);
+  const lyricsButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setPlaceholder(songForPlaceholder(readSongFor()));
   }, []);
 
-  const quote = useQuery({
-    queryKey: ["generation-quote"],
-    queryFn: fetchGenerationQuote,
-    enabled: status === "authenticated",
-  });
-
-  const create = useMutation({
-    mutationFn: (value: string) => createGeneration(value, crypto.randomUUID()),
-    onSuccess: async (generation) => {
-      await queryClient.invalidateQueries({ queryKey: ["generations"] });
-      await queryClient.invalidateQueries({ queryKey: ["generation-quote"] });
-      await queryClient.invalidateQueries({ queryKey: ["me"] });
-      rememberLead("generation");
-      router.replace(createWorkspaceHref(generation.id));
-    },
-  });
-
-  function onPromptChange(value: string) {
-    const next = value.slice(0, PROMPT_MAX);
-    setPrompt(next);
-    persistHeroIdea(next);
-  }
+  const quote = useQuery(generationQuoteQueryOptions(status === "authenticated"));
+  const create = useCreateGeneration();
+  const prompt = composePrompt(draft);
+  const tooLong = prompt.length > PROMPT_MAX;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = prompt.trim();
-    if (!value || status === "loading") return;
-    persistHeroIdea(value);
+    if (!value || tooLong || status === "loading") return;
     if (status === "anonymous") {
-      rememberLead("auth");
+      rememberLead("auth", null, value);
       openAuth({ intent: "create", next: createWorkspaceHref() });
       return;
     }
     if (!quote.data?.sufficient || create.isPending) return;
     create.mutate(value);
+  }
+
+  function closeLyrics() {
+    setLyricsOpen(false);
+    lyricsButtonRef.current?.focus();
+  }
+
+  function onGenerate(idea: string) {
+    const style = draft.idea.trim();
+    const next = !style || style.includes(idea) ? style || idea : `${style}\n${idea}`;
+    if (next !== draft.idea) onDraft({ ...draft, idea: next });
+    closeLyrics();
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      event.currentTarget.form?.requestSubmit();
+    }
   }
 
   const inProgressId =
@@ -72,32 +80,46 @@ export function SongComposer({ initialIdea }: { initialIdea: string }) {
       : null;
 
   const canSubmit =
-    prompt.trim().length > 0 &&
+    promptFits(draft) &&
     status !== "loading" &&
     !create.isPending &&
     (status === "anonymous" || quote.data?.sufficient === true);
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-3">
-      <label htmlFor="song-draft" className="sr-only">
-        Идея
-      </label>
-      <textarea
-        id="song-draft"
-        name="idea"
-        maxLength={PROMPT_MAX}
-        value={prompt}
-        onChange={(event) => onPromptChange(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-            event.preventDefault();
-            event.currentTarget.form?.requestSubmit();
-          }
-        }}
-        placeholder={placeholder}
-        autoComplete="off"
-        className="h-44 w-full resize-none rounded-lg border border-overlay/10 bg-bg-card px-3.5 py-3.5 text-[0.9375rem] leading-relaxed text-text-primary shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-overlay)_4%,transparent)] placeholder:text-text-muted focus:border-overlay/20 focus:outline-none"
+    <>
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+      <ComposerField
+        id="song-lyrics"
+        label="Текст песни"
+        value={draft.lyrics}
+        onChange={(lyrics) => onDraft({ ...draft, lyrics })}
+        onKeyDown={onKeyDown}
+        placeholder="Куплет и припев своими словами."
+        minHeightClass="min-h-44"
+        footer={
+          <button
+            ref={lyricsButtonRef}
+            type="button"
+            onClick={() => setLyricsOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-overlay/8 px-3 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-overlay/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            <Sparkles aria-hidden className="size-4" strokeWidth={1.75} />
+            Сгенерировать текст
+          </button>
+        }
       />
+
+      <ComposerField
+        id="song-style"
+        label="Стиль и идея"
+        value={draft.idea}
+        onChange={(idea) => onDraft({ ...draft, idea })}
+        onKeyDown={onKeyDown}
+        placeholder={placeholder}
+        minHeightClass="min-h-24"
+      />
+
+      {tooLong ? <FormMessage>Стиль и текст вместе длиннее 2000 символов. Сократите один из них.</FormMessage> : null}
       {quote.data && !quote.data.sufficient ? <FormMessage>На балансе нет кредитов для песни.</FormMessage> : null}
       {quote.isError ? <FormMessage>{apiErrorMessage(quote.error)}</FormMessage> : null}
       {create.isError ? (
@@ -115,11 +137,9 @@ export function SongComposer({ initialIdea }: { initialIdea: string }) {
       ) : null}
       <Button type="submit" variant="primary" size="lg" disabled={!canSubmit} className="min-h-12 w-full">
         {create.isPending ? "Отправляем…" : "Создать песню"}
-      </Button>
-      <p className="px-1 text-xs leading-relaxed text-text-dim">
-        Музыку и русский вокал соберём сами.
-        {quote.data?.sufficient ? ` Песня спишет ${creditsLabel(quote.data.cost)}.` : ""}
-      </p>
-    </form>
+        </Button>
+      </form>
+      <GenerateLyricsDialog open={lyricsOpen} onClose={closeLyrics} onGenerate={onGenerate} />
+    </>
   );
 }

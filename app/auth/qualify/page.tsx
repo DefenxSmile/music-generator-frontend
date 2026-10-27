@@ -3,9 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { Loading } from "@/components/ui/loading";
-import { useSessionStatus } from "@/components/shell/session";
-import { safeNext, takeAuthNext } from "@/lib/auth/auth-next";
-
+import { useSessionStatus } from "@/hooks/use-session-status";
+import { safeNext, takeAuthNext } from "@/utils/auth-next";
 export default function QualifyPage() {
   return (
     <Suspense fallback={<Loading label="Открываем вопросы" />}>

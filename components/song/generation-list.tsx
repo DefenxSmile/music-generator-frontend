@@ -1,14 +1,12 @@
 "use client";
 
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { GenerationRow, GenerationRowsSkeleton } from "@/components/song/generation-row";
-import { useOpenAuth } from "@/components/auth/auth-dialog";
-import { useSessionStatus } from "@/components/shell/session";
-import Button from "@/components/ui/Button";
-import { apiErrorMessage } from "@/lib/api/api-error";
-import { listGenerations, type Generation } from "@/lib/api/generations";
-import { createWorkspaceHref, generationHref } from "@/lib/song/generation-href";
-import { isActiveGenerationStatus } from "@/lib/song/generation-status";
+import { useQuery } from "@tanstack/react-query";
+import { AnonymousSongs } from "@/components/song/anonymous-songs";
+import { GenerationListBody } from "@/components/song/generation-list-body";
+import { useSessionStatus } from "@/hooks/use-session-status";
+import { useSignedInHint } from "@/hooks/use-signed-in-hint";
+import { generationsQueryOptions } from "@/requests/generations-query";
+import { generationHref } from "@/utils/generation-href";
 
 export function GenerationList({
   limit,
@@ -26,15 +24,10 @@ export function GenerationList({
   signIn?: boolean;
 }) {
   const status = useSessionStatus();
-  const query = useQuery({
-    queryKey: ["generations"],
-    queryFn: listGenerations,
-    enabled: status === "authenticated",
-    refetchInterval: (q) =>
-      q.state.data?.some((item) => isActiveGenerationStatus(item.status)) ? 2000 : false,
-  });
+  const signedIn = useSignedInHint();
+  const query = useQuery(generationsQueryOptions(status === "authenticated"));
 
-  if (status === "anonymous") {
+  if (status === "anonymous" || (status === "loading" && !signedIn)) {
     return signIn ? <AnonymousSongs next={authNext} /> : <p className="text-sm text-text-muted">Песни появятся здесь после входа.</p>;
   }
 
@@ -49,66 +42,5 @@ export function GenerationList({
         emptyAction={emptyAction}
       />
     </div>
-  );
-}
-
-function AnonymousSongs({ next }: { next: string }) {
-  const openAuth = useOpenAuth();
-  return (
-    <div className="rounded-xl border border-border px-4 py-8 text-center">
-      <p className="text-sm text-text-muted">Песни появятся здесь после входа.</p>
-      <Button type="button" onClick={() => openAuth({ next })} variant="outline" size="sm" className="mt-4">
-        Войти
-      </Button>
-    </div>
-  );
-}
-
-function GenerationListBody({
-  query,
-  limit,
-  pending,
-  hrefFor,
-  selectedId,
-  emptyAction,
-}: {
-  query: UseQueryResult<Generation[]>;
-  limit?: number;
-  pending: boolean;
-  hrefFor: (id: string) => string;
-  selectedId?: string;
-  emptyAction: boolean;
-}) {
-  if (pending) return <GenerationRowsSkeleton rows={limit ? Math.min(limit, 3) : 3} />;
-
-  if (query.isError) {
-    return <p className="px-4 py-6 text-sm text-text-primary">{apiErrorMessage(query.error)}</p>;
-  }
-
-  const items = (query.data ?? []).slice(0, limit);
-  if (items.length === 0) {
-    return (
-      <div className="px-4 py-8 text-center">
-        <p className="text-sm text-text-muted">Пока ни одной песни. Первая начинается с идеи.</p>
-        {emptyAction ? (
-          <Button href={createWorkspaceHref()} variant="outline" size="sm" className="mt-4">
-            Создать песню
-          </Button>
-        ) : null}
-      </div>
-    );
-  }
-
-  return (
-    <ul className="divide-y divide-border">
-      {items.map((generation) => (
-        <GenerationRow
-          key={generation.id}
-          generation={generation}
-          href={hrefFor(generation.id)}
-          selected={generation.id === selectedId}
-        />
-      ))}
-    </ul>
   );
 }

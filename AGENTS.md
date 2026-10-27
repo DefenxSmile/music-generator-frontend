@@ -21,11 +21,11 @@ GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request г�
 
 ## Папки
 
-- `app/` — только маршруты: страница монтирует один экран. `/`, `/create`, `/plans`, `/auth/*`, `/generations`, `/generations/song`
-- `components/shell` — оболочка, меню, сессия. `components/auth` — окна входа и вопросов. `components/create` — главная и конструктор. `components/song` — плеер, карточка, список. `components/plans` — тарифы. `components/ui` — общие контролы. В корень `components/` новые файлы не класть
-- `lib/api/` — один `fetch-json` и вызовы по доменам (`auth`, `me`, `billing`, `generations`)
-- `lib/auth/` — access token в памяти, адрес возврата после входа, локальная сессия `next dev`
-- `lib/lead/` — снимок лида, квалификация, идея, согласие и первое касание. `lib/song/` — ссылки, статус и обложка. `lib/plans/` — карточки тарифов. В корне `lib/` только общее: `cn`, `format`, `credits`, адрес Java, префикс хранилища
+- `app/` — только маршруты: страница монтирует один экран. `/`, `/create`, `/video`, `/release`, `/plans`, `/auth/*`, `/generations`, `/generations/song`
+- `components/` — один компонент на файл, по областям: `shell`, `auth`, `create`, `song`, `plans`, `soon`, `ui`. В корень `components/` новые файлы не класть
+- `hooks/` — один хук на файл. Экраны не собирают `queryKey` сами
+- `requests/` — HTTP и опции TanStack Query, по одному ресурсу на файл
+- `types/` — типы доменов. `utils/` — чистые функции и локальное хранение: токен, лид, квалификация, идея, ссылки и статус песни, тарифы
 - `docs/intent/java-api.md` — контракт Java, как он есть в коде
 - `docs/intent/product.md` — версии продукта, активация и экраны онбординга
 - `docs/decisions/` — принятые решения, в том числе регистрация без подтверждения почты

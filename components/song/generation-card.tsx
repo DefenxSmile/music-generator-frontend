@@ -5,14 +5,11 @@ import { useState } from "react";
 import { GenerationProgress } from "@/components/song/generation-progress";
 import { SongPaywall } from "@/components/song/song-paywall";
 import { SongPlayer } from "@/components/song/song-player";
+import { SongUnavailable } from "@/components/song/song-unavailable";
 import Button from "@/components/ui/Button";
-import { formatWhen } from "@/lib/format";
-import {
-  generationErrorLabel,
-  generationStatusLabel,
-  isActiveGenerationStatus,
-} from "@/lib/song/generation-status";
-import type { Generation } from "@/lib/api/generations";
+import type { Generation } from "@/types/generation";
+import { formatWhen } from "@/utils/format";
+import { generationStatusLabel, isActiveGenerationStatus } from "@/utils/generation-status";
 
 const VOCAL_LANGUAGES: Record<string, string> = { ru: "русский", en: "английский" };
 
@@ -86,21 +83,5 @@ export function GenerationCard({ generation }: { generation: Generation }) {
         </section>
       ) : null}
     </article>
-  );
-}
-
-function SongUnavailable({ generation }: { generation: Generation }) {
-  const reason =
-    generation.status === "EXPIRED"
-      ? "Срок хранения песни истёк."
-      : generationErrorLabel(generation.errorCode) ?? "Песня не получилась.";
-
-  return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-text-primary">{reason}</p>
-      <Button href="/create" variant="outline" size="sm">
-        Создать заново
-      </Button>
-    </div>
   );
 }
