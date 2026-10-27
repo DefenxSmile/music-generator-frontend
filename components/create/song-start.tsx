@@ -5,22 +5,21 @@ import { useEffect, useState, type FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAutosizeTextarea } from "@/hooks/use-autosize-textarea";
+import { useSongPlaceholder } from "@/hooks/use-song-placeholder";
 import { createWorkspaceHref } from "@/utils/generation-href";
 import { persistHeroIdea, PROMPT_MAX, resolveInitialIdea } from "@/utils/hero-idea";
 import { rememberLead } from "@/utils/lead";
 import { descriptionDraft, persistSongDraft } from "@/utils/song-draft";
-import { readSongFor, songForPlaceholder } from "@/utils/qualification";
 /** Home is only the idea. Creating opens the workspace and does not start a song. */
 export function SongStart() {
   const router = useRouter();
   const [idea, setIdea] = useState("");
-  const [placeholder, setPlaceholder] = useState("Песня о нашей первой встрече летом…");
+  const placeholder = useSongPlaceholder();
 
   useEffect(() => {
     const initial = resolveInitialIdea(window.location.search);
     setIdea(initial);
     if (initial) persistHeroIdea(initial);
-    setPlaceholder(songForPlaceholder(readSongFor()));
   }, []);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { MessageCircle } from "lucide-react";
+import { useOptionalSupportLauncher } from "@/components/support/support-launcher-context";
 import { CreditSlot } from "@/components/shell/credit-slot";
 import { CollapseButton } from "@/components/shell/collapse-button";
 import { APP_NAV } from "@/components/shell/app-nav";
@@ -22,6 +24,7 @@ export function SidebarPanel({
   onToggle?: () => void;
 }) {
   const pathname = usePathname();
+  const support = useOptionalSupportLauncher();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   useEffect(() => {
@@ -100,6 +103,21 @@ export function SidebarPanel({
           </div>
         ))}
       </nav>
+      {onNavigate && !onToggle && support ? (
+        <button
+          type="button"
+          className={cn(ROW, "mb-2 text-text-muted hover:bg-overlay/5 hover:text-text-primary")}
+          onClick={() => {
+            onNavigate();
+            support.openSupport();
+          }}
+        >
+          <span className="grid size-5 shrink-0 place-items-center">
+            <MessageCircle aria-hidden className="size-[18px]" strokeWidth={1.75} />
+          </span>
+          <span className="whitespace-nowrap">Поддержка</span>
+        </button>
+      ) : null}
       <CreditSlot collapsed={collapsed} onNavigate={onNavigate} />
     </div>
   );

@@ -1,29 +1,46 @@
 "use client";
 
 import { ChoiceRow } from "@/components/auth/choice-row";
-import { SONG_FOR_OPTIONS, VISITOR_OPTIONS } from "@/utils/qualification";
+import {
+  SONG_FOR_OPTIONS,
+  SONG_FOR_QUESTION,
+  VISITOR_OPTIONS,
+  VISITOR_QUESTION,
+} from "@/utils/qualification";
 import type { SongFor, VisitorKind } from "@/types/qualification";
 
 export function QualificationFields({
+  step,
   visitor,
   songFor,
   onVisitor,
   onSongFor,
 }: {
+  step: "visitor" | "song";
   visitor: VisitorKind | null;
   songFor: SongFor | null;
   onVisitor: (value: VisitorKind | null) => void;
   onSongFor: (value: SongFor | null) => void;
 }) {
-  return (
-    <div className="flex flex-col gap-8">
-      <ChoiceRow legend="Кто вы?" value={visitor} options={VISITOR_OPTIONS} onChange={onVisitor} />
+  const titleId = "qualify-dialog-title";
+  if (step === "visitor") {
+    return (
       <ChoiceRow
-        legend="Для кого песня?"
-        value={songFor}
-        options={SONG_FOR_OPTIONS}
-        onChange={onSongFor}
+        legend={VISITOR_QUESTION}
+        labelledBy={titleId}
+        value={visitor}
+        options={VISITOR_OPTIONS}
+        onChange={onVisitor}
       />
-    </div>
+    );
+  }
+  return (
+    <ChoiceRow
+      legend={SONG_FOR_QUESTION}
+      labelledBy={titleId}
+      value={songFor}
+      options={SONG_FOR_OPTIONS}
+      onChange={onSongFor}
+    />
   );
 }

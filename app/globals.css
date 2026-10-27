@@ -181,6 +181,7 @@ html::after {
 html {
   scroll-behavior: smooth;
   overflow-x: clip;
+  overscroll-behavior: none;
   max-width: 100%;
   min-height: 100%;
   min-height: 100dvh;
@@ -201,9 +202,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
+  overscroll-behavior: none;
   max-width: 100%;
   min-height: 100%;
   min-height: 100dvh;
+}
+
+body * {
+  overscroll-behavior: none;
 }
 
 .lp-section-title {
@@ -492,6 +498,86 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   background-color: color-mix(in srgb, var(--color-overlay) 6%, transparent);
 }
 
+.lp-support-fab {
+  transition:
+    opacity var(--duration-move) var(--ease-move),
+    transform var(--duration-move) var(--ease-move),
+    filter 160ms ease;
+}
+
+.lp-support-fab[data-mounted="false"] {
+  opacity: 0;
+  transform: translateY(0.75rem);
+}
+
+.lp-support-fab-icon {
+  transition:
+    opacity var(--duration-move) var(--ease-move),
+    transform var(--duration-move) var(--ease-move);
+}
+
+.lp-support-fab-icon-in {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.lp-support-fab-icon-out {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.6);
+}
+
+.lp-support-fab-icon-out-back {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.6);
+}
+
+.lp-support-pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.75rem);
+  width: 100%;
+  transform-origin: bottom right;
+  opacity: 0;
+  transform: translateY(0.75rem);
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-move) var(--ease-move),
+    transform var(--duration-move) var(--ease-move),
+    visibility 0s linear var(--duration-move);
+}
+
+.lp-support-pop[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  visibility: visible;
+  transition:
+    opacity var(--duration-move) var(--ease-move),
+    transform var(--duration-move) var(--ease-move),
+    visibility 0s linear 0s;
+}
+
+.lp-support-scrim {
+  opacity: 0;
+  transition: opacity var(--duration-move) var(--ease-move);
+}
+
+.lp-support-layer[data-open="true"] .lp-support-scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lp-support-sheet {
+  transform: translateY(100%);
+  transition: transform var(--duration-move) var(--ease-move);
+}
+
+.lp-support-layer[data-open="true"] .lp-support-sheet {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -510,7 +596,12 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   }
   .lp-cta,
   .lp-hero-prompt,
-  .lp-plan-card {
+  .lp-plan-card,
+  .lp-support-fab,
+  .lp-support-fab-icon,
+  .lp-support-pop,
+  .lp-support-scrim,
+  .lp-support-sheet {
     transition: none;
   }
   .lp-cta:hover .lp-eq > span,

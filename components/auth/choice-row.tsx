@@ -4,18 +4,22 @@ import { cn } from "@/utils/cn";
 
 export function ChoiceRow<T extends string>({
   legend,
+  labelledBy,
   value,
   options,
   onChange,
 }: {
   legend: string;
+  labelledBy?: string;
   value: T | null;
   options: ReadonlyArray<{ value: T; label: string }>;
   onChange: (value: T | null) => void;
 }) {
   return (
-    <fieldset>
-      <legend className="mb-3 text-sm font-medium text-text-primary">{legend}</legend>
+    <fieldset aria-labelledby={labelledBy}>
+      {labelledBy ? null : (
+        <legend className="mb-3 text-sm font-medium text-text-primary">{legend}</legend>
+      )}
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
           const selected = option.value === value;

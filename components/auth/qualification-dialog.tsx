@@ -11,6 +11,8 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Modal } from "@/components/ui/modal";
 import { rememberLead } from "@/utils/lead";
 import {
+  SONG_FOR_QUESTION,
+  VISITOR_QUESTION,
   markQualificationDone,
   persistSongFor,
   persistVisitor,
@@ -24,6 +26,7 @@ export function QualificationDialog() {
   const status = useSessionStatus();
   const me = useMe();
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<"visitor" | "song">("visitor");
   const [visitor, setVisitor] = useState<VisitorKind | null>(null);
   const [songFor, setSongFor] = useState<SongFor | null>(null);
   const blocked = pathname.startsWith("/oauth") || pathname.startsWith("/auth");
@@ -34,7 +37,9 @@ export function QualificationDialog() {
   }, []);
 
   useEffect(() => {
-    setOpen(status === "authenticated" && !blocked && !readQualificationDone());
+    const next = status === "authenticated" && !blocked && !readQualificationDone();
+    setOpen(next);
+    if (next) setStep("visitor");
   }, [blocked, status]);
 
   function dismiss() {
@@ -60,17 +65,21 @@ export function QualificationDialog() {
         <X aria-hidden className="size-4" strokeWidth={1.75} />
       </IconButton>
       <div className="px-7 pb-8 pt-12">
+        <p className="text-center text-sm text-text-dim">
+          {step === "visitor" ? "1 из 2" : "2 из 2"}
+        </p>
         <h2
           id="qualify-dialog-title"
-          className="text-balance text-center text-[1.35rem] font-semibold tracking-tight text-text-primary"
+          className="mt-2 text-balance text-center text-[1.35rem] font-semibold tracking-tight text-text-primary"
         >
-          Два вопроса
+          {step === "visitor" ? VISITOR_QUESTION : SONG_FOR_QUESTION}
         </h2>
         <p className="mt-2 text-center text-sm leading-relaxed text-text-muted">
-          Можно не отвечать. На песню это не влияет.
+          Ответы помогут сервису развиваться. Можно не отвечать, на песню это не влияет.
         </p>
         <div className="mt-8">
           <QualificationFields
+            step={step}
             visitor={visitor}
             songFor={songFor}
             onVisitor={(value) => {
@@ -83,9 +92,27 @@ export function QualificationDialog() {
             }}
           />
         </div>
-        <Button type="button" size="lg" className="mt-8 w-full" onClick={dismiss}>
-          К песне
-        </Button>
+        <div className="mt-8 flex flex-col gap-3">
+          {step === "song" ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={() => setStep("visitor")}
+            >
+              Назад
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            size="lg"
+            className="w-full"
+            onClick={() => (step === "visitor" ? setStep("song") : dismiss())}
+          >
+            {step === "visitor" ? "Дальше" : "К песне"}
+          </Button>
+        </div>
       </div>
     </Modal>
   );

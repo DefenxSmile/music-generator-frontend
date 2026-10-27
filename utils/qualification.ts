@@ -4,11 +4,14 @@ const VISITOR_STORAGE_KEY = prefixedKey("visitor");
 const SONG_FOR_STORAGE_KEY = prefixedKey("song_for");
 const QUALIFICATION_DONE_KEY = prefixedKey("qualification_done");
 
+export const VISITOR_QUESTION = "Кто вы?";
+export const SONG_FOR_QUESTION = "Для чего музыка?";
+
 export const VISITOR_OPTIONS: ReadonlyArray<{ value: VisitorKind; label: string }> = [
-  { value: "user", label: "Обычный пользователь" },
-  { value: "creator", label: "Креатор" },
-  { value: "business", label: "Владелец бизнеса" },
   { value: "musician", label: "Музыкант" },
+  { value: "blogger", label: "Блогер" },
+  { value: "business", label: "Владелец бизнеса" },
+  { value: "other", label: "Другое" },
 ];
 
 export const SONG_FOR_OPTIONS: ReadonlyArray<{
@@ -16,11 +19,25 @@ export const SONG_FOR_OPTIONS: ReadonlyArray<{
   label: string;
   placeholder: string;
 }> = [
-  { value: "self", label: "Себе", placeholder: "Песня о том, как я переехал в новый город…" },
   {
     value: "gift",
-    label: "В подарок",
+    label: "Для подарка",
     placeholder: "Песня для мамы на юбилей, она любит дачу и старые песни…",
+  },
+  {
+    value: "social",
+    label: "Для соцсетей",
+    placeholder: "Короткий цепкий трек для ролика, с припевом, который хочется дослушать…",
+  },
+  {
+    value: "post",
+    label: "Для бизнес-поста",
+    placeholder: "Спокойная песня под пост о деле, без крика в припеве…",
+  },
+  {
+    value: "release",
+    label: "Для площадок",
+    placeholder: "Песня со своим героем и цельным припевом, которую можно выложить…",
   },
 ];
 

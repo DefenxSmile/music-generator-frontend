@@ -15,6 +15,7 @@ export function ComposerField({
   minHeightClass,
   onChange,
   onKeyDown,
+  action,
   footer,
 }: {
   id: string;
@@ -24,15 +25,19 @@ export function ComposerField({
   minHeightClass: string;
   onChange: (value: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
+  action?: ReactNode;
   footer?: ReactNode;
 }) {
   const ref = useAutosizeTextarea(value);
 
   return (
     <Surface>
-      <label htmlFor={id} className="block px-3.5 pt-3 text-sm font-medium text-text-primary">
-        {label}
-      </label>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 pt-3">
+        <label htmlFor={id} className="text-sm font-medium text-text-primary">
+          {label}
+        </label>
+        {action}
+      </div>
       <Textarea
         ref={ref}
         id={id}

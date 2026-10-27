@@ -40,9 +40,9 @@ export function CreateWorkspace() {
     <main className="flex flex-col lg:h-[100dvh] lg:flex-row lg:overflow-hidden">
       <section
         aria-label="Конструктор"
-        className="border-b border-overlay/6 lg:w-[28rem] lg:shrink-0 lg:overflow-y-auto lg:border-b-0 lg:border-r xl:w-[34rem]"
+        className="flex flex-col border-b border-overlay/6 lg:h-full lg:w-[28rem] lg:shrink-0 lg:overflow-hidden lg:border-b-0 lg:border-r xl:w-[34rem]"
       >
-        <div className="p-4 sm:p-5">
+        <div className="flex flex-col p-4 sm:p-5 lg:min-h-0 lg:flex-1">
           <h1 className="sr-only">Песня</h1>
           <SongComposer draft={draft} onDraft={onDraft} />
         </div>

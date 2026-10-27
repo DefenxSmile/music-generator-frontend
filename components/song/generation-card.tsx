@@ -52,7 +52,10 @@ export function GenerationCard({ generation }: { generation: Generation }) {
               title={title}
               durationHint={generation.durationSeconds}
             />
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex justify-end gap-2">
+              <Button href="/release" variant="outline" size="sm">
+                Выпустить
+              </Button>
               <Button
                 type="button"
                 variant="outline"
