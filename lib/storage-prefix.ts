@@ -3,10 +3,7 @@
  * The prefix stays `lp_`: the marketing site already writes these keys.
  */
 
-export const STORAGE_PREFIX = "lp_";
-
-/** Namespace for custom DOM events and `data-*` attributes. */
-export const NAMESPACE = "lp";
+const STORAGE_PREFIX = "lp_";
 
 /** `lp_consent`, `lp_attribution`, … */
 export function prefixedKey(name: string): string {

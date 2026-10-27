@@ -1,18 +1,26 @@
 @import "tailwindcss";
 
 /**
- * Palette copied from the landing. Token names stay the same.
+ * Theme. Landing token names stay.
+ * Surfaces and type use these names. Hairlines and hovers use --color-overlay,
+ * so a light theme flips that one value to black instead of rewriting white/10.
+ * --radius-lg is controls, --radius-xl is cards and the sidebar.
  * The gold→coral gradient is only the primary button and the playing state.
  */
 @theme {
   --color-bg: #08080a;
+  --color-bg-sidebar: #101014;
   --color-bg-card: #121216;
+  --color-bg-sunken: #141418;
+  --color-bg-raised: #16161b;
   --color-bg-card-hover: #17171c;
   --color-bg-elevated: #1b1b21;
+  --color-bg-dialog: #1c1c22;
   --color-bg-footer: #050506;
 
   --color-accent: #ffc043;
   --color-accent-hover: #ffcf6b;
+  --color-accent-mid: #ffb03a;
   --color-accent-warm: #ff7a4d;
   --color-on-accent: #1a1206;
 
@@ -22,18 +30,44 @@
 
   --color-border: #26262c;
   --color-border-hover: #3c3c44;
+  --color-overlay: #fff;
+
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  --shadow-accent: 0 10px 30px -14px color-mix(in srgb, var(--color-accent-warm) 55%, transparent);
+  --shadow-accent-card: 0 24px 60px -36px color-mix(in srgb, var(--color-accent) 45%, transparent);
 
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     "Noto Sans", sans-serif;
 }
 
+:root {
+  --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-move: 280ms;
+  --scrim: rgb(0 0 0 / 0.78);
+  --scrim-soft: rgb(0 0 0 / 0.62);
+  --sidebar-width: 15.5rem;
+  --sidebar-gap: 0.75rem;
+}
+
 .lp-accent-gradient {
   background-image: linear-gradient(
     118deg,
     var(--color-accent) 0%,
-    #ffb03a 46%,
+    var(--color-accent-mid) 46%,
     var(--color-accent-warm) 100%
+  );
+}
+
+/* Warm glow behind the top of a page. The lower page stays dark. */
+.lp-stage-wash {
+  background-image: radial-gradient(
+    95% 75% at 50% 32%,
+    color-mix(in srgb, var(--color-accent-warm) 18%, transparent) 0%,
+    color-mix(in srgb, var(--color-accent) 7%, transparent) 44%,
+    transparent 72%
   );
 }
 
@@ -51,13 +85,13 @@ html::after {
   border: 1px solid color-mix(in srgb, var(--color-accent) 50%, transparent);
   background-color: var(--color-bg-elevated);
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 40%),
-    radial-gradient(115% 90% at 50% 0%, rgba(255, 192, 67, 0.12) 0%, transparent 58%);
+    linear-gradient(180deg, color-mix(in srgb, var(--color-overlay) 7%, transparent) 0%, transparent 40%),
+    radial-gradient(115% 90% at 50% 0%, color-mix(in srgb, var(--color-accent) 12%, transparent) 0%, transparent 58%);
   box-shadow:
-    0 0 0 1px rgba(255, 192, 67, 0.1),
-    0 18px 40px -10px rgba(0, 0, 0, 0.72),
-    0 18px 48px -22px rgba(255, 150, 60, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 10%, transparent),
+    0 18px 40px -10px rgb(0 0 0 / 0.72),
+    0 18px 48px -22px color-mix(in srgb, var(--color-accent-warm) 42%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 8%, transparent);
   transition:
     border-color 200ms ease,
     box-shadow 200ms ease;
@@ -66,10 +100,10 @@ html::after {
 .lp-hero-prompt:focus-within {
   border-color: color-mix(in srgb, var(--color-accent) 78%, transparent);
   box-shadow:
-    0 0 0 1px rgba(255, 192, 67, 0.18),
-    0 18px 40px -10px rgba(0, 0, 0, 0.72),
-    0 18px 52px -18px rgba(255, 150, 60, 0.52),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    0 18px 40px -10px rgb(0 0 0 / 0.72),
+    0 18px 52px -18px color-mix(in srgb, var(--color-accent-warm) 52%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 10%, transparent);
 }
 
 .lp-cta {
@@ -177,9 +211,253 @@ body {
   text-wrap: pretty;
 }
 
+.lp-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  background: var(--color-bg);
+}
+
+.lp-boot-glow {
+  position: absolute;
+  width: min(78vmin, 640px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 214, 150, 0.95) 0%,
+    rgba(255, 156, 82, 0.42) 7%,
+    transparent 13%,
+    rgba(255, 176, 96, 0.5) 17%,
+    transparent 23%,
+    rgba(255, 150, 78, 0.4) 28%,
+    transparent 35%,
+    rgba(255, 170, 90, 0.3) 41%,
+    transparent 49%,
+    rgba(255, 140, 72, 0.22) 56%,
+    transparent 65%,
+    rgba(255, 176, 96, 0.14) 73%,
+    transparent 84%
+  );
+  filter: blur(5px);
+  animation: lp-boot-breathe 5.6s ease-in-out infinite;
+}
+
+.lp-boot-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(128deg, rgba(255, 207, 107, 0.2) 18%, rgba(255, 122, 77, 0.72) 78%);
+  mix-blend-mode: soft-light;
+}
+
+.lp-boot-mark {
+  position: relative;
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+}
+
+@keyframes lp-boot-breathe {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.lp-sidebar-rail {
+  width: calc(var(--sidebar-width) + var(--sidebar-gap));
+  transition: width var(--duration-move) var(--ease-move);
+}
+
+.lp-sidebar-rail[data-collapsed="true"] {
+  --sidebar-width: 3.625rem;
+}
+
+.lp-sidebar-mark {
+  opacity: 1;
+  transition: opacity 260ms var(--ease-move) 80ms;
+}
+
+.lp-sidebar-rail[data-collapsed="true"] .lp-sidebar-mark {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 170ms var(--ease-move);
+}
+
+.lp-sidebar-toggle {
+  left: calc(100% - 1rem);
+  transform: translateX(-50%);
+  transition:
+    left var(--duration-move) var(--ease-move),
+    color 150ms var(--ease-move);
+}
+
+.lp-sidebar-rail[data-collapsed="true"] .lp-sidebar-toggle {
+  left: 50%;
+}
+
+.lp-sidebar-drawer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+
+.lp-sidebar-drawer::backdrop {
+  background: var(--scrim-soft);
+}
+
+.lp-auth-dialog {
+  margin: auto;
+  outline: none;
+  width: min(26.5rem, calc(100% - 2rem));
+  max-width: calc(100% - 2rem);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-overlay) 8%, transparent);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, var(--color-bg-dialog) 0%, var(--color-bg-sunken) 38%, var(--color-bg-sidebar) 100%);
+  color: var(--color-text-primary);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 8%, transparent),
+    0 30px 90px rgb(0 0 0 / 0.65);
+}
+
+.lp-auth-dialog[open] {
+  animation: lp-auth-in 180ms ease-out;
+}
+
+.lp-auth-dialog::backdrop {
+  background: var(--scrim);
+  backdrop-filter: blur(8px);
+  animation: lp-auth-backdrop 180ms ease-out;
+}
+
+.lp-dialog-wash {
+  background-image: radial-gradient(
+    ellipse at top,
+    color-mix(in srgb, var(--color-accent) 14%, transparent),
+    transparent 68%
+  );
+}
+
+.lp-empty-disc {
+  background-color: var(--color-bg-dialog);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-overlay) 8%, transparent),
+    inset 0 0 0 11px var(--color-bg-card),
+    inset 0 0 0 12px color-mix(in srgb, var(--color-overlay) 5%, transparent);
+}
+
+@keyframes lp-auth-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lp-auth-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lp-eyebrow {
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* Waveform and generation progress: same motion as the landing result card. */
+@keyframes lp-wave-in {
+  from {
+    transform: scaleY(0.12);
+    opacity: 0.35;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.lp-wave-bar {
+  transform-origin: center;
+  animation: lp-wave-in 420ms var(--ease-move) both;
+  transition: background-color 150ms ease;
+}
+
+@keyframes lp-generating {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.lp-generating-bar {
+  animation: lp-generating 2.4s ease-in-out infinite;
+}
+
+@keyframes lp-skeleton {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.lp-skeleton {
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-elevated);
+  animation: lp-skeleton 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .lp-wave-bar,
+  .lp-generating-bar,
+  .lp-skeleton,
+  .lp-auth-dialog,
+  .lp-auth-dialog::backdrop,
+  .lp-boot-glow {
+    animation: none !important;
+  }
+  .lp-sidebar-rail,
+  .lp-sidebar-mark,
+  .lp-sidebar-toggle {
+    transition: none;
   }
   .lp-cta,
   .lp-hero-prompt {

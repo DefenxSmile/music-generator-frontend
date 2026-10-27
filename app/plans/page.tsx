@@ -1,4 +1,4 @@
-import { PlansPanel } from "@/components/plans-panel";
+import { PlansPanel } from "@/components/plans/plans-panel";
 
 export default function PlansPage() {
   return <PlansPanel />;

@@ -10,6 +10,8 @@
 
 Локальное приложение слушает `http://localhost:3000` (`npm run dev` и `PORT` в Docker). В `application-dev.yml` уже записано `app.cors-origins: http://localhost:3000`. Тестовый сайт GitHub Pages открывается с origin `https://defenxsmile.github.io` — его нужно добавить в `app.corsOrigins`, иначе браузер отклонит запросы с cookie. Java в этой задаче не меняется.
 
+Боевой хост приложения — поддомен `app`, не корень. Название продукта и домен еще не выбраны. В `app.corsOrigins` для продакшена нужен origin приложения. Корень сам по себе API не вызывает.
+
 Другие заголовки (например `x-request-id`) клиент не шлёт: их нет в allow-list, preflight их отвергнет.
 
 ## Ошибка
@@ -42,6 +44,10 @@
 `GET /api/v1/auth/verify?token=`  
 Отдаёт HTML с самого API («Почта подтверждена. Можно вернуться и войти.»). Второй HTML-страницы подтверждения в приложении нет. Письмо строит ссылку как `{app.publicUrl}/api/v1/auth/verify?token=`.
 
+Продуктовое решение другое: подтверждение почты и пароль в онбординг не входят, см. `docs/decisions/0001-no-email-confirmation.md`. Этот раздел описывает API, как он есть. Экраны больше не вызывают register, login и сброс пароля.
+
+Целевой вход, которого в контроллерах ещё нет: браузер открывает `GET /api/v1/auth/oauth/yandex` или `GET /api/v1/auth/oauth/vk`. После успеха Java ставит cookie `refresh_token` и возвращает на `{приложение}/oauth/callback`. Пока маршрутов нет, клик не создаёт сессию.
+
 `POST /api/v1/auth/login`  
 Тело: `email`, `password`. Ответ `200`: `accessToken`, `expiresIn` (секунды). Ставит cookie `refresh_token`: HttpOnly, Secure, SameSite=None, path=`/api/v1/auth`, max-age = `app.jwt.refresh-ttl` (в dev-профиле 30 дней). Access TTL в dev-профиле 15 минут; клиент опирается на `expiresIn` и на 401, а не на зашитые числа.
 
@@ -52,7 +58,7 @@
 Читает ту же cookie, отзывает её и отвечает `204` с cookie max-age 0 (те же HttpOnly, Secure, SameSite=None, path).
 
 `POST /api/v1/auth/password/forgot`  
-Тело: `email`. Ответ `202`, даже если такой почты нет. Письмо, если пользователь есть, содержит токен и ссылку `{app.publicUrl}/reset-password?token=`. `publicUrl` в dev — хост API, не это приложение. Экран приложения — `/auth/reset-password`. На случай, если ссылка когда-нибудь откроется на origin приложения, `/reset-password` только перенаправляет туда и сохраняет `token`.
+Тело: `email`. Ответ `202`, даже если такой почты нет. Письмо, если пользователь есть, содержит токен и ссылку `{app.publicUrl}/reset-password?token=`. `publicUrl` — хост API, не это приложение. Экрана сброса пароля здесь нет.
 
 `POST /api/v1/auth/password/reset`  
 Тело: `token`, `password` (8–72). Успех `204`. Негодный или просроченный токен — `400 INVALID_TOKEN` «Ссылка недействительна». Активные refresh отзываются.

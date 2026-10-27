@@ -21,11 +21,14 @@ GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request г�
 
 ## Папки
 
-- `app/` — маршруты App Router: `/`, `/plans`, `/auth/*`, `/generations`, `/generations/song`
-- `components/` — оболочка, формы, плеер
+- `app/` — только маршруты: страница монтирует один экран. `/`, `/create`, `/plans`, `/auth/*`, `/generations`, `/generations/song`
+- `components/shell` — оболочка, меню, сессия. `components/auth` — окна входа и вопросов. `components/create` — главная и конструктор. `components/song` — плеер, карточка, список. `components/plans` — тарифы. `components/ui` — общие контролы. В корень `components/` новые файлы не класть
 - `lib/api/` — один `fetch-json` и вызовы по доменам (`auth`, `me`, `billing`, `generations`)
-- `lib/auth/` — access token только в памяти
+- `lib/auth/` — access token в памяти, адрес возврата после входа, локальная сессия `next dev`
+- `lib/lead/` — снимок лида, квалификация, идея, согласие и первое касание. `lib/song/` — ссылки, статус и обложка. `lib/plans/` — карточки тарифов. В корне `lib/` только общее: `cn`, `format`, `credits`, адрес Java, префикс хранилища
 - `docs/intent/java-api.md` — контракт Java, как он есть в коде
+- `docs/intent/product.md` — версии продукта, активация и экраны онбординга
+- `docs/decisions/` — принятые решения, в том числе регистрация без подтверждения почты
 - `.cursor/rules/project-memory.mdc` — уже принятые решения
 - `.cursor/skills/`, `.cursor/agents/` — навыки и субагенты; субагенты читают project memory
 
@@ -39,7 +42,7 @@ GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request г�
 
 - Не заводить второго пользователя, свою таблицу людей или свою сессию помимо access token в памяти и HttpOnly cookie Java.
 - Не отправлять в API `utm_*`, click id, `lp_consent` и `idea`: этих полей в Java нет.
-- Не показывать цены лендинга и не писать «бесплатно».
+- Цены на `/plans` — те же три превью-тарифа, что на лендинге. Оплаты в Java нет, кнопка выбора ничего не списывает. Слово «бесплатно» не писать.
 - Не ставить метрику и GTM, пока нет отдельного решения.
 - Не вызывать `POST /api/v1/internal/runpod/webhook` из браузера.
 - Не читать refresh token из JavaScript и не класть его в `localStorage`.

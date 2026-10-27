@@ -1,16 +1,9 @@
 import { ApiError } from "@/lib/api/api-error";
 import { getAccessToken, setAccessToken } from "@/lib/auth/access-token";
+import { DEV_ACCESS_TOKEN, readDevOauth } from "@/lib/auth/dev-oauth";
 import { javaApiBaseUrl } from "@/lib/java-api";
 
-const PUBLIC_AUTH_PATHS = new Set([
-  "/api/v1/auth/register",
-  "/api/v1/auth/login",
-  "/api/v1/auth/refresh",
-  "/api/v1/auth/logout",
-  "/api/v1/auth/verify",
-  "/api/v1/auth/password/forgot",
-  "/api/v1/auth/password/reset",
-]);
+const PUBLIC_AUTH_PATHS = new Set(["/api/v1/auth/refresh", "/api/v1/auth/logout"]);
 
 let refreshInFlight: Promise<string | null> | null = null;
 
@@ -55,6 +48,10 @@ export function refreshAccessToken(): Promise<string | null> {
 }
 
 async function performRefresh(): Promise<string | null> {
+  if (readDevOauth()) {
+    setAccessToken(DEV_ACCESS_TOKEN);
+    return DEV_ACCESS_TOKEN;
+  }
   const base = javaApiBaseUrl();
   if (!base) {
     setAccessToken(null);
@@ -84,7 +81,7 @@ async function performRefresh(): Promise<string | null> {
 }
 
 type FetchJsonOptions = {
-  /** Protected calls retry once after refresh. Login and other public auth calls do not. */
+  /** Protected calls retry once after refresh. Refresh and logout do not. */
   retryOnUnauthorized?: boolean;
 };
 

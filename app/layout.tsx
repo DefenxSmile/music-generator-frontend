@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { AppShell } from "@/components/app-shell";
-import { Providers } from "@/components/providers";
+import { AppShell } from "@/components/shell/app-shell";
+import { Providers } from "@/components/shell/providers";
 import "./globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#08080a",
+  themeColor: "#08080a", // same value as --color-bg; the browser chrome cannot read a CSS variable
   colorScheme: "dark",
 };
 

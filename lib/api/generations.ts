@@ -1,4 +1,6 @@
 import { fetchJson } from "@/lib/api/fetch-json";
+import { getAccessToken } from "@/lib/auth/access-token";
+import { DEV_ACCESS_TOKEN } from "@/lib/auth/dev-oauth";
 
 export type Generation = {
   id: string;
@@ -17,6 +19,7 @@ export type Generation = {
 };
 
 export function listGenerations(): Promise<Generation[]> {
+  if (getAccessToken() === DEV_ACCESS_TOKEN) return Promise.resolve([]);
   return fetchJson<Generation[]>("/api/v1/generations");
 }
 
