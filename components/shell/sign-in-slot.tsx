@@ -9,7 +9,13 @@ import { ProfileControl } from "@/components/shell/profile-control";
 import { ROW } from "@/components/shell/nav-row";
 import { cn } from "@/utils/cn";
 
-export function SignInSlot({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
+export function SignInSlot({
+  collapsed = false,
+  onNavigate,
+}: {
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}) {
   const status = useSessionStatus();
   const signedIn = useSignedInHint();
   const me = useMe();
@@ -27,7 +33,10 @@ export function SignInSlot({ collapsed = false, onNavigate }: { collapsed?: bool
         onNavigate?.();
         openAuth();
       }}
-      className={cn(ROW, "mb-4 border border-overlay/15 bg-overlay/6 font-medium text-text-primary hover:bg-overlay/10")}
+      className={cn(
+        ROW,
+        "mb-4 border border-overlay/15 bg-overlay/6 font-medium text-text-primary hover:bg-overlay/10",
+      )}
     >
       <span className="grid size-5 shrink-0 place-items-center">
         <LogIn aria-hidden className="size-[18px]" strokeWidth={1.75} />

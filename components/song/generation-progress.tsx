@@ -36,7 +36,11 @@ export function GenerationProgress({ status }: { status: string }) {
               >
                 {done ? <Check className="size-3.5" strokeWidth={2.5} /> : index + 1}
               </span>
-              <span className={cn(current ? "text-text-primary" : done ? "text-text-muted" : "text-text-dim")}>
+              <span
+                className={cn(
+                  current ? "text-text-primary" : done ? "text-text-muted" : "text-text-dim",
+                )}
+              >
                 {stage.label}
                 {current ? <span className="sr-only"> — сейчас</span> : null}
               </span>
@@ -44,7 +48,9 @@ export function GenerationProgress({ status }: { status: string }) {
           );
         })}
       </ol>
-      <p className="mt-5 text-sm text-text-muted">Можно закрыть страницу: песня останется в списке.</p>
+      <p className="mt-5 text-sm text-text-muted">
+        Можно закрыть страницу: песня останется в списке.
+      </p>
     </div>
   );
 }

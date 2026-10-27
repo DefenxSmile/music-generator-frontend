@@ -8,7 +8,7 @@ export function SongUnavailable({ generation }: { generation: Generation }) {
   const reason =
     generation.status === "EXPIRED"
       ? "Срок хранения песни истёк."
-      : generationErrorLabel(generation.errorCode) ?? "Песня не получилась.";
+      : (generationErrorLabel(generation.errorCode) ?? "Песня не получилась.");
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -3,95 +3,130 @@
 import { X } from "lucide-react";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import Button from "@/components/ui/Button";
+import { IconButton } from "@/components/ui/icon-button";
+import { Modal } from "@/components/ui/modal";
+import { Surface } from "@/components/ui/section";
+import { Textarea } from "@/components/ui/textarea";
 import { useAutosizeTextarea } from "@/hooks/use-autosize-textarea";
 
-/** Ask for a lyrics idea, then hand that text back to the song field. */
+/** Lyrics are written in this window, then committed into the song field. */
 export function GenerateLyricsDialog({
   open,
+  lyrics,
   onClose,
-  onGenerate,
+  onCommit,
 }: {
   open: boolean;
+  lyrics: string;
   onClose: () => void;
-  onGenerate: (idea: string) => void;
+  onCommit: (lyrics: string) => void;
 }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const silentClose = useRef(false);
+  const wasOpen = useRef(false);
   const titleId = useId();
+  const [draft, setDraft] = useState(lyrics);
   const [idea, setIdea] = useState("");
-  const fieldRef = useAutosizeTextarea(idea);
+  const ideaRef = useAutosizeTextarea(idea);
+  const draftRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    const node = dialogRef.current;
-    if (!node) return;
-    if (open && !node.open) {
-      node.showModal();
-      fieldRef.current?.focus();
+    if (open && !wasOpen.current) {
+      setDraft(lyrics);
+      setIdea("");
     }
-    if (!open && node.open) {
-      silentClose.current = true;
-      node.close();
-    }
-  }, [fieldRef, open]);
+    wasOpen.current = open;
+  }, [lyrics, open]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = idea.trim();
     if (!value) return;
-    onGenerate(value);
+    setDraft((current) => {
+      const base = current.trim();
+      if (!base || base === value) return value;
+      return `${base}\n\n${value}`;
+    });
     setIdea("");
+    draftRef.current?.focus();
   }
 
+  function commit() {
+    const value = draft.trim();
+    if (!value) return;
+    onCommit(value);
+  }
+
+  const hasDraft = draft.trim().length > 0;
+  const hasIdea = idea.trim().length > 0;
+
   return (
-    <dialog
-      ref={dialogRef}
-      className="lp-auth-dialog lp-lyrics-dialog"
-      aria-labelledby={titleId}
-      onClose={() => {
-        if (silentClose.current) {
-          silentClose.current = false;
-          return;
-        }
-        onClose();
-      }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+    <Modal
+      open={open}
+      onClose={onClose}
+      labelledBy={titleId}
+      className="lp-lyrics-dialog"
+      initialFocus={ideaRef}
     >
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Закрыть"
-        className="absolute right-3.5 top-3.5 grid size-9 place-items-center rounded-lg text-text-dim transition-colors duration-150 hover:bg-overlay/10 hover:text-text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-overlay/30"
-      >
-        <X aria-hidden className="size-4" strokeWidth={1.75} />
-      </button>
-      <div className="flex min-h-0 flex-1 flex-col px-5 pb-5 pt-14 sm:px-7">
-        <p id={titleId} className="flex flex-1 items-center justify-center px-6 text-center text-lg text-text-primary">
-          Опишите, какой текст нужен
-        </p>
-        <form
-          onSubmit={submit}
-          className="flex flex-col gap-2 rounded-xl border border-overlay/10 bg-bg-card p-2 sm:flex-row sm:items-end"
+      <div className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-4 sm:px-6 sm:py-5">
+        <div className="flex items-center gap-2">
+          <h2
+            id={titleId}
+            className="min-w-0 flex-1 text-base font-semibold tracking-tight text-text-primary"
+          >
+            Текст песни
+          </h2>
+          <IconButton label="Закрыть" onClick={onClose}>
+            <X aria-hidden className="size-4" strokeWidth={1.75} />
+          </IconButton>
+        </div>
+        <label htmlFor="lyrics-draft" className="sr-only">
+          Текст песни
+        </label>
+        <Textarea
+          ref={draftRef}
+          id="lyrics-draft"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="Слова появятся здесь."
+          autoComplete="off"
+          className="min-h-48 flex-1 text-[1.0625rem] leading-relaxed"
+        />
+        <Surface className="p-2">
+          <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <label htmlFor="lyrics-idea" className="sr-only">
+              Идея текста
+            </label>
+            <Textarea
+              ref={ideaRef}
+              id="lyrics-idea"
+              value={idea}
+              onChange={(event) => setIdea(event.target.value)}
+              placeholder="Тема, повод или что должно прозвучать в словах."
+              autoComplete="off"
+              rows={2}
+              className="max-h-40 min-h-16 flex-1 overflow-y-auto px-2.5 py-2 text-[0.9375rem] leading-relaxed"
+            />
+            <Button
+              type="submit"
+              variant={hasIdea ? "primary" : "outline"}
+              size="sm"
+              disabled={!hasIdea}
+              className="w-full shrink-0 sm:w-auto"
+            >
+              Сгенерировать текст
+            </Button>
+          </form>
+        </Surface>
+        <Button
+          type="button"
+          variant={hasDraft && !hasIdea ? "primary" : "outline"}
+          size="lg"
+          disabled={!hasDraft}
+          onClick={commit}
+          className="min-h-12 w-full"
         >
-          <label htmlFor="lyrics-idea" className="sr-only">
-            Идея текста
-          </label>
-          <textarea
-            ref={fieldRef}
-            id="lyrics-idea"
-            value={idea}
-            onChange={(event) => setIdea(event.target.value)}
-            placeholder="Тема, повод или что должно прозвучать в словах."
-            autoComplete="off"
-            rows={2}
-            className="max-h-40 min-h-16 w-full flex-1 resize-none overflow-y-auto bg-transparent px-2.5 py-2 text-[0.9375rem] leading-relaxed text-text-primary placeholder:text-text-muted focus:outline-none"
-          />
-          <Button type="submit" size="sm" disabled={!idea.trim()} className="w-full shrink-0 sm:w-auto">
-            Сгенерировать текст
-          </Button>
-        </form>
+          В песню
+        </Button>
       </div>
-    </dialog>
+    </Modal>
   );
 }

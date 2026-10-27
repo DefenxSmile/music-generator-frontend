@@ -3,7 +3,8 @@ const AUTH_NEXT_KEY = prefixedKey("auth_next");
 
 /** Only same-origin paths. Blocks protocol-relative and backslash tricks. */
 export function safeNext(value: string | null): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return "/";
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\"))
+    return "/";
   return value;
 }
 

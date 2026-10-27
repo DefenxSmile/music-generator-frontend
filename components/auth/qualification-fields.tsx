@@ -18,7 +18,12 @@ export function QualificationFields({
   return (
     <div className="flex flex-col gap-8">
       <ChoiceRow legend="Кто вы?" value={visitor} options={VISITOR_OPTIONS} onChange={onVisitor} />
-      <ChoiceRow legend="Для кого песня?" value={songFor} options={SONG_FOR_OPTIONS} onChange={onSongFor} />
+      <ChoiceRow
+        legend="Для кого песня?"
+        value={songFor}
+        options={SONG_FOR_OPTIONS}
+        onChange={onSongFor}
+      />
     </div>
   );
 }

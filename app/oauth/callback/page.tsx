@@ -30,8 +30,13 @@ export default function OAuthCallbackPage() {
   return (
     <main className="mx-auto w-full max-w-md px-4 py-16">
       <h1 className="lp-section-title text-text-primary">Не получилось войти</h1>
-      <p className="lp-body mt-3 max-w-[36ch]">Яндекс или VK не открыли сессию. Попробуйте ещё раз.</p>
-      <Link href="/?auth=1" className="mt-8 inline-block text-sm text-text-primary underline decoration-border underline-offset-4">
+      <p className="lp-body mt-3 max-w-[36ch]">
+        Яндекс или VK не открыли сессию. Попробуйте ещё раз.
+      </p>
+      <Link
+        href="/?auth=1"
+        className="mt-8 inline-block text-sm text-text-primary underline decoration-border underline-offset-4"
+      >
         Вернуться ко входу
       </Link>
     </main>

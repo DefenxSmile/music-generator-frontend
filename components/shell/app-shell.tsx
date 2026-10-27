@@ -10,7 +10,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const current = pathname.replace(/\/+$/, "") || "/";
   const status = useSessionStatus();
-  const onAuthStep = current === "/auth" || current.startsWith("/auth/") || current.startsWith("/oauth/");
+  const onAuthStep =
+    current === "/auth" || current.startsWith("/auth/") || current.startsWith("/oauth/");
   const showNav = !onAuthStep;
   const showAccount = onAuthStep && status === "authenticated";
 

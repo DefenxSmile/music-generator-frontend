@@ -1,7 +1,15 @@
 import { PanelLeft } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-export function CollapseButton({ collapsed, onClick, className }: { collapsed: boolean; onClick?: () => void; className?: string }) {
+export function CollapseButton({
+  collapsed,
+  onClick,
+  className,
+}: {
+  collapsed: boolean;
+  onClick?: () => void;
+  className?: string;
+}) {
   return (
     <button
       type="button"

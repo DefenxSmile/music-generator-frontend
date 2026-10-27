@@ -21,10 +21,15 @@ export function Wordmark({
       onClick={onNavigate}
       className={cn("flex min-w-0 items-center gap-3 overflow-hidden", className)}
     >
-      <span aria-hidden className="lp-accent-gradient grid size-8 shrink-0 place-items-center rounded-lg">
+      <span
+        aria-hidden
+        className="lp-accent-gradient grid size-8 shrink-0 place-items-center rounded-lg"
+      >
         <Music2 className="size-4 text-on-accent" />
       </span>
-      <span className="whitespace-nowrap text-[0.9375rem] font-semibold tracking-tight text-text-primary">AI Music</span>
+      <span className="whitespace-nowrap text-[0.9375rem] font-semibold tracking-tight text-text-primary">
+        AI Music
+      </span>
     </Link>
   );
 }

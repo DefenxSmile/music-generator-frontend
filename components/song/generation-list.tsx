@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { AnonymousSongs } from "@/components/song/anonymous-songs";
 import { GenerationListBody } from "@/components/song/generation-list-body";
+import { Section } from "@/components/ui/section";
 import { useSessionStatus } from "@/hooks/use-session-status";
 import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { generationsQueryOptions } from "@/requests/generations-query";
@@ -28,11 +29,15 @@ export function GenerationList({
   const query = useQuery(generationsQueryOptions(status === "authenticated"));
 
   if (status === "anonymous" || (status === "loading" && !signedIn)) {
-    return signIn ? <AnonymousSongs next={authNext} /> : <p className="text-sm text-text-muted">Песни появятся здесь после входа.</p>;
+    return signIn ? (
+      <AnonymousSongs next={authNext} />
+    ) : (
+      <p className="text-sm text-text-muted">Песни появятся здесь после входа.</p>
+    );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-bg-card">
+    <Section className="overflow-hidden">
       <GenerationListBody
         query={query}
         limit={limit}
@@ -41,6 +46,6 @@ export function GenerationList({
         selectedId={selectedId}
         emptyAction={emptyAction}
       />
-    </div>
+    </Section>
   );
 }

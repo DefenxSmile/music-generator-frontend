@@ -1,4 +1,10 @@
-const ACTIVE_GENERATION_STATUSES = new Set(["PENDING", "WRITING", "MODERATING", "QUEUED", "RUNNING"]);
+const ACTIVE_GENERATION_STATUSES = new Set([
+  "PENDING",
+  "WRITING",
+  "MODERATING",
+  "QUEUED",
+  "RUNNING",
+]);
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Принято",

@@ -7,7 +7,7 @@ import { SongComposer } from "@/components/create/song-composer";
 import { GenerationDetail } from "@/components/song/generation-detail";
 import type { SongDraft } from "@/types/song-draft";
 import { persistHeroIdea, resolveInitialIdea } from "@/utils/hero-idea";
-import { classifyIdea, persistSongDraft, readSongDraft } from "@/utils/song-draft";
+import { descriptionDraft, persistSongDraft, readSongDraft } from "@/utils/song-draft";
 
 const EMPTY_DRAFT: SongDraft = { idea: "", lyrics: "" };
 
@@ -24,7 +24,7 @@ export function CreateWorkspace() {
       setDraft({ idea: stored.idea, lyrics: stored.lyrics });
       return;
     }
-    const next = classifyIdea(hero);
+    const next = descriptionDraft(hero);
     sourceRef.current = hero;
     persistSongDraft(next, hero);
     if (hero) persistHeroIdea(hero);
@@ -38,7 +38,10 @@ export function CreateWorkspace() {
 
   return (
     <main className="flex flex-col lg:h-[100dvh] lg:flex-row lg:overflow-hidden">
-      <section aria-label="Конструктор" className="border-b border-overlay/6 lg:w-[28rem] lg:shrink-0 lg:overflow-y-auto lg:border-b-0 lg:border-r xl:w-[34rem]">
+      <section
+        aria-label="Конструктор"
+        className="border-b border-overlay/6 lg:w-[28rem] lg:shrink-0 lg:overflow-y-auto lg:border-b-0 lg:border-r xl:w-[34rem]"
+      >
         <div className="p-4 sm:p-5">
           <h1 className="sr-only">Песня</h1>
           <SongComposer draft={draft} onDraft={onDraft} />

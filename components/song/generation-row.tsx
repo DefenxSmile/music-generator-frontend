@@ -39,10 +39,16 @@ export function GenerationRow({
           )}
         />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[0.9375rem] font-medium text-text-primary">{title}</span>
+          <span className="block truncate text-[0.9375rem] font-medium text-text-primary">
+            {title}
+          </span>
           <span className="mt-0.5 flex items-center gap-1.5 text-xs text-text-dim">
-            {active ? <span aria-hidden className="size-1.5 animate-pulse rounded-full bg-accent" /> : null}
-            <span className={cn(active && "text-text-muted")}>{generationStatusLabel(generation.status)}</span>
+            {active ? (
+              <span aria-hidden className="size-1.5 animate-pulse rounded-full bg-accent" />
+            ) : null}
+            <span className={cn(active && "text-text-muted")}>
+              {generationStatusLabel(generation.status)}
+            </span>
             {created ? <span aria-hidden>·</span> : null}
             {created ? <span className="truncate">{created}</span> : null}
           </span>

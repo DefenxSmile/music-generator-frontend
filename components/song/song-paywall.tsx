@@ -5,7 +5,10 @@ import Button from "@/components/ui/Button";
 /** Opens when the person tries to download. Listening stays available. Plans are on `/plans`; payment is not in Java yet. */
 export function SongPaywall({ onClose }: { onClose: () => void }) {
   return (
-    <section aria-labelledby="song-paywall-title" className="lp-hero-prompt mt-5 rounded-xl p-5 sm:p-6">
+    <section
+      aria-labelledby="song-paywall-title"
+      className="lp-hero-prompt mt-5 rounded-xl p-5 sm:p-6"
+    >
       <h2 id="song-paywall-title" className="text-lg font-semibold text-text-primary">
         Скачать песню
       </h2>
@@ -16,7 +19,13 @@ export function SongPaywall({ onClose }: { onClose: () => void }) {
         <Button href="/plans" variant="primary" size="lg" className="w-full sm:w-auto">
           Выбрать тариф
         </Button>
-        <Button type="button" variant="outline" size="lg" onClick={onClose} className="w-full sm:w-auto">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          onClick={onClose}
+          className="w-full sm:w-auto"
+        >
           Продолжить слушать
         </Button>
       </div>

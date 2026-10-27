@@ -21,7 +21,10 @@ export function ProviderButton({
         className,
       )}
     >
-      <span aria-hidden className="pointer-events-none absolute left-3.5 grid size-7 place-items-center">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute left-3.5 grid size-7 place-items-center"
+      >
         {icon}
       </span>
       <span className="w-full text-center">{children}</span>

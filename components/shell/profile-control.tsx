@@ -29,7 +29,9 @@ export function ProfileControl({
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(
+    null,
+  );
   const known = Boolean(email);
 
   useEffect(() => {
@@ -97,15 +99,27 @@ export function ProfileControl({
         className={cn(
           compact
             ? "inline-flex h-9 max-w-40 items-center gap-2 rounded-lg border border-overlay/15 bg-overlay/6 px-2.5 text-sm font-medium text-text-primary hover:bg-overlay/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            : cn(ROW, "mb-4 border border-overlay/15 bg-overlay/6 font-medium text-text-primary hover:bg-overlay/10"),
+            : cn(
+                ROW,
+                "mb-4 border border-overlay/15 bg-overlay/6 font-medium text-text-primary hover:bg-overlay/10",
+              ),
         )}
       >
-        <span aria-hidden className="grid size-5 shrink-0 place-items-center rounded-full bg-overlay/10 text-[11px] text-text-primary">
+        <span
+          aria-hidden
+          className="grid size-5 shrink-0 place-items-center rounded-full bg-overlay/10 text-[11px] text-text-primary"
+        >
           {profileInitial(email)}
         </span>
-        <span className={cn("min-w-0 truncate", collapsed && "sr-only", !known && "invisible")}>{label}</span>
+        <span className={cn("min-w-0 truncate", collapsed && "sr-only", !known && "invisible")}>
+          {label}
+        </span>
         {compact ? null : (
-          <ChevronDown aria-hidden className={cn("ml-auto size-4 shrink-0 text-text-dim", collapsed && "hidden")} strokeWidth={1.75} />
+          <ChevronDown
+            aria-hidden
+            className={cn("ml-auto size-4 shrink-0 text-text-dim", collapsed && "hidden")}
+            strokeWidth={1.75}
+          />
         )}
       </button>
       {open && position
@@ -116,9 +130,11 @@ export function ProfileControl({
               role="menu"
               aria-label="Профиль"
               style={{ top: position.top, left: position.left, width: position.width }}
-              className="fixed z-[80] rounded-lg border border-overlay/10 bg-bg-dialog p-1.5 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]"
+              className="fixed z-[80] rounded-lg border border-overlay/10 bg-bg-elevated p-1.5 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]"
             >
-              {known ? <p className="truncate px-2.5 py-1.5 text-xs text-text-dim">{email}</p> : null}
+              {known ? (
+                <p className="truncate px-2.5 py-1.5 text-xs text-text-dim">{email}</p>
+              ) : null}
               <button
                 type="button"
                 role="menuitem"

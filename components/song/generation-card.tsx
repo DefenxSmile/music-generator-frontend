@@ -37,7 +37,9 @@ export function GenerationCard({ generation }: { generation: Generation }) {
 
   return (
     <article>
-      <p className="lp-eyebrow">{active ? "Песня в работе" : generationStatusLabel(generation.status)}</p>
+      <p className="lp-eyebrow">
+        {active ? "Песня в работе" : generationStatusLabel(generation.status)}
+      </p>
       <h1 className="lp-section-title mt-3 line-clamp-3 text-text-primary">{title}</h1>
       <p className="mt-2 text-sm text-text-dim">{songMeta(generation).join(" · ")}</p>
 
@@ -51,7 +53,12 @@ export function GenerationCard({ generation }: { generation: Generation }) {
               durationHint={generation.durationSeconds}
             />
             <div className="mt-4 flex justify-end">
-              <Button type="button" variant="outline" size="sm" onClick={() => setDownloadAsked(true)}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setDownloadAsked(true)}
+              >
                 <Download aria-hidden className="size-4" />
                 Скачать
               </Button>

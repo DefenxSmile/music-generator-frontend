@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { forwardRef, type ComponentProps, type ReactNode } from "react";
 import { CtaEqualizer } from "@/components/ui/cta-equalizer";
 import { cn } from "@/utils/cn";
 
@@ -9,22 +9,17 @@ import { cn } from "@/utils/cn";
 export type ButtonVariant = "primary" | "outline";
 type ButtonSize = "sm" | "md" | "lg";
 
-interface ButtonProps {
+type ButtonProps = {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  children: ReactNode;
   href?: string;
-  onClick?: () => void;
-  className?: string;
-  type?: "button" | "submit" | "reset";
-  disabled?: boolean;
-}
+  children: ReactNode;
+} & Omit<ComponentProps<"button">, "children">;
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
     "lp-accent-gradient lp-cta text-on-accent font-semibold shadow-accent hover:brightness-[1.07]",
-  outline:
-    "border border-border text-text-primary hover:border-border-hover hover:bg-bg-card",
+  outline: "border border-border text-text-primary hover:border-border-hover hover:bg-bg-card",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -33,23 +28,27 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: "px-6 py-3.5 text-base",
 };
 
-export default function Button({
-  variant = "primary",
-  size = "md",
-  children,
-  href,
-  onClick,
-  className = "",
-  type = "button",
-  disabled = false,
-}: ButtonProps) {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = "primary",
+    size = "md",
+    href,
+    children,
+    className,
+    type = "button",
+    disabled = false,
+    ...props
+  },
+  ref,
+) {
   const classes = cn(
     "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg cursor-pointer transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
     variantClasses[variant],
     sizeClasses[size],
-    disabled && "opacity-40 pointer-events-none",
+    disabled && "pointer-events-none opacity-40",
     className,
   );
+  const equalizer = variant === "primary" && size === "lg" ? <CtaEqualizer /> : null;
 
   if (href && !disabled) {
     const external = /^https?:\/\//i.test(href);
@@ -57,27 +56,24 @@ export default function Button({
       return (
         <a href={href} className={classes} rel="noopener noreferrer">
           {children}
-          {variant === "primary" && size === "lg" ? <CtaEqualizer /> : null}
+          {equalizer}
         </a>
       );
     }
     return (
       <Link href={href} className={classes}>
         {children}
-        {variant === "primary" && size === "lg" ? <CtaEqualizer /> : null}
+        {equalizer}
       </Link>
     );
   }
 
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={classes}
-    >
+    <button ref={ref} type={type} disabled={disabled} className={classes} {...props}>
       {children}
-      {variant === "primary" && size === "lg" ? <CtaEqualizer /> : null}
+      {equalizer}
     </button>
   );
-}
+});
+
+export default Button;

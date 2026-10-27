@@ -69,6 +69,9 @@ function writeStoredAttribution(params: MarketingAttributionParams, now = Date.n
 export function captureMarketingAttribution(search?: string): void {
   if (typeof window === "undefined") return;
   const currentSearch = search ?? window.location.search;
-  const merged = mergeFirstTouch(readMarketingAttribution(), readAttributionFromSearch(currentSearch));
+  const merged = mergeFirstTouch(
+    readMarketingAttribution(),
+    readAttributionFromSearch(currentSearch),
+  );
   writeStoredAttribution(merged);
 }

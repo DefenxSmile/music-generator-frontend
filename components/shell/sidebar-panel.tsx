@@ -36,16 +36,32 @@ export function SidebarPanel({
         <Wordmark
           onNavigate={onNavigate}
           quiet={Boolean(onToggle && collapsed)}
-          className={cn(onToggle ? "lp-sidebar-mark absolute inset-y-0 left-2.5 right-12" : "min-w-0 flex-1")}
+          className={cn(
+            onToggle ? "lp-sidebar-mark absolute inset-y-0 left-2.5 right-12" : "min-w-0 flex-1",
+          )}
         />
-        {onToggle ? <CollapseButton collapsed={collapsed} onClick={onToggle} className="lp-sidebar-toggle absolute top-1" /> : null}
+        {onToggle ? (
+          <CollapseButton
+            collapsed={collapsed}
+            onClick={onToggle}
+            className="lp-sidebar-toggle absolute top-1"
+          />
+        ) : null}
       </div>
       <SignInSlot collapsed={collapsed} onNavigate={onNavigate} />
-      <nav aria-label="Основная навигация" className="flex flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden">
+      <nav
+        aria-label="Основная навигация"
+        className="flex flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden"
+      >
         {APP_NAV.map((group) => (
           <div key={group.label ?? "main"} className="flex flex-col gap-0.5">
             {group.label ? (
-              <p className={cn("px-3 pb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-text-dim", collapsed && "sr-only")}>
+              <p
+                className={cn(
+                  "px-3 pb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-text-dim",
+                  collapsed && "sr-only",
+                )}
+              >
                 {group.label}
               </p>
             ) : null}
@@ -62,7 +78,12 @@ export function SidebarPanel({
                     setPendingHref(item.href);
                     onNavigate?.();
                   }}
-                  className={cn(ROW, active ? "bg-overlay/8 text-text-primary" : "text-text-muted hover:bg-overlay/5 hover:text-text-primary")}
+                  className={cn(
+                    ROW,
+                    active
+                      ? "bg-overlay/8 text-text-primary"
+                      : "text-text-muted hover:bg-overlay/5 hover:text-text-primary",
+                  )}
                 >
                   <span className="grid size-5 shrink-0 place-items-center">
                     <Icon aria-hidden className="size-[18px]" strokeWidth={1.75} />

@@ -6,7 +6,11 @@ export async function logoutAccount(): Promise<void> {
   clearDevOauth();
   try {
     if (!dev) {
-      await fetchJson<void>("/api/v1/auth/logout", { method: "POST" }, { retryOnUnauthorized: false });
+      await fetchJson<void>(
+        "/api/v1/auth/logout",
+        { method: "POST" },
+        { retryOnUnauthorized: false },
+      );
     }
   } finally {
     setAccessToken(null);

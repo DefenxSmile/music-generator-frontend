@@ -19,13 +19,18 @@ async function parseError(response: Response): Promise<ApiError> {
   try {
     const body = (await response.json()) as Record<string, unknown>;
     const message = typeof body.message === "string" && body.message ? body.message : fallback;
-    const errorCode = typeof body.errorCode === "string" && body.errorCode ? body.errorCode : "UNKNOWN";
+    const errorCode =
+      typeof body.errorCode === "string" && body.errorCode ? body.errorCode : "UNKNOWN";
     const details = { ...body };
     delete details.errorCode;
     delete details.message;
     return new ApiError(message, response.status, errorCode, details);
   } catch {
-    return new ApiError(fallback, response.status, response.status === 401 ? "UNAUTHORIZED" : "UNKNOWN");
+    return new ApiError(
+      fallback,
+      response.status,
+      response.status === 401 ? "UNAUTHORIZED" : "UNKNOWN",
+    );
   }
 }
 

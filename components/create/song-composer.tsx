@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { ComposerField } from "@/components/create/composer-field";
+import { CreatePaywallDialog } from "@/components/create/create-paywall-dialog";
 import { GenerateLyricsDialog } from "@/components/create/generate-lyrics-dialog";
 import { FormMessage } from "@/components/ui/field";
 import Button from "@/components/ui/Button";
@@ -31,6 +32,7 @@ export function SongComposer({
   const status = useSessionStatus();
   const [placeholder, setPlaceholder] = useState("Песня о нашей первой встрече летом…");
   const [lyricsOpen, setLyricsOpen] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const lyricsButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -51,7 +53,11 @@ export function SongComposer({
       openAuth({ intent: "create", next: createWorkspaceHref() });
       return;
     }
-    if (!quote.data?.sufficient || create.isPending) return;
+    if (!quote.data?.sufficient) {
+      setPaywallOpen(true);
+      return;
+    }
+    if (create.isPending) return;
     create.mutate(value);
   }
 
@@ -60,10 +66,8 @@ export function SongComposer({
     lyricsButtonRef.current?.focus();
   }
 
-  function onGenerate(idea: string) {
-    const style = draft.idea.trim();
-    const next = !style || style.includes(idea) ? style || idea : `${style}\n${idea}`;
-    if (next !== draft.idea) onDraft({ ...draft, idea: next });
+  function onCommitLyrics(lyrics: string) {
+    if (lyrics !== draft.lyrics) onDraft({ ...draft, lyrics });
     closeLyrics();
   }
 
@@ -75,7 +79,9 @@ export function SongComposer({
   }
 
   const inProgressId =
-    create.isError && isApiError(create.error) && typeof create.error.details.generationId === "string"
+    create.isError &&
+    isApiError(create.error) &&
+    typeof create.error.details.generationId === "string"
       ? create.error.details.generationId
       : null;
 
@@ -83,63 +89,78 @@ export function SongComposer({
     promptFits(draft) &&
     status !== "loading" &&
     !create.isPending &&
-    (status === "anonymous" || quote.data?.sufficient === true);
+    (status === "anonymous" || quote.isSuccess);
 
   return (
     <>
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
-      <ComposerField
-        id="song-lyrics"
-        label="Текст песни"
-        value={draft.lyrics}
-        onChange={(lyrics) => onDraft({ ...draft, lyrics })}
-        onKeyDown={onKeyDown}
-        placeholder="Куплет и припев своими словами."
-        minHeightClass="min-h-44"
-        footer={
-          <button
-            ref={lyricsButtonRef}
-            type="button"
-            onClick={() => setLyricsOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-overlay/8 px-3 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-overlay/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            <Sparkles aria-hidden className="size-4" strokeWidth={1.75} />
-            Сгенерировать текст
-          </button>
-        }
-      />
+        <ComposerField
+          id="song-style"
+          label="Стиль и идея"
+          value={draft.idea}
+          onChange={(idea) => onDraft({ ...draft, idea })}
+          onKeyDown={onKeyDown}
+          placeholder={placeholder}
+          minHeightClass="min-h-24"
+        />
 
-      <ComposerField
-        id="song-style"
-        label="Стиль и идея"
-        value={draft.idea}
-        onChange={(idea) => onDraft({ ...draft, idea })}
-        onKeyDown={onKeyDown}
-        placeholder={placeholder}
-        minHeightClass="min-h-24"
-      />
+        <ComposerField
+          id="song-lyrics"
+          label="Текст песни"
+          value={draft.lyrics}
+          onChange={(lyrics) => onDraft({ ...draft, lyrics })}
+          onKeyDown={onKeyDown}
+          placeholder="Куплет и припев своими словами."
+          minHeightClass="min-h-44"
+          footer={
+            <button
+              ref={lyricsButtonRef}
+              type="button"
+              onClick={() => setLyricsOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-overlay/10 bg-overlay/8 px-3 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-overlay/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <Sparkles aria-hidden className="size-4" strokeWidth={1.75} />
+              Сгенерировать текст
+            </button>
+          }
+        />
 
-      {tooLong ? <FormMessage>Стиль и текст вместе длиннее 2000 символов. Сократите один из них.</FormMessage> : null}
-      {quote.data && !quote.data.sufficient ? <FormMessage>На балансе нет кредитов для песни.</FormMessage> : null}
-      {quote.isError ? <FormMessage>{apiErrorMessage(quote.error)}</FormMessage> : null}
-      {create.isError ? (
-        <FormMessage>
-          {apiErrorMessage(create.error)}
-          {inProgressId ? (
-            <>
-              {" "}
-              <Link href={createWorkspaceHref(inProgressId)} className="underline">
-                Открыть песню в работе
-              </Link>
-            </>
-          ) : null}
-        </FormMessage>
-      ) : null}
-      <Button type="submit" variant="primary" size="lg" disabled={!canSubmit} className="min-h-12 w-full">
-        {create.isPending ? "Отправляем…" : "Создать песню"}
+        {tooLong ? (
+          <FormMessage>
+            Стиль и текст вместе длиннее 2000 символов. Сократите один из них.
+          </FormMessage>
+        ) : null}
+        {quote.isError ? <FormMessage>{apiErrorMessage(quote.error)}</FormMessage> : null}
+        {create.isError ? (
+          <FormMessage>
+            {apiErrorMessage(create.error)}
+            {inProgressId ? (
+              <>
+                {" "}
+                <Link href={createWorkspaceHref(inProgressId)} className="underline">
+                  Открыть песню в работе
+                </Link>
+              </>
+            ) : null}
+          </FormMessage>
+        ) : null}
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          disabled={!canSubmit}
+          className="min-h-12 w-full"
+        >
+          {create.isPending ? "Отправляем…" : "Создать песню"}
         </Button>
       </form>
-      <GenerateLyricsDialog open={lyricsOpen} onClose={closeLyrics} onGenerate={onGenerate} />
+      <GenerateLyricsDialog
+        open={lyricsOpen}
+        lyrics={draft.lyrics}
+        onClose={closeLyrics}
+        onCommit={onCommitLyrics}
+      />
+      <CreatePaywallDialog open={paywallOpen} onClose={() => setPaywallOpen(false)} />
     </>
   );
 }

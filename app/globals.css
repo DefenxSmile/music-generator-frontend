@@ -2,20 +2,22 @@
 
 /**
  * Theme. Landing token names stay.
- * Surfaces and type use these names. Hairlines and hovers use --color-overlay,
+ * Surfaces and type use these names. Three steps, one neutral:
+ * canvas (--color-bg), section (card, sidebar, dialog), element (elevated, raised).
+ * Hairlines and hovers use --color-overlay,
  * so a light theme flips that one value to black instead of rewriting white/10.
  * --radius-lg is controls, --radius-xl is cards and the sidebar.
  * The gold→coral gradient is only the primary button and the playing state.
  */
 @theme {
   --color-bg: #08080a;
-  --color-bg-sidebar: #101014;
+  --color-bg-sidebar: #121216;
   --color-bg-card: #121216;
-  --color-bg-sunken: #141418;
-  --color-bg-raised: #16161b;
+  --color-bg-sunken: #121216;
+  --color-bg-raised: #1b1b21;
   --color-bg-card-hover: #17171c;
   --color-bg-elevated: #1b1b21;
-  --color-bg-dialog: #1c1c22;
+  --color-bg-dialog: #121216;
   --color-bg-footer: #050506;
 
   --color-accent: #ffc043;
@@ -39,8 +41,8 @@
   --shadow-accent-card: 0 24px 60px -36px color-mix(in srgb, var(--color-accent) 45%, transparent);
 
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    "Noto Sans", sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    sans-serif;
 }
 
 :root {
@@ -85,8 +87,16 @@ html::after {
   border: 1px solid color-mix(in srgb, var(--color-accent) 50%, transparent);
   background-color: var(--color-bg-elevated);
   background-image:
-    linear-gradient(180deg, color-mix(in srgb, var(--color-overlay) 7%, transparent) 0%, transparent 40%),
-    radial-gradient(115% 90% at 50% 0%, color-mix(in srgb, var(--color-accent) 12%, transparent) 0%, transparent 58%);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-overlay) 7%, transparent) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      115% 90% at 50% 0%,
+      color-mix(in srgb, var(--color-accent) 12%, transparent) 0%,
+      transparent 58%
+    );
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--color-accent) 10%, transparent),
     0 18px 40px -10px rgb(0 0 0 / 0.72),
@@ -337,12 +347,17 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--color-overlay) 8%, transparent);
   border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, var(--color-bg-dialog) 0%, var(--color-bg-sunken) 38%, var(--color-bg-sidebar) 100%);
+  background-color: var(--color-bg-card);
   color: var(--color-text-primary);
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 8%, transparent),
     0 30px 90px rgb(0 0 0 / 0.65);
+}
+
+.lp-auth-dialog.lp-plans-dialog[open] {
+  width: min(68rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
 }
 
 .lp-auth-dialog.lp-lyrics-dialog[open] {
@@ -370,8 +385,44 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   );
 }
 
+.lp-plan-card {
+  background-color: var(--color-bg-elevated);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-overlay) 8%, transparent) 0%,
+    transparent 46%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-overlay) 16%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 16%, transparent),
+    0 18px 36px -24px rgb(0 0 0 / 0.9);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.lp-plan-card:hover {
+  border-color: color-mix(in srgb, var(--color-overlay) 28%, transparent);
+}
+
+.lp-plan-card-popular {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 18%, transparent) 0%,
+    transparent 52%
+  );
+  border-color: color-mix(in srgb, var(--color-accent) 62%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-accent) 32%, transparent),
+    0 22px 48px -28px color-mix(in srgb, var(--color-accent-warm) 48%, transparent);
+}
+
+.lp-plan-card-popular:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 78%, transparent);
+}
+
 .lp-empty-disc {
-  background-color: var(--color-bg-dialog);
+  background-color: var(--color-bg-elevated);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--color-overlay) 8%, transparent),
     inset 0 0 0 11px var(--color-bg-card),
@@ -458,7 +509,8 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
     transition: none;
   }
   .lp-cta,
-  .lp-hero-prompt {
+  .lp-hero-prompt,
+  .lp-plan-card {
     transition: none;
   }
   .lp-cta:hover .lp-eq > span,

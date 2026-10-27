@@ -7,7 +7,13 @@ import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { cn } from "@/utils/cn";
 import { creditsLabel } from "@/utils/credits";
 
-export function CreditSlot({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
+export function CreditSlot({
+  collapsed = false,
+  onNavigate,
+}: {
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}) {
   const status = useSessionStatus();
   const signedIn = useSignedInHint();
   const me = useMe();
@@ -16,7 +22,12 @@ export function CreditSlot({ collapsed = false, onNavigate }: { collapsed?: bool
   const known = balance !== undefined;
 
   return (
-    <div className={cn("mt-3 shrink-0 rounded-xl border border-overlay/10 bg-bg/40 p-3", collapsed && "px-1.5 py-2")}>
+    <div
+      className={cn(
+        "mt-3 shrink-0 rounded-xl border border-overlay/10 bg-bg-elevated p-3",
+        collapsed && "px-1.5 py-2",
+      )}
+    >
       <Link
         href="/plans"
         onClick={onNavigate}
@@ -27,10 +38,21 @@ export function CreditSlot({ collapsed = false, onNavigate }: { collapsed?: bool
           collapsed && "items-center",
         )}
       >
-        <span className={cn("text-lg font-semibold tabular-nums leading-none text-text-primary", !known && "invisible")}>
+        <span
+          className={cn(
+            "text-lg font-semibold tabular-nums leading-none text-text-primary",
+            !known && "invisible",
+          )}
+        >
           {known ? balance : 0}
         </span>
-        <span className={cn("mt-1 text-[11px] text-text-muted", collapsed && "sr-only", !known && "invisible")}>
+        <span
+          className={cn(
+            "mt-1 text-[11px] text-text-muted",
+            collapsed && "sr-only",
+            !known && "invisible",
+          )}
+        >
           {known ? creditsLabel(balance).replace(/^-?\d+\s/, "") : "кредитов"}
         </span>
       </Link>
