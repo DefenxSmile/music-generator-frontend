@@ -13,6 +13,7 @@ export function Modal({
   className,
   chrome = "card",
   initialFocus,
+  dismissable = true,
   children,
 }: {
   open: boolean;
@@ -23,6 +24,8 @@ export function Modal({
   className?: string;
   chrome?: "card" | "plain";
   initialFocus?: { readonly current: HTMLElement | null };
+  /** Backdrop and Escape stay inside the dialog until the screen closes it. */
+  dismissable?: boolean;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -58,7 +61,11 @@ export function Modal({
         }
         onClose();
       }}
+      onCancel={(event) => {
+        if (!dismissable) event.preventDefault();
+      }}
       onClick={(event) => {
+        if (!dismissable) return;
         if (event.target === event.currentTarget) onClose();
       }}
     >

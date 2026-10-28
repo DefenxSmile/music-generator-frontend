@@ -8,7 +8,7 @@
 
 ```bash
 npm install
-npm run dev          # http://localhost:3000
+npm run dev          # http://localhost:3010
 npm run typecheck
 npm run lint
 npm run build
@@ -30,6 +30,7 @@ GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request г�
 - `docs/intent/product.md` — версии продукта, активация и экраны онбординга
 - `docs/decisions/` — принятые решения, в том числе регистрация без подтверждения почты
 - `.cursor/rules/project-memory.mdc` — уже принятые решения
+- `.cursor/rules/ui-quality.mdc` и `.cursor/skills/ui-quality/SKILL.md` — планка интерфейса на каждую правку вёрстки и новую фичу
 - `.cursor/skills/`, `.cursor/agents/` — навыки и субагенты; субагенты читают project memory
 
 ## Рядом, только чтение

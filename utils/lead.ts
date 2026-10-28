@@ -1,7 +1,7 @@
 import type { LeadSnapshot, LeadStep } from "@/types/lead";
 import { readHeroIdea } from "@/utils/hero-idea";
 import { readMarketingAttribution } from "@/utils/marketing-attribution";
-import { readSongFor, readVisitor } from "@/utils/qualification";
+import { readContentPlace, readGiftOccasion, readSongJob } from "@/utils/qualification";
 import { prefixedKey } from "@/utils/storage-prefix";
 
 const LEAD_KEY = prefixedKey("lead");
@@ -13,8 +13,9 @@ export function rememberLead(step: LeadStep, javaUserId?: string | null, idea?: 
     savedAt: new Date().toISOString(),
     step,
     idea: idea ?? readHeroIdea(),
-    visitor: readVisitor(),
-    songFor: readSongFor(),
+    songJob: readSongJob(),
+    giftOccasion: readGiftOccasion(),
+    contentPlace: readContentPlace(),
     javaUserId: javaUserId ?? previous?.javaUserId ?? null,
     attribution: readMarketingAttribution(),
   };

@@ -30,6 +30,20 @@ describe("Modal", () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
+  it("stays open when the backdrop and Escape are blocked", async () => {
+    const onClose = vi.fn();
+    render(
+      <Modal open onClose={onClose} dismissable={false} label="Кто вы?">
+        <p>Вопрос</p>
+      </Modal>,
+    );
+    const dialog = screen.getByRole("dialog", { name: "Кто вы?" });
+    await userEvent.click(dialog);
+    dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+    expect(onClose).not.toHaveBeenCalled();
+    expect(dialog).toHaveAttribute("open");
+  });
+
   it("does not close when the click lands on the content", async () => {
     const onClose = vi.fn();
     render(

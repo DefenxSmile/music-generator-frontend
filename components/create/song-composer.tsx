@@ -2,11 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { ComposerField } from "@/components/create/composer-field";
 import { CreatePaywallDialog } from "@/components/create/create-paywall-dialog";
-import { GenerateLyricsDialog } from "@/components/create/generate-lyrics-dialog";
+import { LyricsPrompt } from "@/components/create/lyrics-prompt";
 import { FormMessage } from "@/components/ui/field";
 import Button from "@/components/ui/Button";
 import { useCreateGeneration } from "@/hooks/use-create-generation";
@@ -24,9 +23,14 @@ import { composePrompt, promptFits } from "@/utils/song-draft";
 export function SongComposer({
   draft,
   onDraft,
+  onPreview,
+  previewBusy = false,
 }: {
   draft: SongDraft;
   onDraft: (draft: SongDraft) => void;
+  /** Local preview of the wait and the two variants. Skips the quote and Java. */
+  onPreview?: (draft: SongDraft) => void;
+  previewBusy?: boolean;
 }) {
   const openAuth = useOpenAuth();
   const status = useSessionStatus();
@@ -49,6 +53,10 @@ export function SongComposer({
       openAuth({ intent: "create", next: createWorkspaceHref() });
       return;
     }
+    if (onPreview) {
+      onPreview(draft);
+      return;
+    }
     if (!quote.data?.sufficient) {
       setPaywallOpen(true);
       return;
@@ -65,7 +73,7 @@ export function SongComposer({
       openAuth({ next: createWorkspaceHref() });
       return;
     }
-    setLyricsOpen(true);
+    setLyricsOpen((current) => !current);
   }
 
   function closeLyrics() {
@@ -73,9 +81,10 @@ export function SongComposer({
     lyricsButtonRef.current?.focus();
   }
 
-  function onCommitLyrics(lyrics: string) {
-    if (lyrics !== draft.lyrics) onDraft({ ...draft, lyrics });
-    closeLyrics();
+  function onPromptLyrics(line: string) {
+    const base = draft.lyrics.trim();
+    const next = !base || base === line ? line : `${base}\n\n${line}`;
+    if (next !== draft.lyrics) onDraft({ ...draft, lyrics: next });
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -95,45 +104,56 @@ export function SongComposer({
   const canSubmit =
     promptFits(draft) &&
     status !== "loading" &&
+    !previewBusy &&
     !create.isPending &&
-    (status === "anonymous" || quote.isSuccess);
+    (Boolean(onPreview) || status === "anonymous" || quote.isSuccess);
 
   return (
     <>
-      <form onSubmit={onSubmit} className="flex flex-col gap-5 lg:min-h-0 lg:flex-1">
-        <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
-          <ComposerField
-            id="song-style"
-            label="Стиль и идея"
-            value={draft.idea}
-            onChange={(idea) => onDraft({ ...draft, idea })}
-            onKeyDown={onKeyDown}
-            placeholder={placeholder}
-            minHeightClass="min-h-32"
-          />
+      <form onSubmit={onSubmit} className="lp-composer flex min-h-0 flex-1 flex-col">
+        <div className="flex min-h-0 flex-1 flex-col rounded-xl border border-overlay/10 bg-bg-card transition-colors duration-150 focus-within:border-overlay/24">
+          <div className="lp-composer-fields flex min-h-0 flex-col overflow-y-auto">
+            <ComposerField
+              id="song-style"
+              label="Стиль и идея"
+              value={draft.idea}
+              onChange={(idea) => onDraft({ ...draft, idea })}
+              onKeyDown={onKeyDown}
+              placeholder={placeholder}
+              minHeightClass="min-h-32"
+            />
 
-          <ComposerField
-            id="song-lyrics"
-            label="Текст песни"
-            value={draft.lyrics}
-            onChange={(lyrics) => onDraft({ ...draft, lyrics })}
-            onKeyDown={onKeyDown}
-            placeholder="Оставьте пустым, слова напишет песня."
-            minHeightClass="min-h-16"
-            action={
-              <Button
-                ref={lyricsButtonRef}
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onGenerateLyrics}
-              >
-                <Sparkles aria-hidden className="size-4" strokeWidth={1.75} />
-                Сгенерировать текст
-              </Button>
-            }
-          />
+            <div className="relative border-t border-overlay/10" data-lyrics-field="">
+              <ComposerField
+                id="song-lyrics"
+                label="Текст песни"
+                value={draft.lyrics}
+                onChange={(lyrics) => onDraft({ ...draft, lyrics })}
+                onKeyDown={onKeyDown}
+                placeholder="Оставьте пустым, слова напишет песня."
+                minHeightClass="min-h-16"
+                footer={
+                  <div aria-hidden data-open={lyricsOpen ? "true" : "false"} className="lp-lyrics-space" />
+                }
+                action={
+                  <Button
+                    ref={lyricsButtonRef}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    data-lyrics-prompt-toggle=""
+                    aria-expanded={lyricsOpen}
+                    onClick={onGenerateLyrics}
+                  >
+                    Сгенерировать текст
+                  </Button>
+                }
+              />
+              <LyricsPrompt open={lyricsOpen} onClose={closeLyrics} onSubmit={onPromptLyrics} />
+            </div>
+          </div>
 
+          <div className="lp-composer-actions flex shrink-0 flex-col gap-3 px-3.5 py-4">
           {tooLong ? (
             <FormMessage>
               Стиль и текст вместе длиннее 2000 символов. Сократите один из них.
@@ -153,23 +173,21 @@ export function SongComposer({
               ) : null}
             </FormMessage>
           ) : null}
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              disabled={!canSubmit}
+              className="min-h-12 shrink-0"
+            >
+              {previewBusy ? "Собираем…" : create.isPending ? "Отправляем…" : "Создать песню"}
+            </Button>
+          </div>
+          </div>
+          <div aria-hidden className="min-h-0 flex-1" />
         </div>
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          disabled={!canSubmit}
-          className="min-h-12 w-full shrink-0"
-        >
-          {create.isPending ? "Отправляем…" : "Создать песню"}
-        </Button>
       </form>
-      <GenerateLyricsDialog
-        open={lyricsOpen}
-        lyrics={draft.lyrics}
-        onClose={closeLyrics}
-        onCommit={onCommitLyrics}
-      />
       <CreatePaywallDialog open={paywallOpen} onClose={() => setPaywallOpen(false)} />
     </>
   );

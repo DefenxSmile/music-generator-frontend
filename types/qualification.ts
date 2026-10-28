@@ -1,5 +1,8 @@
-/** Who the lead is. Java has no field for this yet, so it stays in the browser. */
-export type VisitorKind = "musician" | "blogger" | "business" | "other";
+/** Why this visit wants a song. Java has no field for this yet, so it stays in the browser. */
+export type SongJob = "gift" | "self" | "content" | "release";
 
-/** What the music is for. */
-export type SongFor = "gift" | "social" | "post" | "release";
+/** Only asked when the song is a gift. */
+export type GiftOccasion = "birthday" | "love" | "joke" | "other";
+
+/** Only asked when the song is for a clip or a post. */
+export type ContentPlace = "clip" | "post" | "ad";

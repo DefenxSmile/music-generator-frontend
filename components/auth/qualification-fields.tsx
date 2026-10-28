@@ -2,45 +2,62 @@
 
 import { ChoiceRow } from "@/components/auth/choice-row";
 import {
-  SONG_FOR_OPTIONS,
-  SONG_FOR_QUESTION,
-  VISITOR_OPTIONS,
-  VISITOR_QUESTION,
+  CONTENT_PLACE_OPTIONS,
+  CONTENT_PLACE_QUESTION,
+  GIFT_OCCASION_OPTIONS,
+  GIFT_OCCASION_QUESTION,
+  SONG_JOB_OPTIONS,
+  SONG_JOB_QUESTION,
 } from "@/utils/qualification";
-import type { SongFor, VisitorKind } from "@/types/qualification";
+import type { ContentPlace, GiftOccasion, SongJob } from "@/types/qualification";
 
 export function QualificationFields({
   step,
-  visitor,
-  songFor,
-  onVisitor,
-  onSongFor,
+  songJob,
+  giftOccasion,
+  contentPlace,
+  onSongJob,
+  onGiftOccasion,
+  onContentPlace,
 }: {
-  step: "visitor" | "song";
-  visitor: VisitorKind | null;
-  songFor: SongFor | null;
-  onVisitor: (value: VisitorKind | null) => void;
-  onSongFor: (value: SongFor | null) => void;
+  step: "job" | "detail";
+  songJob: SongJob | null;
+  giftOccasion: GiftOccasion | null;
+  contentPlace: ContentPlace | null;
+  onSongJob: (value: SongJob | null) => void;
+  onGiftOccasion: (value: GiftOccasion | null) => void;
+  onContentPlace: (value: ContentPlace | null) => void;
 }) {
   const titleId = "qualify-dialog-title";
-  if (step === "visitor") {
+  if (step === "job") {
     return (
       <ChoiceRow
-        legend={VISITOR_QUESTION}
+        legend={SONG_JOB_QUESTION}
         labelledBy={titleId}
-        value={visitor}
-        options={VISITOR_OPTIONS}
-        onChange={onVisitor}
+        value={songJob}
+        options={SONG_JOB_OPTIONS}
+        onChange={onSongJob}
+      />
+    );
+  }
+  if (songJob === "content") {
+    return (
+      <ChoiceRow
+        legend={CONTENT_PLACE_QUESTION}
+        labelledBy={titleId}
+        value={contentPlace}
+        options={CONTENT_PLACE_OPTIONS}
+        onChange={onContentPlace}
       />
     );
   }
   return (
     <ChoiceRow
-      legend={SONG_FOR_QUESTION}
+      legend={GIFT_OCCASION_QUESTION}
       labelledBy={titleId}
-      value={songFor}
-      options={SONG_FOR_OPTIONS}
-      onChange={onSongFor}
+      value={giftOccasion}
+      options={GIFT_OCCASION_OPTIONS}
+      onChange={onGiftOccasion}
     />
   );
 }

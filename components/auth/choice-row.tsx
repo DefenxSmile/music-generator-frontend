@@ -20,7 +20,7 @@ export function ChoiceRow<T extends string>({
       {labelledBy ? null : (
         <legend className="mb-3 text-sm font-medium text-text-primary">{legend}</legend>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {options.map((option) => {
           const selected = option.value === value;
           return (
@@ -30,7 +30,7 @@ export function ChoiceRow<T extends string>({
               aria-pressed={selected}
               onClick={() => onChange(selected ? null : option.value)}
               className={cn(
-                "min-h-11 rounded-lg border px-4 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                "min-h-11 w-full rounded-lg border px-3 text-center text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
                 selected
                   ? "border-accent bg-bg-elevated text-text-primary"
                   : "border-border text-text-muted hover:border-border-hover hover:text-text-primary",

@@ -39,10 +39,10 @@ export function ProfileControl({
     const button = buttonRef.current;
     if (!button) return;
     const box = button.getBoundingClientRect();
-    const width = collapsed || compact ? 220 : box.width;
-    const left = collapsed ? box.right + 8 : compact ? box.right - width : box.left;
+    const width = 220;
+    const left = compact ? box.right - width : box.right + 8;
     setPosition({
-      top: collapsed ? box.top : box.bottom + 6,
+      top: compact ? box.bottom + 6 : box.top,
       left: Math.max(8, Math.min(left, window.innerWidth - width - 8)),
       width,
     });
@@ -132,9 +132,6 @@ export function ProfileControl({
               style={{ top: position.top, left: position.left, width: position.width }}
               className="fixed z-[80] rounded-lg border border-overlay/10 bg-bg-elevated p-1.5 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]"
             >
-              {known ? (
-                <p className="truncate px-2.5 py-1.5 text-xs text-text-dim">{email}</p>
-              ) : null}
               <button
                 type="button"
                 role="menuitem"

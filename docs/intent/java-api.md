@@ -8,7 +8,7 @@
 
 `SecurityConfig` разрешает методы `GET`, `POST`, `DELETE`, `OPTIONS`, заголовки `Authorization`, `Content-Type`, `Idempotency-Key` и `allowCredentials`. Origin берётся из `app.corsOrigins` (строка через запятую).
 
-Локальное приложение слушает `http://localhost:3000` (`npm run dev` и `PORT` в Docker). В `application-dev.yml` уже записано `app.cors-origins: http://localhost:3000`. Тестовый сайт GitHub Pages открывается с origin `https://defenxsmile.github.io` — его нужно добавить в `app.corsOrigins`, иначе браузер отклонит запросы с cookie. Java в этой задаче не меняется.
+`npm run dev` слушает `http://localhost:3010`. Docker по-прежнему слушает `http://localhost:3000` (`PORT` в образе). В `application-dev.yml` уже записано `app.cors-origins: http://localhost:3000`. Для dev-сервера на 3010 этот origin нужно добавить в `app.corsOrigins`, иначе браузер отклонит запросы с cookie. Тестовый сайт GitHub Pages открывается с origin `https://defenxsmile.github.io` — его тоже нужно добавить. Java в этой задаче не меняется.
 
 Боевой хост приложения — поддомен `app`, не корень. Название продукта и домен еще не выбраны. В `app.corsOrigins` для продакшена нужен origin приложения. Корень сам по себе API не вызывает.
 

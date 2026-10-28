@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/utils/cn";
 
 const ELEMENT =
-  "rounded-xl border border-overlay/10 bg-bg-elevated shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-overlay)_8%,transparent)] transition-colors duration-150 focus-within:border-overlay/24";
+  "rounded-lg border border-overlay/10 bg-bg-elevated transition-colors duration-150 focus-within:border-overlay/24";
 
 /** A page region on the section step of the surface scale. */
 export function Section({ className, ...props }: ComponentProps<"section">) {

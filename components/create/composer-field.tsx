@@ -1,12 +1,11 @@
 "use client";
 
 import type { KeyboardEvent, ReactNode } from "react";
-import { Surface } from "@/components/ui/section";
 import { Textarea } from "@/components/ui/textarea";
 import { useAutosizeTextarea } from "@/hooks/use-autosize-textarea";
 import { cn } from "@/utils/cn";
 
-/** One surface: the label sits in the field, and the text has no box of its own. */
+/** A section inside the composer panel. The label is quiet, and the text has no box of its own. */
 export function ComposerField({
   id,
   label,
@@ -31,9 +30,9 @@ export function ComposerField({
   const ref = useAutosizeTextarea(value);
 
   return (
-    <Surface>
+    <div>
       <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 pt-3">
-        <label htmlFor={id} className="text-sm font-medium text-text-primary">
+        <label htmlFor={id} className="text-xs font-medium text-text-dim">
           {label}
         </label>
         {action}
@@ -52,7 +51,7 @@ export function ComposerField({
           minHeightClass,
         )}
       />
-      {footer ? <div className="px-3 pb-3">{footer}</div> : null}
-    </Surface>
+      {footer}
+    </div>
   );
 }

@@ -51,13 +51,18 @@ export function refreshAccessToken(): Promise<string | null> {
   return refreshInFlight;
 }
 
+/** A dev sign-in can happen while the first refresh is still in flight. That refresh must not wipe it. */
+function keepDevSession(): boolean {
+  if (!readDevOauth()) return false;
+  setAccessToken(DEV_ACCESS_TOKEN);
+  return true;
+}
+
 async function performRefresh(): Promise<string | null> {
-  if (readDevOauth()) {
-    setAccessToken(DEV_ACCESS_TOKEN);
-    return DEV_ACCESS_TOKEN;
-  }
+  if (keepDevSession()) return DEV_ACCESS_TOKEN;
   const base = javaApiBaseUrl();
   if (!base) {
+    if (keepDevSession()) return DEV_ACCESS_TOKEN;
     setAccessToken(null);
     return null;
   }
@@ -67,11 +72,13 @@ async function performRefresh(): Promise<string | null> {
       credentials: "include",
       cache: "no-store",
     });
+    if (keepDevSession()) return DEV_ACCESS_TOKEN;
     if (!response.ok) {
       setAccessToken(null);
       return null;
     }
     const body = (await response.json()) as { accessToken?: unknown };
+    if (keepDevSession()) return DEV_ACCESS_TOKEN;
     if (typeof body.accessToken !== "string" || !body.accessToken) {
       setAccessToken(null);
       return null;
@@ -79,6 +86,7 @@ async function performRefresh(): Promise<string | null> {
     setAccessToken(body.accessToken);
     return body.accessToken;
   } catch {
+    if (keepDevSession()) return DEV_ACCESS_TOKEN;
     setAccessToken(null);
     return null;
   }

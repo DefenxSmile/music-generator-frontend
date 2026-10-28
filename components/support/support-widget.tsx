@@ -91,7 +91,7 @@ function SupportPanelBody({
         {headerEnd}
       </div>
 
-      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 sm:py-4">
+      <div className="lp-support-form relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 sm:py-4">
         {sent ? (
           <div className="flex flex-col items-center py-5 text-center sm:py-6">
             <div className="flex size-11 items-center justify-center rounded-full bg-accent/15">
@@ -112,7 +112,7 @@ function SupportPanelBody({
                   key={topic}
                   type="button"
                   onClick={() => onQuickSelect(topic)}
-                  className="cursor-pointer rounded-full border border-border bg-bg-elevated px-2.5 py-1 text-[11px] text-text-muted transition-colors hover:border-accent/50 hover:text-text-primary sm:px-3 sm:py-1.5 sm:text-xs"
+                  className="cursor-pointer rounded-full border border-border px-2.5 py-1 text-[11px] text-text-muted transition-colors hover:border-border-hover hover:text-text-primary sm:px-3 sm:py-1.5 sm:text-xs"
                 >
                   {topic}
                 </button>
@@ -147,7 +147,7 @@ function SupportPanelBody({
             <label className="sr-only" htmlFor={`${idPrefix}message`}>
               Сообщение
             </label>
-            <div className="mb-2.5 rounded-lg border border-overlay/10 bg-bg-elevated px-3.5 py-2.5 sm:mb-3">
+            <div className="lp-support-message mb-2.5 rounded-lg border border-overlay/10 px-3.5 py-2.5 sm:mb-3">
               <Textarea
                 id={`${idPrefix}message`}
                 placeholder="Сообщение *"
@@ -260,8 +260,16 @@ export function SupportWidget({
     setError(null);
     const em = email.trim();
     const msg = message.trim();
-    if (!em || !msg) {
+    if (!em && !msg) {
       setError("Укажите почту и сообщение.");
+      return;
+    }
+    if (!em) {
+      setError("Укажите почту.");
+      return;
+    }
+    if (!msg) {
+      setError("Напишите сообщение.");
       return;
     }
     if (!postUrl) {
@@ -379,7 +387,7 @@ export function SupportWidget({
 
       <div
         className={cn(
-          "pointer-events-none fixed z-50 flex-col items-end",
+          "lp-support-dock pointer-events-none fixed z-50 flex-col items-end",
           "right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))]",
           hideMobileLauncher ? "hidden sm:flex" : "flex",
         )}

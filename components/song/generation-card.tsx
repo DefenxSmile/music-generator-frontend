@@ -3,7 +3,7 @@
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { GenerationProgress } from "@/components/song/generation-progress";
-import { SongPaywall } from "@/components/song/song-paywall";
+import { CreatePaywallDialog } from "@/components/create/create-paywall-dialog";
 import { SongPlayer } from "@/components/song/song-player";
 import { SongUnavailable } from "@/components/song/song-unavailable";
 import Button from "@/components/ui/Button";
@@ -66,7 +66,7 @@ export function GenerationCard({ generation }: { generation: Generation }) {
                 Скачать
               </Button>
             </div>
-            {downloadAsked ? <SongPaywall onClose={() => setDownloadAsked(false)} /> : null}
+            <CreatePaywallDialog open={downloadAsked} onClose={() => setDownloadAsked(false)} />
           </>
         ) : active ? (
           <GenerationProgress status={generation.status} />

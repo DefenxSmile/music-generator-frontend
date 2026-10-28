@@ -12,6 +12,6 @@ When acting as the parent/orchestrator in this repo:
 3. Apply `.cursor/rules/project-memory.mdc` on every task. Do not pull analytics, pipeline, CI, or backend-framework rules from other products; they are not in this repo.
 4. When launching subagents (`codebase-explorer`, `full-stack-engineer`, `qa-engineer`), include in the Task prompt:
    - goal and constraints;
-   - paths of applicable rules, including `.cursor/rules/project-memory.mdc`;
-   - paths of applicable skills.
+   - paths of applicable rules, including `.cursor/rules/project-memory.mdc` and, for layout or a new feature, `.cursor/rules/ui-quality.mdc`;
+   - paths of applicable skills, including `.cursor/skills/ui-quality/SKILL.md` when the task changes layout or adds a feature.
 5. Subagents start with a clean context — they will not see this chat unless you hand off that detail.

@@ -10,15 +10,15 @@
  * The gold→coral gradient is only the primary button and the playing state.
  */
 @theme {
-  --color-bg: #08080a;
-  --color-bg-sidebar: #121216;
-  --color-bg-card: #121216;
-  --color-bg-sunken: #121216;
-  --color-bg-raised: #1b1b21;
-  --color-bg-card-hover: #17171c;
-  --color-bg-elevated: #1b1b21;
-  --color-bg-dialog: #121216;
-  --color-bg-footer: #050506;
+  --color-bg: #18181e;
+  --color-bg-sidebar: #22222a;
+  --color-bg-card: #22222a;
+  --color-bg-sunken: #22222a;
+  --color-bg-raised: #2a2a32;
+  --color-bg-card-hover: #26262e;
+  --color-bg-elevated: #2a2a32;
+  --color-bg-dialog: #22222a;
+  --color-bg-footer: #121218;
 
   --color-accent: #ffc043;
   --color-accent-hover: #ffcf6b;
@@ -30,8 +30,8 @@
   --color-text-muted: #bab7b0;
   --color-text-dim: #9d9a92;
 
-  --color-border: #26262c;
-  --color-border-hover: #3c3c44;
+  --color-border: #363640;
+  --color-border-hover: #4a4a58;
   --color-overlay: #fff;
 
   --radius-lg: 0.5rem;
@@ -40,15 +40,13 @@
   --shadow-accent: 0 10px 30px -14px color-mix(in srgb, var(--color-accent-warm) 55%, transparent);
   --shadow-accent-card: 0 24px 60px -36px color-mix(in srgb, var(--color-accent) 45%, transparent);
 
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-    sans-serif;
+  --font-sans: var(--font-golos), sans-serif;
 }
 
 :root {
   --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-move: 280ms;
-  --scrim: rgb(0 0 0 / 0.78);
+  --scrim: rgb(8 8 10 / 0.94);
   --scrim-soft: rgb(0 0 0 / 0.62);
   --sidebar-width: 15.5rem;
   --sidebar-gap: 0.75rem;
@@ -61,6 +59,13 @@
     var(--color-accent-mid) 46%,
     var(--color-accent-warm) 100%
   );
+}
+
+/* Disabled primary stays gold. Opacity on the gradient turns it brown. */
+.lp-cta-quiet {
+  background-image: none;
+  background-color: color-mix(in srgb, var(--color-accent) 72%, var(--color-bg-elevated));
+  color: var(--color-on-accent);
 }
 
 /* Warm glow behind the top of a page. The lower page stays dark. */
@@ -126,56 +131,6 @@ html::after {
 
 .lp-cta:hover {
   background-position: 62% 50%;
-}
-
-.lp-eq {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 0.85em;
-}
-
-.lp-eq > span {
-  display: block;
-  width: 2px;
-  border-radius: 1px;
-  background: currentColor;
-  transform-origin: bottom;
-}
-
-.lp-eq > span:nth-child(1) {
-  height: 45%;
-}
-.lp-eq > span:nth-child(2) {
-  height: 90%;
-}
-.lp-eq > span:nth-child(3) {
-  height: 62%;
-}
-
-@keyframes lp-eq {
-  0%,
-  100% {
-    transform: scaleY(0.55);
-  }
-  50% {
-    transform: scaleY(1);
-  }
-}
-
-.lp-cta:hover .lp-eq > span,
-.lp-cta:focus-visible .lp-eq > span {
-  animation: lp-eq 0.7s ease-in-out infinite;
-}
-
-.lp-cta:hover .lp-eq > span:nth-child(2),
-.lp-cta:focus-visible .lp-eq > span:nth-child(2) {
-  animation-delay: 0.12s;
-}
-
-.lp-cta:hover .lp-eq > span:nth-child(3),
-.lp-cta:focus-visible .lp-eq > span:nth-child(3) {
-  animation-delay: 0.24s;
 }
 
 html {
@@ -366,21 +321,24 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   overflow-y: auto;
 }
 
-.lp-auth-dialog.lp-lyrics-dialog[open] {
-  display: flex;
-  flex-direction: column;
-  width: min(40rem, calc(100% - 2rem));
-  min-height: min(34rem, calc(100dvh - 2rem));
-}
-
 .lp-auth-dialog[open] {
   animation: lp-auth-in 180ms ease-out;
 }
 
 .lp-auth-dialog::backdrop {
   background: var(--scrim);
-  backdrop-filter: blur(8px);
+  backdrop-filter: none;
   animation: lp-auth-backdrop 180ms ease-out;
+}
+
+/* Signed-in reload: the page cannot take a click until the qualification window is up. */
+html[data-qualify-hold] body * {
+  pointer-events: none;
+}
+
+html[data-qualify-hold] dialog,
+html[data-qualify-hold] dialog * {
+  pointer-events: auto;
 }
 
 .lp-dialog-wash {
@@ -425,14 +383,6 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
 
 .lp-plan-card-popular:hover {
   border-color: color-mix(in srgb, var(--color-accent) 78%, transparent);
-}
-
-.lp-empty-disc {
-  background-color: var(--color-bg-elevated);
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--color-overlay) 8%, transparent),
-    inset 0 0 0 11px var(--color-bg-card),
-    inset 0 0 0 12px color-mix(in srgb, var(--color-overlay) 5%, transparent);
 }
 
 @keyframes lp-auth-in {
@@ -491,6 +441,16 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
 
 .lp-generating-bar {
   animation: lp-generating 2.4s ease-in-out infinite;
+}
+
+.lp-spin {
+  animation: lp-spin 0.9s linear infinite;
+}
+
+@keyframes lp-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .lp-skeleton {
@@ -573,6 +533,107 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   transition: transform var(--duration-move) var(--ease-move);
 }
 
+.lp-player-bar {
+  position: fixed;
+  z-index: 40;
+  right: 0.75rem;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  left: 0.75rem;
+  height: 4.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-overlay) 10%, transparent);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-bg-card);
+  transition:
+    left var(--duration-move) var(--ease-move),
+    right var(--duration-move) var(--ease-move);
+  animation: lp-player-in var(--duration-move) var(--ease-move);
+}
+
+html[data-player] .lp-support-dock {
+  bottom: calc(6rem + env(safe-area-inset-bottom));
+  transition: bottom var(--duration-move) var(--ease-move);
+}
+
+.lp-composer textarea {
+  overscroll-behavior: auto;
+}
+
+.lp-composer-fields {
+  flex: 0 1 auto;
+  min-height: 0;
+  scrollbar-width: none;
+}
+
+.lp-composer-fields::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .lp-player-bar {
+    left: calc(var(--sidebar-width) + var(--sidebar-gap) + 0.75rem);
+  }
+  html[data-player] main {
+    height: calc(100dvh - 6rem - env(safe-area-inset-bottom));
+  }
+}
+
+.lp-support-form input,
+.lp-support-form .lp-support-message {
+  background-color: transparent;
+}
+
+@keyframes lp-player-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Lyrics line: canvas on the section panel, so the edge stays visible. */
+.lp-lyrics-prompt {
+  border: 1px solid color-mix(in srgb, var(--color-overlay) 16%, transparent);
+  background-color: var(--color-bg);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 12%, transparent),
+    0 14px 32px -18px rgb(0 0 0 / 0.9);
+  opacity: 0;
+  transform: translateY(0.5rem);
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-move) var(--ease-move),
+    transform var(--duration-move) var(--ease-move),
+    visibility 0s linear var(--duration-move);
+}
+
+.lp-lyrics-prompt[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  visibility: visible;
+  transition:
+    opacity var(--duration-move) var(--ease-move),
+    transform var(--duration-move) var(--ease-move),
+    visibility 0s linear 0s;
+}
+
+.lp-lyrics-prompt [aria-label="В текст"]:not(:disabled) {
+  color: var(--color-text-primary);
+}
+
+.lp-lyrics-space {
+  height: 0;
+  transition: height var(--duration-move) var(--ease-move);
+}
+
+.lp-lyrics-space[data-open="true"] {
+  height: 4.25rem;
+}
+
 .lp-support-layer[data-open="true"] .lp-support-sheet {
   transform: translateY(0);
   pointer-events: auto;
@@ -584,6 +645,7 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   }
   .lp-wave-bar,
   .lp-generating-bar,
+  .lp-spin,
   .lp-auth-dialog,
   .lp-auth-dialog::backdrop,
   .lp-boot-glow {
@@ -601,11 +663,16 @@ html[data-sidebar="collapsed"] .lp-sidebar-toggle {
   .lp-support-fab-icon,
   .lp-support-pop,
   .lp-support-scrim,
-  .lp-support-sheet {
+  .lp-support-sheet,
+  .lp-lyrics-prompt,
+  .lp-lyrics-space {
     transition: none;
   }
-  .lp-cta:hover .lp-eq > span,
-  .lp-cta:focus-visible .lp-eq > span {
-    animation: none !important;
+  .lp-player-bar {
+    animation: none;
+    transition: none;
+  }
+  html[data-player] .lp-support-dock {
+    transition: none;
   }
 }

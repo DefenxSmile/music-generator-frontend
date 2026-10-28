@@ -1,16 +1,19 @@
-import { Music2 } from "lucide-react";
+"use client";
+
+import Button from "@/components/ui/Button";
 
 export function ResultStage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6">
-      <span
-        aria-hidden
-        className="lp-empty-disc relative grid size-[4.5rem] place-items-center rounded-full"
+      <p className="text-center text-sm text-text-dim">Пока нет созданных песен</p>
+      <Button
+        type="button"
+        variant="quiet"
+        className="mt-3"
+        onClick={() => document.getElementById("song-style")?.focus()}
       >
-        <span className="size-3 rounded-full bg-bg shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-overlay)_8%,transparent)]" />
-        <Music2 className="absolute size-6 translate-x-2.5 text-accent" strokeWidth={1.75} />
-      </span>
-      <p className="mt-4 text-center text-sm text-text-dim">Пока нет созданных песен</p>
+        К идее
+      </Button>
     </div>
   );
 }

@@ -1,15 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Music2 } from "lucide-react";
 import { GenerationList } from "@/components/song/generation-list";
 import { EmptyState } from "@/components/ui/empty-state";
 import Button from "@/components/ui/Button";
+import { useOpenAuth } from "@/hooks/use-open-auth";
 import { useSessionStatus } from "@/hooks/use-session-status";
 import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { generationsQueryOptions } from "@/requests/generations-query";
 
 export function SongsScreen() {
+  const openAuth = useOpenAuth();
   const status = useSessionStatus();
   const signedIn = useSignedInHint();
   const query = useQuery(generationsQueryOptions(status === "authenticated"));
@@ -19,7 +20,15 @@ export function SongsScreen() {
   if (anonymous) {
     return (
       <main>
-        <EmptyState title="Мои песни" lead="Песни появятся здесь после входа." icon={Music2} />
+        <EmptyState
+          title="Мои песни"
+          lead="Песни появятся здесь после входа."
+          action={
+            <Button type="button" variant="outline" onClick={() => openAuth()}>
+              Войти
+            </Button>
+          }
+        />
       </main>
     );
   }
@@ -27,7 +36,15 @@ export function SongsScreen() {
   if (empty) {
     return (
       <main>
-        <EmptyState title="Мои песни" lead="Пока ни одной песни." icon={Music2} />
+        <EmptyState
+          title="Мои песни"
+          lead="Пока ни одной песни."
+          action={
+            <Button href="/create" variant="outline">
+              Создать песню
+            </Button>
+          }
+        />
       </main>
     );
   }

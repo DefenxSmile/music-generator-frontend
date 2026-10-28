@@ -1,4 +1,3 @@
-import { Music2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
 
@@ -19,15 +18,9 @@ export function Wordmark({
       tabIndex={quiet ? -1 : undefined}
       inert={quiet ? true : undefined}
       onClick={onNavigate}
-      className={cn("flex min-w-0 items-center gap-3 overflow-hidden", className)}
+      className={cn("flex min-w-0 items-center overflow-hidden", className)}
     >
-      <span
-        aria-hidden
-        className="lp-accent-gradient grid size-8 shrink-0 place-items-center rounded-lg"
-      >
-        <Music2 className="size-4 text-on-accent" />
-      </span>
-      <span className="whitespace-nowrap text-[0.9375rem] font-semibold tracking-tight text-text-primary">
+      <span className="whitespace-nowrap text-base font-semibold tracking-tight text-text-primary">
         AI Music
       </span>
     </Link>

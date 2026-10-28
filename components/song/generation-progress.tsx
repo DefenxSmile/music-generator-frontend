@@ -1,54 +1,21 @@
-import { Check } from "lucide-react";
-import { cn } from "@/utils/cn";
-const STAGES = [
-  { label: "Пишем текст", statuses: ["PENDING", "WRITING"] },
-  { label: "Проверяем", statuses: ["MODERATING"] },
-  { label: "Собираем трек", statuses: ["QUEUED", "RUNNING"] },
-] as const;
+import { LoaderCircle } from "lucide-react";
+import { generationStatusLabel } from "@/utils/generation-status";
 
-function stageIndex(status: string): number {
-  const index = STAGES.findIndex((stage) => (stage.statuses as readonly string[]).includes(status));
-  return index === -1 ? 0 : index;
-}
-
+/** A song row that is not ready yet: a spinner and two empty lines, without a step list. */
 export function GenerationProgress({ status }: { status: string }) {
-  const active = stageIndex(status);
-
   return (
     <div role="status" aria-live="polite">
-      <div className="relative h-1 overflow-hidden rounded-full bg-bg-elevated">
-        <span className="lp-accent-gradient lp-generating-bar absolute inset-y-0 left-0 w-1/3 rounded-full" />
+      <span className="sr-only">{generationStatusLabel(status)}</span>
+      <div className="flex items-center gap-3">
+        <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-bg-elevated">
+          <LoaderCircle aria-hidden className="lp-spin size-5 text-text-muted" strokeWidth={1.75} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col gap-2.5">
+          <span className="lp-skeleton h-2.5 w-2/3" />
+          <span className="lp-skeleton h-2.5 w-5/12" />
+        </span>
       </div>
-      <ol className="mt-5 grid gap-3 sm:grid-cols-3">
-        {STAGES.map((stage, index) => {
-          const done = index < active;
-          const current = index === active;
-          return (
-            <li key={stage.label} className="flex items-center gap-2.5 text-sm">
-              <span
-                aria-hidden
-                className={cn(
-                  "grid size-6 shrink-0 place-items-center rounded-full border text-xs tabular-nums",
-                  done && "border-accent/60 bg-accent/10 text-accent",
-                  current && "border-accent text-accent",
-                  !done && !current && "border-border text-text-dim",
-                )}
-              >
-                {done ? <Check className="size-3.5" strokeWidth={2.5} /> : index + 1}
-              </span>
-              <span
-                className={cn(
-                  current ? "text-text-primary" : done ? "text-text-muted" : "text-text-dim",
-                )}
-              >
-                {stage.label}
-                {current ? <span className="sr-only"> — сейчас</span> : null}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-      <p className="mt-5 text-sm text-text-muted">
+      <p className="mt-4 text-sm text-text-muted">
         Можно закрыть страницу: песня останется в списке.
       </p>
     </div>

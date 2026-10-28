@@ -20,7 +20,8 @@ describe("Button", () => {
     );
     const button = screen.getByRole("button", { name: "Создать" });
     expect(button).toBeDisabled();
-    expect(button.className).toContain("opacity-40");
+    expect(button.className).toContain("lp-cta-quiet");
+    expect(button.className).not.toContain("opacity-40");
     await userEvent.click(button);
     expect(onClick).not.toHaveBeenCalled();
   });
@@ -29,7 +30,7 @@ describe("Button", () => {
     const { rerender } = render(<Button size="lg">Создать песню</Button>);
     const primary = screen.getByRole("button", { name: "Создать песню" });
     expect(primary.className).toContain("lp-accent-gradient");
-    expect(primary.querySelectorAll(".lp-eq > span")).toHaveLength(3);
+    expect(primary.querySelector(".lp-eq")).toBeNull();
 
     rerender(
       <Button variant="outline" size="lg">
@@ -38,7 +39,6 @@ describe("Button", () => {
     );
     const outline = screen.getByRole("button", { name: "Выбрать тариф" });
     expect(outline.className).not.toContain("lp-accent-gradient");
-    expect(outline.querySelector(".lp-eq")).toBeNull();
   });
 
   it("renders an in-app link and an external link", () => {

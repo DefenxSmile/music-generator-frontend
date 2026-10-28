@@ -1,5 +1,5 @@
 import type { MarketingAttributionParams } from "@/types/marketing";
-import type { SongFor, VisitorKind } from "@/types/qualification";
+import type { ContentPlace, GiftOccasion, SongJob } from "@/types/qualification";
 
 /**
  * Local lead snapshot for a later worker.
@@ -12,8 +12,9 @@ export type LeadSnapshot = {
   savedAt: string;
   step: LeadStep;
   idea: string;
-  visitor: VisitorKind | null;
-  songFor: SongFor | null;
+  songJob: SongJob | null;
+  giftOccasion: GiftOccasion | null;
+  contentPlace: ContentPlace | null;
   javaUserId: string | null;
   attribution: MarketingAttributionParams;
 };

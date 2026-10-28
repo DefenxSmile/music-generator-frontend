@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { forwardRef, type ComponentProps, type ReactNode } from "react";
-import { CtaEqualizer } from "@/components/ui/cta-equalizer";
 import { cn } from "@/utils/cn";
 
 /** One accent only: `primary` is the gold→coral CTA, the rest are neutral surfaces. */
-export type ButtonVariant = "primary" | "outline";
+export type ButtonVariant = "primary" | "outline" | "quiet";
 type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonProps = {
@@ -18,8 +17,9 @@ type ButtonProps = {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "lp-accent-gradient lp-cta text-on-accent font-semibold shadow-accent hover:brightness-[1.07]",
+    "lp-accent-gradient lp-cta text-on-accent font-semibold hover:brightness-[1.07]",
   outline: "border border-border text-text-primary hover:border-border-hover hover:bg-bg-card",
+  quiet: "text-text-dim hover:text-text-primary",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -45,25 +45,23 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg cursor-pointer transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
     variantClasses[variant],
     sizeClasses[size],
-    disabled && "pointer-events-none opacity-40",
+    disabled && "pointer-events-none",
+    disabled && variant === "primary" && "lp-cta-quiet",
+    disabled && variant !== "primary" && "opacity-40",
     className,
   );
-  const equalizer = variant === "primary" && size === "lg" ? <CtaEqualizer /> : null;
-
   if (href && !disabled) {
     const external = /^https?:\/\//i.test(href);
     if (external) {
       return (
         <a href={href} className={classes} rel="noopener noreferrer">
           {children}
-          {equalizer}
         </a>
       );
     }
     return (
       <Link href={href} className={classes}>
         {children}
-        {equalizer}
       </Link>
     );
   }
@@ -71,7 +69,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   return (
     <button ref={ref} type={type} disabled={disabled} className={classes} {...props}>
       {children}
-      {equalizer}
     </button>
   );
 });
