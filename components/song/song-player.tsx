@@ -1,9 +1,10 @@
 "use client";
 
-import { Pause, Play } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
+import { MediaFrame } from "@/components/ui/media-frame";
 import { cn } from "@/utils/cn";
-import { formatClock, songCoverStyle, songWaveform } from "@/utils/song-visual";
+import { formatClock, songWaveform } from "@/utils/song-visual";
+
 export function SongPlayer({
   id,
   src,
@@ -39,23 +40,14 @@ export function SongPlayer({
 
   return (
     <div className="flex items-center gap-4">
-      <button
-        type="button"
-        onClick={toggle}
+      <MediaFrame
+        toneId={id}
+        playing={playing}
         disabled={failed}
-        aria-label={playing ? `Пауза: ${title}` : `Слушать: ${title}`}
-        aria-pressed={playing}
-        style={songCoverStyle(id)}
-        className="grid size-16 shrink-0 place-items-center rounded-xl shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-overlay)_18%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 sm:size-20"
-      >
-        <span className="grid size-10 place-items-center rounded-full bg-black/25 backdrop-blur-sm">
-          {playing ? (
-            <Pause className="size-4 fill-white text-white" aria-hidden />
-          ) : (
-            <Play className="ml-0.5 size-4 fill-white text-white" aria-hidden />
-          )}
-        </span>
-      </button>
+        onClick={toggle}
+        label={playing ? `Пауза: ${title}` : `Слушать: ${title}`}
+        className="size-24"
+      />
 
       <div className="min-w-0 flex-1">
         <div className="relative h-12">

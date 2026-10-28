@@ -13,7 +13,7 @@ const golos = Golos_Text({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#18181e", // same value as --color-bg; the browser chrome cannot read a CSS variable
+  themeColor: "#111116", // same value as --color-bg; the browser chrome cannot read a CSS variable
   colorScheme: "dark",
 };
 

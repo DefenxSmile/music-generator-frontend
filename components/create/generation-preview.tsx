@@ -1,14 +1,15 @@
 "use client";
 
-import { Download, LoaderCircle, Pause, Play } from "lucide-react";
+import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CreatePaywallDialog } from "@/components/create/create-paywall-dialog";
 import { PreviewPlayerBar } from "@/components/create/preview-player-bar";
 import Button from "@/components/ui/Button";
+import { MediaFrame } from "@/components/ui/media-frame";
 import type { SongDraft } from "@/types/song-draft";
 import { cn } from "@/utils/cn";
 import { isActiveGenerationStatus } from "@/utils/generation-status";
-import { formatClock, songCoverStyle } from "@/utils/song-visual";
+import { formatClock } from "@/utils/song-visual";
 
 const VARIANTS = [
   { id: "preview-variant-1", duration: 152 },
@@ -149,32 +150,19 @@ function PreviewRow({
 }) {
   return (
     <li className="border-b border-overlay/8 py-4">
-      <div className="flex items-center gap-3">
-        {active ? (
-          <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-bg-elevated">
-            <LoaderCircle aria-hidden className="lp-spin size-5 text-text-muted" strokeWidth={1.75} />
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={onPlay}
-            aria-label={playing ? `Пауза: ${title}` : `Слушать: ${title}`}
-            aria-pressed={playing}
-            style={songCoverStyle(variant.id)}
-            className="grid size-14 shrink-0 place-items-center rounded-lg shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-overlay)_18%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            <span className="grid size-8 place-items-center rounded-full bg-black/25 backdrop-blur-sm">
-              {playing ? (
-                <Pause aria-hidden className="size-3.5 fill-white text-white" />
-              ) : (
-                <Play aria-hidden className="ml-0.5 size-3.5 fill-white text-white" />
-              )}
-            </span>
-          </button>
-        )}
+      <div className="flex items-center gap-4">
+        <MediaFrame
+          toneId={variant.id}
+          corner={formatClock(variant.duration)}
+          busy={active}
+          playing={playing}
+          onClick={active ? undefined : onPlay}
+          label={playing ? `Пауза: ${title}` : `Слушать: ${title}`}
+          className="size-24 sm:size-[7.5rem]"
+        />
         <div className="min-w-0 flex-1">
-          <p className="flex h-6 min-w-0 items-center">
-            <span className="truncate text-[0.9375rem] font-medium text-text-primary">{title}</span>
+          <p className="flex min-h-7 min-w-0 items-center">
+            <span className="truncate text-lg font-medium leading-6 text-text-primary">{title}</span>
           </p>
           <p className="mt-0.5 flex h-5 min-w-0 items-center gap-2 text-xs text-text-muted">
             {style ? <span className="min-w-0 truncate">{style}</span> : null}
@@ -185,10 +173,7 @@ function PreviewRow({
             ) : null}
             <span className="shrink-0 tabular-nums">{formatClock(variant.duration)}</span>
           </p>
-          <div
-            className={cn("mt-1 flex gap-1", active && "invisible")}
-            aria-hidden={active || undefined}
-          >
+          <div className={cn("lp-song-actions", active && "invisible")} aria-hidden={active || undefined}>
             <Button href="/release" variant="quiet" size="sm" disabled={active}>
               Выпустить
             </Button>

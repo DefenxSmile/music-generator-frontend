@@ -1,10 +1,10 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { MediaFrame } from "@/components/ui/media-frame";
 import type { Generation } from "@/types/generation";
 import { cn } from "@/utils/cn";
 import { formatWhen } from "@/utils/format";
 import { generationStatusLabel, isActiveGenerationStatus } from "@/utils/generation-status";
-import { songCoverStyle } from "@/utils/song-visual";
 
 export function GenerationRow({
   generation,
@@ -30,13 +30,9 @@ export function GenerationRow({
           selected && "bg-overlay/6",
         )}
       >
-        <span
-          aria-hidden
-          style={songCoverStyle(generation.id)}
-          className={cn(
-            "size-11 shrink-0 rounded-lg shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-overlay)_18%,transparent)]",
-            !ready && !active && "opacity-40 grayscale",
-          )}
+        <MediaFrame
+          toneId={generation.id}
+          className={cn("size-11", !ready && !active && "opacity-40")}
         />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[0.9375rem] font-medium text-text-primary">

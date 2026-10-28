@@ -2,7 +2,8 @@
 
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { IconButton } from "@/components/ui/icon-button";
-import { formatClock, songCoverStyle } from "@/utils/song-visual";
+import { MediaFrame } from "@/components/ui/media-frame";
+import { formatClock } from "@/utils/song-visual";
 
 /** Rounded player inset from the screen edges. The played part sits between the times. */
 export function PreviewPlayerBar({
@@ -32,7 +33,7 @@ export function PreviewPlayerBar({
     <div className="lp-player-bar">
       <div className="grid h-full grid-cols-[minmax(0,1fr)_minmax(9rem,1.6fr)_minmax(0,1fr)] items-center gap-3 px-4 sm:px-5">
         <div className="flex min-w-0 items-center gap-3">
-          <span aria-hidden style={songCoverStyle(coverId)} className="size-10 shrink-0 rounded-md" />
+          <MediaFrame toneId={coverId} className="size-10" />
           <span className="truncate text-sm font-medium text-text-primary">{title}</span>
         </div>
         <div className="flex min-w-0 flex-col items-center gap-1">

@@ -1,11 +1,11 @@
-/** Cover pairs from the landing examples strip. */
-const COVERS = [
-  { from: "#FFC043", to: "#FF7A4D" },
-  { from: "#3FB6A8", to: "#1C4F58" },
-  { from: "#FFB347", to: "#FF5A36" },
-  { from: "#E85D75", to: "#7B2D4E" },
-  { from: "#6C7A99", to: "#262B36" },
-  { from: "#FF4D6D", to: "#8B1E3F" },
+/** Cover washes: clear hue on top, dark stop below — no muddy mid-gray. */
+const TONES = [
+  { from: "#e08a3a", to: "#3a180c" },
+  { from: "#2f9a8e", to: "#0c2428" },
+  { from: "#d45a72", to: "#2e1018" },
+  { from: "#6a82c4", to: "#141c34" },
+  { from: "#c47a3a", to: "#28140a" },
+  { from: "#8a5ab8", to: "#1e1028" },
 ] as const;
 
 function hash(seed: string): number {
@@ -17,13 +17,10 @@ function hash(seed: string): number {
   return value >>> 0;
 }
 
-function songCover(id: string): { from: string; to: string } {
-  return COVERS[hash(id) % COVERS.length];
-}
-
-export function songCoverStyle(id: string): { backgroundImage: string } {
-  const cover = songCover(id);
-  return { backgroundImage: `linear-gradient(128deg, ${cover.from}, ${cover.to})` };
+/** Stable tint for a song until a real picture replaces the frame. */
+export function coverTone(id: string): { backgroundImage: string } {
+  const tone = TONES[hash(id) % TONES.length];
+  return { backgroundImage: `linear-gradient(148deg, ${tone.from}, ${tone.to})` };
 }
 
 /** Stable pseudo-waveform: the API returns no peaks, so the shape only identifies the song. */
