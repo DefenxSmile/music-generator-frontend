@@ -63,13 +63,12 @@ function request(path: string, init: RequestInit | undefined, headers: Headers):
   return fetch(apiUrl(path), {
     ...init,
     headers,
-    credentials: "include",
     cache: "no-store",
   });
 }
 
 /**
- * Browser call to Java (`JAVA_API_BASE_URL`) with credentials for the refresh cookie.
+ * Browser call to Java (`JAVA_API_BASE_URL`).
  * Does not send headers outside the Java CORS allow-list.
  */
 export async function fetchJson<T>(

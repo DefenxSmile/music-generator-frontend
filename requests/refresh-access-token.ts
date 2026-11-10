@@ -56,7 +56,6 @@ async function performRefresh(): Promise<string | null> {
   try {
     const response = await fetch(`${base}/api/v1/auth/refresh`, {
       method: "POST",
-      credentials: "include",
       cache: "no-store",
       signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
     });

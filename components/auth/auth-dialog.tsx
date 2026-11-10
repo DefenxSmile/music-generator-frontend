@@ -9,7 +9,7 @@ import { YandexIdButton } from "@/components/auth/yandex-id-button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Modal } from "@/components/ui/modal";
 import { OpenAuthContext } from "@/hooks/use-open-auth";
-import { rememberAuthNext, safeNext } from "@/utils/auth-next";
+import { rememberAuthNext, safeNext } from "@/types/auth-next";
 import type { OpenAuthOptions } from "@/types/auth";
 import { javaApiBaseUrl } from "@/utils/java-api";
 

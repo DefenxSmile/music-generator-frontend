@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { Loading } from "@/components/ui/loading";
 import { useSessionStatus } from "@/hooks/use-session-status";
-import { safeNext, takeAuthNext } from "@/utils/auth-next";
+import { safeNext, takeAuthNext } from "@/types/auth-next";
 import { isLoggedOut, isSessionLoading } from "@/utils/session-status";
 
 export default function QualifyPage() {

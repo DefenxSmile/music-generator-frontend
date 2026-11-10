@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { apiErrorMessage } from "@/requests/api-error";
 import { exchangeOauthCode } from "@/requests/auth";
-import { takeAuthNext } from "@/utils/auth-next";
+import { takeAuthNext } from "@/types/auth-next";
 import { clearOauthCallbackCode, readAndClearOauthCallbackCode } from "@/utils/oauth-callback-code";
 
 /**

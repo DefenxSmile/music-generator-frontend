@@ -28,7 +28,7 @@ booting (loading)
 
 1. **Вход (Яндекс):** полный переход на `GET {JAVA_API_BASE_URL}/api/v1/auth/yandex` → callback Java → `/oauth/callback#code=` → `POST /api/v1/auth/oauth/token` → access в памяти + cookie refresh. Код из адреса убирается сразу, stash чистится после успеха.
 2. **Resume (F5 / новая вкладка):** один `session` query: если `lp_logged_out` — null; иначе существующий access или `POST /auth/refresh` (timeout 12s, single-flight).
-3. **Работа:** `fetchJson` шлёт Bearer + `credentials`; на 401 один refresh и retry. Параллельно — proactive refresh за ~60s до `expiresAt` (тот же single-flight).
+3. **Работа:** `fetchJson` шлёт Bearer; на 401 один refresh и retry. Параллельно — proactive refresh за ~60s до `expiresAt` (тот же single-flight).
 4. **Выход:** `POST /auth/logout` best-effort → `lp_logged_out` + clear access → BroadcastChannel / `storage` другим вкладкам.
 5. **Resume failed:** статус `resume_failed`, баннер «Повторить / Войти», `data-qualify-hold` не держится.
 
@@ -41,7 +41,7 @@ booting (loading)
 1. `app.corsOrigins` содержит origin приложения (`http://localhost:3000`, Pages, позже `https://app.…`).
 2. `app.postLoginRedirect` указывает на `{origin}/oauth/callback`.
 3. Ответ `POST /api/v1/auth/oauth/token` и `/auth/refresh` ставят `Set-Cookie: refresh_token=…; HttpOnly; Secure; SameSite=None; Path=/api/v1/auth` (не на 302 callback Яндекса).
-4. Application origin ходит на API **напрямую** с `credentials: "include"` (в Network видно cookie на refresh).
+4. Application origin ходит на API **напрямую** (fetch без `credentials: "include"` — по решению стенда).
 5. Сценарий: вход → F5 → `POST /refresh` 200 → `GET /me` с email; квалификация не открывается повторно.
 6. Выход → F5 → anonymous; другая вкладка тоже сбрасывает access.
 7. Без cookie / с плохим CORS: фронт уходит в `resume_failed` или anonymous, hold не залипает.

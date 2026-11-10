@@ -31,7 +31,6 @@ export async function submitSupportContact(
     const res = await fetch(`${base}/api/v1/support/contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
       cache: "no-store",
       body: JSON.stringify({
         email: payload.email,

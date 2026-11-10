@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useOpenAuth } from "@/hooks/use-open-auth";
 import { useSessionStatus } from "@/hooks/use-session-status";
-import { safeNext } from "@/utils/auth-next";
+import { safeNext } from "@/types/auth-next";
 import { isAuthenticated, isSessionLoading } from "@/utils/session-status";
 
 export function AuthQueryOpener() {

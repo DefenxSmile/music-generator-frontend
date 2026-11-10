@@ -2,13 +2,13 @@
 
 Источник: код в `music-generator-backend` на момент этой записи. Здесь только то, что есть в контроллерах, DTO, обработчике ошибок и `application.yml` / `application-dev.yml`. Полей кампании (`utm_*`, click id, `lp_consent`, `idea`) в Java нет: клиент их не отправляет.
 
-Базовый URL браузера — `JAVA_API_BASE_URL`, без хвоста. Все вызовы с `credentials: "include"`.
+Базовый URL браузера — `JAVA_API_BASE_URL`, без хвоста.
 
 ## CORS
 
 `SecurityConfig` разрешает методы `GET`, `POST`, `DELETE`, `OPTIONS`, заголовки `Authorization`, `Content-Type`, `Idempotency-Key` и `allowCredentials`. Origin берётся из `app.corsOrigins` (строка через запятую).
 
-Браузер всегда ходит в `JAVA_API_BASE_URL` напрямую (и на localhost, и на проде). Отдельного API-слоя Next для Java нет. Сессия: access в памяти вкладки, refresh — HttpOnly cookie Java (`Path=/api/v1/auth`, `Secure`, `SameSite=None`), `credentials: "include"`.
+Браузер всегда ходит в `JAVA_API_BASE_URL` напрямую (и на localhost, и на проде). Отдельного API-слоя Next для Java нет. Сессия: access в памяти вкладки, refresh — HttpOnly cookie Java (`Path=/api/v1/auth`, `Secure`, `SameSite=None`).
 
 `npm run dev` / `start` / Docker — `http://localhost:3000`, тот же origin, что в `app.postLoginRedirect`. В `app.corsOrigins` на стенде и в проде должны быть origin приложения: сейчас как минимум `http://localhost:3000`, позже `https://app.…`, для тестовых Pages — `https://defenxsmile.github.io`. Старт Яндекса — полный переход на хост Java (PKCE-cookie на домене API).
 
@@ -52,7 +52,7 @@
 
 1. Браузер открывает `GET /api/v1/auth/yandex` на `JAVA_API_BASE_URL` (302 на oauth.yandex.ru, PKCE и state в cookie API).
 2. Callback на стороне Java: `GET /api/v1/auth/yandex/callback` → редирект на `{приложение}/oauth/callback#code=…` (`app.postLoginRedirect`).
-3. Фронт читает `#code=`, сразу убирает его из адреса и вызывает `POST /api/v1/auth/oauth/token` с телом `{ "code" }` и `credentials: "include"`. Ответ `200`: `accessToken`, `expiresIn` + `Set-Cookie: refresh_token` (HttpOnly). Код одноразовый (~2 минуты). Refresh на 302 callback Яндекса не ставится.
+3. Фронт читает `#code=`, сразу убирает его из адреса и вызывает `POST /api/v1/auth/oauth/token` с телом `{ "code" }`. Ответ `200`: `accessToken`, `expiresIn` + `Set-Cookie: refresh_token` (HttpOnly). Код одноразовый (~2 минуты). Refresh на 302 callback Яндекса не ставится.
 4. Дальше как обычно: `POST /api/v1/auth/refresh` и `POST /api/v1/auth/logout` с cookie.
 
 VK в OpenAPI стенда нет. Маршрута `/api/v1/auth/oauth/yandex` нет — старт только `/api/v1/auth/yandex`.
