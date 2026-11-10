@@ -18,7 +18,9 @@ describe("fetchJson", () => {
   it("retries once after a successful refresh on 401", async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce(new Response(JSON.stringify({ errorCode: "UNAUTHORIZED" }), { status: 401 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ errorCode: "UNAUTHORIZED" }), { status: 401 }),
+      )
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ accessToken: "access-2", expiresIn: 60 }), {
           status: 200,

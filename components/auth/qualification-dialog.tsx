@@ -44,7 +44,8 @@ export function QualificationDialog() {
     setContentPlace(readContentPlace());
   }, []);
 
-  const answered = isAuthenticated(status) && !QUALIFICATION_EVERY_SESSION && readQualificationDone();
+  const answered =
+    isAuthenticated(status) && !QUALIFICATION_EVERY_SESSION && readQualificationDone();
   const open = isAuthenticated(status) && !blocked && !released && !answered;
 
   useEffect(() => {
@@ -82,8 +83,7 @@ export function QualificationDialog() {
 
   const detailReady = songJob === "gift" ? giftOccasion !== null : contentPlace !== null;
   const canContinue = step === "job" ? songJob !== null : detailReady;
-  const counter =
-    step === "detail" ? "2 из 2" : songJobNeedsDetail(songJob) ? "1 из 2" : null;
+  const counter = step === "detail" ? "2 из 2" : songJobNeedsDetail(songJob) ? "1 из 2" : null;
   const question =
     step === "job"
       ? SONG_JOB_QUESTION
@@ -123,7 +123,10 @@ export function QualificationDialog() {
         Пропустить
       </button>
       <div className="px-7 pb-8 pt-12">
-        <p className="min-h-5 text-center text-sm text-text-dim" aria-hidden={counter ? undefined : true}>
+        <p
+          className="min-h-5 text-center text-sm text-text-dim"
+          aria-hidden={counter ? undefined : true}
+        >
           {counter}
         </p>
         <h2

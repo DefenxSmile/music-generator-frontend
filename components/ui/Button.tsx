@@ -16,8 +16,7 @@ type ButtonProps = {
 } & Omit<ComponentProps<"button">, "children">;
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "lp-accent-gradient lp-cta text-on-accent font-semibold hover:brightness-[1.07]",
+  primary: "lp-accent-gradient lp-cta text-on-accent font-semibold hover:brightness-[1.07]",
   outline: "border border-border text-text-primary hover:border-border-hover hover:bg-bg-card",
   quiet: "text-text-dim hover:text-text-primary",
 };

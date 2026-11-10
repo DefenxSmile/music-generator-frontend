@@ -15,7 +15,8 @@ vi.mock("@/hooks/use-me", () => ({
 }));
 
 vi.mock("@/utils/qualification", async () => {
-  const actual = await vi.importActual<typeof import("@/utils/qualification")>("@/utils/qualification");
+  const actual =
+    await vi.importActual<typeof import("@/utils/qualification")>("@/utils/qualification");
   return {
     ...actual,
     QUALIFICATION_EVERY_SESSION: false,

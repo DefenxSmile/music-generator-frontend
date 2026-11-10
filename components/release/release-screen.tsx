@@ -80,7 +80,8 @@ export function ReleaseScreen() {
         <header>
           <h1 className="text-2xl font-semibold tracking-tight text-text-primary">Релиз</h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-muted">
-            Готовую песню — на площадки. Обложка и видео появятся позже; сейчас можно собрать черновик.
+            Готовую песню — на площадки. Обложка и видео появятся позже; сейчас можно собрать
+            черновик.
           </p>
         </header>
 
@@ -110,7 +111,9 @@ export function ReleaseScreen() {
                 <span className="mt-4 text-[11px] font-medium uppercase tracking-[0.14em] text-text-dim">
                   Черновик
                 </span>
-                <span className="mt-1 truncate text-base font-medium text-text-primary">{title}</span>
+                <span className="mt-1 truncate text-base font-medium text-text-primary">
+                  {title}
+                </span>
                 <span className="mt-1 text-xs text-text-muted">
                   {count} площад{count === 1 ? "ка" : count >= 2 && count <= 4 ? "ки" : "ок"}
                   {draft.updatedAt ? ` · ${formatUpdated(draft.updatedAt)}` : ""}
@@ -123,7 +126,10 @@ export function ReleaseScreen() {
         {drafts.length === 0 ? (
           <p className="text-sm text-text-dim">
             Пока пусто. Соберите черновик или сначала{" "}
-            <a href="/create" className="text-text-muted underline-offset-2 hover:text-text-primary hover:underline">
+            <a
+              href="/create"
+              className="text-text-muted underline-offset-2 hover:text-text-primary hover:underline"
+            >
               создайте песню
             </a>
             .
@@ -160,8 +166,7 @@ function ReleaseEditor({
             onClick={onBack}
             className="inline-flex items-center gap-1 rounded-lg py-1.5 pr-2.5 pl-1.5 text-sm text-text-dim transition-colors duration-150 hover:bg-overlay/10 hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
-            <ChevronLeft aria-hidden className="size-4" strokeWidth={1.75} />
-            К списку
+            <ChevronLeft aria-hidden className="size-4" strokeWidth={1.75} />К списку
           </button>
           <button
             type="button"

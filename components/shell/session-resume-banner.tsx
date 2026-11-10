@@ -35,16 +35,20 @@ export function SessionResumeBanner() {
   }
 
   return (
-    <div
-      role="status"
-      className="border-b border-overlay/8 bg-card px-4 py-3 text-center sm:px-6"
-    >
-      <p className="text-sm text-text-muted">Не удалось восстановить вход. Обновите или войдите снова.</p>
+    <div role="status" className="border-b border-overlay/8 bg-card px-4 py-3 text-center sm:px-6">
+      <p className="text-sm text-text-muted">
+        Не удалось восстановить вход. Обновите или войдите снова.
+      </p>
       <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
         <Button type="button" size="sm" disabled={busy} onClick={() => void retry()}>
           {busy ? "Пробуем" : "Повторить"}
         </Button>
-        <Button type="button" size="sm" variant="quiet" onClick={() => openAuth({ intent: "enter" })}>
+        <Button
+          type="button"
+          size="sm"
+          variant="quiet"
+          onClick={() => openAuth({ intent: "enter" })}
+        >
           Войти
         </Button>
       </div>

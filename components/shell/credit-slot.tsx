@@ -71,7 +71,9 @@ export function CreditSlot({
             >
               {known ? balance : 0}
             </span>
-            <span className={cn("mt-1.5 text-xs text-text-muted", !known && "invisible")}>{word}</span>
+            <span className={cn("mt-1.5 text-xs text-text-muted", !known && "invisible")}>
+              {word}
+            </span>
             <span className="mt-3 border-t border-overlay/10 pt-2.5 text-xs text-text-dim transition-colors duration-150 group-hover:text-text-primary">
               {empty ? "Пополнить" : "К тарифам"}
             </span>

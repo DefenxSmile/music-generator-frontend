@@ -34,7 +34,11 @@ describe("refreshAccessToken", () => {
     setAccessToken("stale");
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(new Response(JSON.stringify({ errorCode: "UNAUTHORIZED" }), { status: 401 })),
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ errorCode: "UNAUTHORIZED" }), { status: 401 }),
+        ),
     );
 
     await expect(refreshAccessToken()).resolves.toBeNull();

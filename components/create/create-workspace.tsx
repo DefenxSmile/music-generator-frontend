@@ -47,7 +47,10 @@ export function CreateWorkspace() {
           <SongComposer draft={draft} onDraft={onDraft} />
         </div>
       </section>
-      <section aria-label="Результат" className="flex min-w-0 flex-1 flex-col lg:min-h-0 lg:overflow-y-auto">
+      <section
+        aria-label="Результат"
+        className="flex min-w-0 flex-1 flex-col lg:min-h-0 lg:overflow-y-auto"
+      >
         <div className="flex min-h-full flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6">
           {id ? (
             <>

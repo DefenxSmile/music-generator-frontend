@@ -69,8 +69,7 @@ export const CONTENT_PLACE_OPTIONS: ReadonlyArray<{
 ];
 
 const SELF_PLACEHOLDER = "Песня для себя, под настроение, которую хочется дослушать…";
-const RELEASE_PLACEHOLDER =
-  "Песня со своим героем и цельным припевом, которую можно выложить…";
+const RELEASE_PLACEHOLDER = "Песня со своим героем и цельным припевом, которую можно выложить…";
 
 const listeners = new Set<() => void>();
 

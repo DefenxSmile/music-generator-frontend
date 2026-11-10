@@ -30,7 +30,11 @@ export function setAccessToken(token: string | null, expiresInSeconds?: number |
   accessToken = token;
   if (!token) {
     accessExpiresAtMs = null;
-  } else if (typeof expiresInSeconds === "number" && Number.isFinite(expiresInSeconds) && expiresInSeconds > 0) {
+  } else if (
+    typeof expiresInSeconds === "number" &&
+    Number.isFinite(expiresInSeconds) &&
+    expiresInSeconds > 0
+  ) {
     accessExpiresAtMs = Date.now() + Math.floor(expiresInSeconds) * 1000;
   } else {
     accessExpiresAtMs = null;

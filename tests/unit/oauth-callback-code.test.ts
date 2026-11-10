@@ -1,8 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  clearOauthCallbackCode,
-  readAndClearOauthCallbackCode,
-} from "@/utils/oauth-callback-code";
+import { clearOauthCallbackCode, readAndClearOauthCallbackCode } from "@/utils/oauth-callback-code";
 
 describe("oauth-callback-code", () => {
   afterEach(() => {

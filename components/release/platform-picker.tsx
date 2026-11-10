@@ -26,10 +26,7 @@ function PlatformChip({
           : "border-transparent bg-transparent text-text-dim hover:border-overlay/15 hover:bg-overlay/5 hover:text-text-muted",
       )}
     >
-      <PlatformMark
-        id={platform.id}
-        className={cn("size-7", selected ? "" : "opacity-55")}
-      />
+      <PlatformMark id={platform.id} className={cn("size-7", selected ? "" : "opacity-55")} />
       <span className={cn("min-w-0 truncate", selected ? "font-medium" : "")}>{platform.name}</span>
       {selected ? (
         <span
@@ -78,7 +75,9 @@ function PlatformGroup({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h3 className="text-sm font-medium text-text-primary">{title}</h3>
-          {note ? <p className="mt-1 max-w-xl text-xs leading-relaxed text-text-dim">{note}</p> : null}
+          {note ? (
+            <p className="mt-1 max-w-xl text-xs leading-relaxed text-text-dim">{note}</p>
+          ) : null}
         </div>
         <p className="text-xs tabular-nums text-text-dim">
           Выбрано: {selectedCount}/{platforms.length}

@@ -129,7 +129,11 @@ export function SongComposer({
                 placeholder="Оставьте пустым, слова напишет песня."
                 minHeightClass="min-h-16"
                 footer={
-                  <div aria-hidden data-open={lyricsOpen ? "true" : "false"} className="lp-lyrics-space" />
+                  <div
+                    aria-hidden
+                    data-open={lyricsOpen ? "true" : "false"}
+                    className="lp-lyrics-space"
+                  />
                 }
                 action={
                   <Button
