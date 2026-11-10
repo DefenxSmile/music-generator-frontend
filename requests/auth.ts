@@ -6,7 +6,7 @@ import { clearLoggedOutIntent, markLoggedOutIntent } from "@/utils/logout-intent
 import { syncProactiveRefresh } from "@/utils/proactive-refresh";
 import { broadcastSessionLogout } from "@/utils/session-broadcast";
 
-/** Exchange `#code=` for access token + Java HttpOnly refresh cookie. */
+/** Exchange `#code=` for access in memory; Java sets HttpOnly refresh cookie on this response. */
 export async function exchangeOauthCode(code: string): Promise<string> {
   const body = await fetchJson<AccessTokenResponse>(
     "/api/v1/auth/oauth/token",
