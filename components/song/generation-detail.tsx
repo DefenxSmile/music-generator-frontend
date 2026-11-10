@@ -2,9 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import {
+  GenerationResult,
+  GenerationResultSkeleton,
+} from "@/components/create/generation-result";
 import { DetailMessage } from "@/components/song/detail-message";
-import { GenerationCard } from "@/components/song/generation-card";
-import { GenerationCardSkeleton } from "@/components/song/generation-card-skeleton";
 import { OpenSongButton } from "@/components/song/open-song-button";
 import { useSessionStatus } from "@/hooks/use-session-status";
 import { useSignedInHint } from "@/hooks/use-signed-in-hint";
@@ -32,12 +34,12 @@ export function GenerationDetail() {
   }
 
   if (isSessionLoading(status) || query.isPending) {
-    return <GenerationCardSkeleton />;
+    return <GenerationResultSkeleton />;
   }
 
   if (query.isError) {
     return <DetailMessage text={apiErrorMessage(query.error)} />;
   }
 
-  return <GenerationCard generation={query.data} />;
+  return <GenerationResult generation={query.data} />;
 }

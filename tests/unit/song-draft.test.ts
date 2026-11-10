@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { composePrompt, descriptionDraft, promptFits } from "@/utils/song-draft";
+import {
+  applyGenerationLyrics,
+  composePrompt,
+  descriptionDraft,
+  promptFits,
+} from "@/utils/song-draft";
 
 describe("composePrompt", () => {
   it("sends idea alone when lyrics are empty", () => {
@@ -26,5 +31,32 @@ describe("promptFits", () => {
 
   it("accepts a short idea", () => {
     expect(promptFits(descriptionDraft("короткая поп-песня про утро"))).toBe(true);
+  });
+});
+
+describe("applyGenerationLyrics", () => {
+  it("fills the field when Java returns lyrics", () => {
+    expect(
+      applyGenerationLyrics(
+        { idea: "поп", lyrics: "напиши текст про Васю" },
+        "gen-1",
+        "[Verse]\nВася",
+        "",
+      ),
+    ).toEqual({
+      draft: { idea: "поп", lyrics: "[Verse]\nВася" },
+      appliedForId: "gen-1",
+    });
+  });
+
+  it("does not overwrite after the first apply for the same generation", () => {
+    expect(
+      applyGenerationLyrics(
+        { idea: "поп", lyrics: "моя правка" },
+        "gen-1",
+        "[Verse]\nВася",
+        "gen-1",
+      ),
+    ).toBeNull();
   });
 });

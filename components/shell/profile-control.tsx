@@ -14,11 +14,14 @@ function profileInitial(email: string | undefined): string {
 
 export function ProfileControl({
   email,
+  loading = false,
   compact = false,
   collapsed = false,
   onNavigate,
 }: {
   email?: string;
+  /** Quiet skeleton while `/me` is still resolving after resume. */
+  loading?: boolean;
   compact?: boolean;
   collapsed?: boolean;
   onNavigate?: () => void;
@@ -33,6 +36,7 @@ export function ProfileControl({
     null,
   );
   const known = Boolean(email);
+  const showSkeleton = loading && !known;
 
   useEffect(() => {
     if (!open) return;
@@ -95,6 +99,7 @@ export function ProfileControl({
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         title={known ? email : undefined}
+        aria-busy={showSkeleton || undefined}
         onClick={() => setOpen((value) => !value)}
         className={cn(
           compact
@@ -105,21 +110,40 @@ export function ProfileControl({
               ),
         )}
       >
-        <span
-          aria-hidden
-          className="grid size-5 shrink-0 place-items-center rounded-full bg-overlay/10 text-[11px] text-text-primary"
-        >
-          {profileInitial(email)}
-        </span>
-        <span className={cn("min-w-0 truncate", collapsed && "sr-only", !known && "invisible")}>
-          {label}
-        </span>
-        {compact ? null : (
-          <ChevronDown
-            aria-hidden
-            className={cn("ml-auto size-4 shrink-0 text-text-dim", collapsed && "hidden")}
-            strokeWidth={1.75}
-          />
+        {showSkeleton ? (
+          <>
+            <span
+              aria-hidden
+              className="size-5 shrink-0 animate-pulse rounded-full bg-overlay/12"
+            />
+            <span
+              aria-hidden
+              className={cn(
+                "h-3.5 max-w-[9rem] flex-1 animate-pulse rounded-md bg-overlay/10",
+                collapsed && "hidden",
+                compact && "min-w-16",
+              )}
+            />
+          </>
+        ) : (
+          <>
+            <span
+              aria-hidden
+              className="grid size-5 shrink-0 place-items-center rounded-full bg-overlay/10 text-[11px] text-text-primary"
+            >
+              {profileInitial(email)}
+            </span>
+            <span className={cn("min-w-0 truncate", collapsed && "sr-only", !known && "invisible")}>
+              {label}
+            </span>
+            {compact ? null : (
+              <ChevronDown
+                aria-hidden
+                className={cn("ml-auto size-4 shrink-0 text-text-dim", collapsed && "hidden")}
+                strokeWidth={1.75}
+              />
+            )}
+          </>
         )}
       </button>
       {open && position

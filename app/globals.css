@@ -402,37 +402,6 @@ html[data-qualify-hold] dialog * {
   color: var(--color-accent);
 }
 
-/* Waveform and generation progress: same motion as the landing result card. */
-@keyframes lp-wave-in {
-  from {
-    transform: scaleY(0.12);
-    opacity: 0.35;
-  }
-  to {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-}
-
-.lp-wave-bar {
-  transform-origin: center;
-  animation: lp-wave-in 420ms var(--ease-move) both;
-  transition: background-color 150ms ease;
-}
-
-@keyframes lp-generating {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(320%);
-  }
-}
-
-.lp-generating-bar {
-  animation: lp-generating 2.4s ease-in-out infinite;
-}
-
 .lp-spin {
   animation: lp-spin 0.9s linear infinite;
 }
@@ -648,8 +617,6 @@ html[data-player] .lp-support-dock {
   html {
     scroll-behavior: auto;
   }
-  .lp-wave-bar,
-  .lp-generating-bar,
   .lp-spin,
   .lp-auth-dialog,
   .lp-auth-dialog::backdrop,

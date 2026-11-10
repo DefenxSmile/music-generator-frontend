@@ -20,10 +20,14 @@ export function CreditSlot({
   const signedIn = useSignedInHint();
   const me = useMe();
   const account = showAccountChrome(status, signedIn);
+  // Guests always see 0 (next-step tile). Signed-in uses /me, with skeleton only while loading.
   const balance = account ? me.data?.balance : 0;
-  const known = balance !== undefined;
-  const empty = known && balance <= 0;
-  const word = known ? creditsLabel(balance).replace(/^-?\d+\s/, "") : "кредитов";
+  const known = !account || typeof me.data?.balance === "number";
+  const loading =
+    account && typeof me.data?.balance !== "number" && (me.isPending || me.isFetching || status === "loading");
+  const displayBalance = known ? (balance as number) : 0;
+  const empty = known && displayBalance <= 0;
+  const word = known ? creditsLabel(displayBalance).replace(/^-?\d+\s/, "") : "кредитов";
 
   return (
     <div
@@ -35,22 +39,36 @@ export function CreditSlot({
       <Link
         href="/plans"
         onClick={onNavigate}
-        title={collapsed && known ? creditsLabel(balance) : undefined}
-        aria-label={known ? `${creditsLabel(balance)}. Тарифы` : "Тарифы"}
+        title={collapsed && known ? creditsLabel(displayBalance) : undefined}
+        aria-label={known ? `${creditsLabel(displayBalance)}. Тарифы` : "Тарифы"}
+        aria-busy={loading || undefined}
         className={cn(
           "group flex min-w-0 flex-col rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
           collapsed && "items-center",
         )}
       >
         {collapsed ? (
-          <span
-            className={cn(
-              "text-base font-semibold tabular-nums leading-none text-text-primary",
-              !known && "invisible",
-            )}
-          >
-            {known ? balance : 0}
-          </span>
+          loading ? (
+            <span aria-hidden className="h-4 w-6 animate-pulse rounded-md bg-overlay/12" />
+          ) : (
+            <span className="text-base font-semibold tabular-nums leading-none text-text-primary">
+              {displayBalance}
+            </span>
+          )
+        ) : loading ? (
+          <>
+            <span className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-text-dim">
+                Баланс
+              </span>
+              <ChevronRight aria-hidden className="size-3.5 text-text-dim" strokeWidth={1.75} />
+            </span>
+            <span aria-hidden className="mt-2.5 h-7 w-16 animate-pulse rounded-md bg-overlay/12" />
+            <span aria-hidden className="mt-2 h-3 w-20 animate-pulse rounded-md bg-overlay/8" />
+            <span className="mt-3 border-t border-overlay/10 pt-2.5 text-xs text-text-dim">
+              К тарифам
+            </span>
+          </>
         ) : (
           <>
             <span className="flex items-center justify-between gap-2">
@@ -63,17 +81,10 @@ export function CreditSlot({
                 strokeWidth={1.75}
               />
             </span>
-            <span
-              className={cn(
-                "mt-2.5 text-[1.75rem] font-semibold tabular-nums leading-none tracking-tight text-text-primary",
-                !known && "invisible",
-              )}
-            >
-              {known ? balance : 0}
+            <span className="mt-2.5 text-[1.75rem] font-semibold tabular-nums leading-none tracking-tight text-text-primary">
+              {displayBalance}
             </span>
-            <span className={cn("mt-1.5 text-xs text-text-muted", !known && "invisible")}>
-              {word}
-            </span>
+            <span className="mt-1.5 text-xs text-text-muted">{word}</span>
             <span className="mt-3 border-t border-overlay/10 pt-2.5 text-xs text-text-dim transition-colors duration-150 group-hover:text-text-primary">
               {empty ? "Пополнить" : "К тарифам"}
             </span>

@@ -27,5 +27,6 @@ export function AccountActions() {
     );
   }
 
-  return <ProfileControl email={me.data?.email} compact />;
+  const loading = !me.data?.email && (me.isPending || me.isFetching || status === "loading");
+  return <ProfileControl email={me.data?.email} loading={loading} compact />;
 }

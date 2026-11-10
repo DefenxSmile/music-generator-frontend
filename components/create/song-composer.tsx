@@ -25,9 +25,12 @@ import { composePrompt, promptFits } from "@/utils/song-draft";
 export function SongComposer({
   draft,
   onDraft,
+  generationBusy = false,
 }: {
   draft: SongDraft;
   onDraft: (draft: SongDraft) => void;
+  /** True while the open generation is still writing/running — block a second create. */
+  generationBusy?: boolean;
 }) {
   const openAuth = useOpenAuth();
   const status = useSessionStatus();
@@ -44,7 +47,7 @@ export function SongComposer({
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = prompt.trim();
-    if (!value || tooLong || isSessionLoading(status)) return;
+    if (!value || tooLong || isSessionLoading(status) || generationBusy) return;
     if (isLoggedOut(status)) {
       rememberLead("auth", null, value);
       openAuth({ intent: "create", next: createWorkspaceHref() });
@@ -102,6 +105,7 @@ export function SongComposer({
     promptFits(draft) &&
     !isSessionLoading(status) &&
     !create.isPending &&
+    !generationBusy &&
     (isLoggedOut(status) || quote.isSuccess);
 
   return (
@@ -181,7 +185,11 @@ export function SongComposer({
                 disabled={!canSubmit}
                 className="min-h-12 shrink-0"
               >
-                {create.isPending ? "Отправляем…" : "Создать песню"}
+                {create.isPending
+                  ? "Отправляем…"
+                  : generationBusy
+                    ? "Песня в работе…"
+                    : "Создать песню"}
               </Button>
             </div>
           </div>

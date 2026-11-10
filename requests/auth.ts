@@ -4,6 +4,7 @@ import { setAccessToken } from "@/utils/access-token";
 import { readAccessTokenResponse } from "@/utils/access-token-response";
 import { clearLoggedOutIntent, markLoggedOutIntent } from "@/utils/logout-intent";
 import { syncProactiveRefresh } from "@/utils/proactive-refresh";
+import { clearMeSnapshot } from "@/utils/me-snapshot";
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from "@/utils/refresh-token";
 import { broadcastSessionLogout } from "@/utils/session-broadcast";
 
@@ -41,6 +42,7 @@ export async function logoutAccount(): Promise<void> {
     markLoggedOutIntent();
     setAccessToken(null);
     clearRefreshToken();
+    clearMeSnapshot();
     syncProactiveRefresh();
     broadcastSessionLogout();
   }

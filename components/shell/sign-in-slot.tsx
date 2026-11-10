@@ -24,7 +24,15 @@ export function SignInSlot({
   const account = showAccountChrome(status, signedIn);
 
   if (account) {
-    return <ProfileControl email={me.data?.email} collapsed={collapsed} onNavigate={onNavigate} />;
+    const loading = !me.data?.email && (me.isPending || me.isFetching || status === "loading");
+    return (
+      <ProfileControl
+        email={me.data?.email}
+        loading={loading}
+        collapsed={collapsed}
+        onNavigate={onNavigate}
+      />
+    );
   }
 
   return (

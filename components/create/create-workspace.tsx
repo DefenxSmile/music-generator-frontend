@@ -1,20 +1,33 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ResultStage } from "@/components/create/result-stage";
 import { SongComposer } from "@/components/create/song-composer";
 import { GenerationDetail } from "@/components/song/generation-detail";
+import { useSessionStatus } from "@/hooks/use-session-status";
+import { generationQueryOptions } from "@/requests/generations-query";
 import type { SongDraft } from "@/types/song-draft";
 import { persistHeroIdea, resolveInitialIdea } from "@/utils/hero-idea";
-import { descriptionDraft, persistSongDraft, readSongDraft } from "@/utils/song-draft";
+import { isActiveGenerationStatus } from "@/utils/generation-status";
+import { isAuthenticated } from "@/utils/session-status";
+import {
+  applyGenerationLyrics,
+  descriptionDraft,
+  persistSongDraft,
+  readSongDraft,
+} from "@/utils/song-draft";
 
 const EMPTY_DRAFT: SongDraft = { idea: "", lyrics: "" };
 
 export function CreateWorkspace() {
   const id = useSearchParams().get("id")?.trim() ?? "";
+  const status = useSessionStatus();
+  const generation = useQuery(generationQueryOptions(id, isAuthenticated(status)));
   const [draft, setDraft] = useState<SongDraft>(EMPTY_DRAFT);
   const sourceRef = useRef("");
+  const lyricsAppliedForId = useRef("");
 
   useEffect(() => {
     const hero = resolveInitialIdea(window.location.search);
@@ -31,6 +44,24 @@ export function CreateWorkspace() {
     setDraft(next);
   }, []);
 
+  useEffect(() => {
+    lyricsAppliedForId.current = "";
+  }, [id]);
+
+  useEffect(() => {
+    const applied = applyGenerationLyrics(
+      draft,
+      id,
+      generation.data?.lyrics,
+      lyricsAppliedForId.current,
+    );
+    if (!applied) return;
+    lyricsAppliedForId.current = applied.appliedForId;
+    if (applied.draft === draft) return;
+    setDraft(applied.draft);
+    persistSongDraft(applied.draft, sourceRef.current);
+  }, [draft, id, generation.data?.lyrics]);
+
   function onDraft(next: SongDraft) {
     setDraft(next);
     persistSongDraft(next, sourceRef.current);
@@ -44,7 +75,13 @@ export function CreateWorkspace() {
       >
         <div className="flex flex-col p-4 sm:p-5 lg:min-h-0 lg:flex-1">
           <h1 className="sr-only">Песня</h1>
-          <SongComposer draft={draft} onDraft={onDraft} />
+          <SongComposer
+            draft={draft}
+            onDraft={onDraft}
+            generationBusy={Boolean(
+              id && generation.data && isActiveGenerationStatus(generation.data.status),
+            )}
+          />
         </div>
       </section>
       <section

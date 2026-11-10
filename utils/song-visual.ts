@@ -23,21 +23,6 @@ export function coverTone(id: string): { backgroundImage: string } {
   return { backgroundImage: `linear-gradient(148deg, ${tone.from}, ${tone.to})` };
 }
 
-/** Stable pseudo-waveform: the API returns no peaks, so the shape only identifies the song. */
-export function songWaveform(id: string, bars = 56): number[] {
-  let state = hash(id) || 1;
-  const values: number[] = [];
-  for (let index = 0; index < bars; index += 1) {
-    state ^= state << 13;
-    state ^= state >>> 17;
-    state ^= state << 5;
-    const noise = ((state >>> 0) % 1000) / 1000;
-    const envelope = 0.55 + 0.45 * Math.sin((index / bars) * Math.PI);
-    values.push(Math.max(0.14, Math.min(1, envelope * (0.35 + noise * 0.65))));
-  }
-  return values;
-}
-
 export function formatClock(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const whole = Math.floor(seconds);

@@ -52,3 +52,16 @@ export function persistSongDraft(draft: SongDraft, source: string): void {
   const stored: StoredSongDraft = { idea: draft.idea, lyrics: draft.lyrics, source };
   window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(stored));
 }
+
+/** Fill the lyrics field from Java once per generation; later polls must not wipe edits. */
+export function applyGenerationLyrics(
+  draft: SongDraft,
+  generationId: string,
+  lyrics: string | null | undefined,
+  appliedForId: string,
+): { draft: SongDraft; appliedForId: string } | null {
+  const value = lyrics?.replace(/\r\n/g, "\n").trim() ?? "";
+  if (!generationId || !value || appliedForId === generationId) return null;
+  if (draft.lyrics === value) return { draft, appliedForId: generationId };
+  return { draft: { ...draft, lyrics: value }, appliedForId: generationId };
+}
