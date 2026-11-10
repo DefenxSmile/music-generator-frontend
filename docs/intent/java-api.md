@@ -78,6 +78,17 @@ Cookie ставит Java на свой хост; фронт её не читае
 
 `app.postLoginRedirect` на стенде: `http://localhost:3000/oauth/callback`. Локальный `npm run dev` слушает тот же порт, поэтому после Яндекса callback попадает в это приложение.
 
+## Поддержка
+
+Публичный endpoint (без access token). App и лендинг шлют одно и то же тело.
+
+`POST /api/v1/support/contact`  
+Тело (camelCase): `email` (обязательно), `message` (обязательно, до 4000), `name` (до 120), `source` (`app` | `landing`), `pageUrl` (до 2000), `company` (honeypot — непустое → `{ ok: true, skipped: true }` без Telegram).  
+Успех `200`: `{ "ok": true }`.  
+Нет `TELEGRAM_BOT_TOKEN` / `TELEGRAM_SUPPORT_CHAT_ID` → `503` `SUPPORT_NOT_CONFIGURED` «Канал поддержки не настроен.»  
+Сбой Telegram → `502` `SUPPORT_DELIVERY_FAILED`.  
+Лимит с одного IP → `429`.
+
 ## Профиль и баланс
 
 Нужен `Authorization: Bearer <accessToken>`.

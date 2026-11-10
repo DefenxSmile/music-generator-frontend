@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Support contact → POST /api/support/contact → Telegram.
+ * Support contact → Java `POST /api/v1/support/contact` → Telegram.
  * Layout follows ViralThumblify: phone sheet, desktop popover, quick topics, honeypot.
  * The dock stays pointer-events-none so a closed panel does not cover the page.
  */
@@ -13,13 +13,13 @@ import Button from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useSupportProactiveNudge } from "@/hooks/use-support-proactive-nudge";
+import { submitSupportContact } from "@/requests/support";
 import { SUPPORT_CONTACT_EMAIL } from "@/utils/support";
 import { cn } from "@/utils/cn";
 
 export type SupportWidgetProps = {
   source: "app";
   defaultEmail?: string;
-  postUrl?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** Phone: no floating button. The menu opens the sheet. */
@@ -38,7 +38,6 @@ type PanelBodyProps = {
   honeypot: string;
   error: string | null;
   submitting: boolean;
-  postUrl: string;
   onEmailChange: (value: string) => void;
   onNameChange: (value: string) => void;
   onMessageChange: (value: string) => void;
@@ -58,7 +57,6 @@ function SupportPanelBody({
   honeypot,
   error,
   submitting,
-  postUrl,
   onEmailChange,
   onNameChange,
   onMessageChange,
@@ -171,12 +169,7 @@ function SupportPanelBody({
 
             {error ? <p className="mb-2 text-xs text-accent-warm">{error}</p> : null}
 
-            <Button
-              type="button"
-              disabled={submitting || !postUrl}
-              onClick={onSubmit}
-              className="w-full"
-            >
+            <Button type="button" disabled={submitting} onClick={onSubmit} className="w-full">
               <Send className="size-4" strokeWidth={1.75} aria-hidden />
               {submitting ? "Отправляем…" : "Отправить"}
             </Button>
@@ -190,7 +183,6 @@ function SupportPanelBody({
 export function SupportWidget({
   source,
   defaultEmail = "",
-  postUrl: postUrlProp,
   open: openProp,
   onOpenChange,
   hideMobileLauncher = false,
@@ -204,7 +196,6 @@ export function SupportWidget({
     onOpenChange?.(next);
   };
   const [mounted, setMounted] = useState(false);
-  const [postUrl, setPostUrl] = useState("");
   const [email, setEmail] = useState(defaultEmail);
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
@@ -233,21 +224,6 @@ export function SupportWidget({
   }, [defaultEmail]);
 
   useEffect(() => {
-    if (postUrlProp?.trim()) {
-      setPostUrl(postUrlProp.trim());
-      return;
-    }
-    const fromEnv = process.env.NEXT_PUBLIC_SUPPORT_API_URL?.trim();
-    if (fromEnv) {
-      setPostUrl(fromEnv);
-      return;
-    }
-    if (typeof window !== "undefined") {
-      setPostUrl(`${window.location.origin}/api/support/contact`);
-    }
-  }, [postUrlProp]);
-
-  useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -272,54 +248,27 @@ export function SupportWidget({
       setError("Напишите сообщение.");
       return;
     }
-    if (!postUrl) {
-      setError("Адрес поддержки ещё не готов. Попробуйте ещё раз.");
-      return;
-    }
     setSubmitting(true);
     try {
-      const res = await fetch(postUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: em,
-          message: msg,
-          name: name.trim() || undefined,
-          source,
-          page_url:
-            typeof window !== "undefined"
-              ? `${window.location.pathname}${window.location.search}`
-              : undefined,
-          company: honeypot || undefined,
-        }),
+      const result = await submitSupportContact({
+        email: em,
+        message: msg,
+        name: name.trim() || undefined,
+        source,
+        pageUrl:
+          typeof window !== "undefined"
+            ? `${window.location.pathname}${window.location.search}`
+            : undefined,
+        company: honeypot || undefined,
       });
-      let body: unknown;
-      try {
-        body = await res.json();
-      } catch {
-        body = null;
-      }
-      const ok =
-        res.ok && body && typeof body === "object" && "ok" in body && (body as { ok: boolean }).ok;
-      if (ok) {
+      if (result.ok) {
         setSent(true);
         setHasSubmittedThisSession(true);
         setMessage("");
         setTimeout(() => setSent(false), 8000);
         return;
       }
-      let messageText: string | null = null;
-      if (body && typeof body === "object" && "message" in body) {
-        const responseMessage = (body as { message: unknown }).message;
-        if (Array.isArray(responseMessage)) {
-          messageText = responseMessage.filter((item) => typeof item === "string").join(", ");
-        } else if (typeof responseMessage === "string") {
-          messageText = responseMessage;
-        }
-      }
-      setError(messageText || `Что-то пошло не так (${res.status}). Попробуйте позже.`);
-    } catch {
-      setError("Ошибка сети. Попробуйте ещё раз.");
+      setError(result.message);
     } finally {
       setSubmitting(false);
     }
@@ -338,7 +287,6 @@ export function SupportWidget({
     honeypot,
     error,
     submitting,
-    postUrl,
     onEmailChange: setEmail,
     onNameChange: setName,
     onMessageChange: setMessage,
