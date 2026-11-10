@@ -8,7 +8,7 @@
 
 `SecurityConfig` разрешает методы `GET`, `POST`, `DELETE`, `OPTIONS`, заголовки `Authorization`, `Content-Type`, `Idempotency-Key` и `allowCredentials`. Origin берётся из `app.corsOrigins` (строка через запятую).
 
-Браузер всегда ходит в `JAVA_API_BASE_URL` напрямую (и на localhost, и на проде). Отдельного API-слоя Next для Java нет. Сессия: access в памяти вкладки, refresh — HttpOnly cookie Java (`Path=/api/v1/auth`, `Secure`, `SameSite=None`).
+Браузер по умолчанию ходит в `JAVA_API_BASE_URL` напрямую. Локальный обход CORS: `JAVA_API_PROXY=1` в `.env` — Next rewrite `/api/v1/*` на Java (не для GitHub Pages `output: export`). Старт Яндекса всегда на абсолютный origin API. Сессия: access в памяти вкладки, refresh — HttpOnly cookie Java (`Path=/api/v1/auth`, `Secure`, `SameSite=None`).
 
 `npm run dev` / `start` / Docker — `http://localhost:3000`, тот же origin, что в `app.postLoginRedirect`. В `app.corsOrigins` на стенде и в проде должны быть origin приложения: сейчас как минимум `http://localhost:3000`, позже `https://app.…`, для тестовых Pages — `https://defenxsmile.github.io`. Старт Яндекса — полный переход на хост Java (PKCE-cookie на домене API).
 

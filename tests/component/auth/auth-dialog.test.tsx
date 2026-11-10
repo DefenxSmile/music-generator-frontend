@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/utils/java-api", () => ({
-  javaApiBaseUrl: vi.fn(() => ""),
+  javaApiOrigin: vi.fn(() => ""),
 }));
 
 function OpenButton() {

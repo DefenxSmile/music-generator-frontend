@@ -1,7 +1,7 @@
 import { ApiError } from "@/requests/api-error";
 import { refreshAccessToken } from "@/requests/refresh-access-token";
 import { getAccessToken } from "@/utils/access-token";
-import { javaApiBaseUrl } from "@/utils/java-api";
+import { javaApiConfigured, javaApiUrl } from "@/utils/java-api";
 
 const NO_REFRESH_PATHS = new Set(["/api/v1/auth/refresh", "/api/v1/auth/logout"]);
 
@@ -11,11 +11,10 @@ type FetchJsonOptions = {
 };
 
 function apiUrl(path: string): string {
-  const base = javaApiBaseUrl();
-  if (!base) {
+  if (!javaApiConfigured()) {
     throw new ApiError("Не задан адрес API (JAVA_API_BASE_URL).", 0, "API_BASE_MISSING");
   }
-  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  return javaApiUrl(path);
 }
 
 async function parseError(response: Response): Promise<ApiError> {

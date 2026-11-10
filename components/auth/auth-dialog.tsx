@@ -11,7 +11,7 @@ import { Modal } from "@/components/ui/modal";
 import { OpenAuthContext } from "@/hooks/use-open-auth";
 import { rememberAuthNext, safeNext } from "@/types/auth-next";
 import type { OpenAuthOptions } from "@/types/auth";
-import { javaApiBaseUrl } from "@/utils/java-api";
+import { javaApiOrigin } from "@/utils/java-api";
 
 export function AuthDialogProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -34,15 +34,15 @@ export function AuthDialogProvider({ children }: { children: ReactNode }) {
   }
 
   function startYandex() {
-    const base = javaApiBaseUrl();
-    if (!base) {
+    const origin = javaApiOrigin();
+    if (!origin) {
       setConfigError("Не задан адрес API. Проверьте JAVA_API_BASE_URL.");
       return;
     }
     setLeaving(true);
     setOpen(false);
-    // Full navigation to Java so PKCE cookies stay on the API host.
-    window.location.assign(`${base}/api/v1/auth/yandex`);
+    // Full navigation to Java so PKCE cookies stay on the API host (not the local proxy).
+    window.location.assign(`${origin}/api/v1/auth/yandex`);
   }
 
   return (

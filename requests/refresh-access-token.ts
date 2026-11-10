@@ -1,6 +1,6 @@
 import { getAccessToken, setAccessToken } from "@/utils/access-token";
 import { readAccessTokenResponse } from "@/utils/access-token-response";
-import { javaApiBaseUrl } from "@/utils/java-api";
+import { javaApiConfigured, javaApiUrl } from "@/utils/java-api";
 import { syncProactiveRefresh } from "@/utils/proactive-refresh";
 
 /** Fail open so session loading / qualify-hold cannot stick forever. */
@@ -45,8 +45,7 @@ export function refreshAccessToken(): Promise<string | null> {
 }
 
 async function performRefresh(): Promise<string | null> {
-  const base = javaApiBaseUrl();
-  if (!base) {
+  if (!javaApiConfigured()) {
     setAccessToken(null);
     syncProactiveRefresh();
     return null;
@@ -54,7 +53,7 @@ async function performRefresh(): Promise<string | null> {
 
   const previous = getAccessToken();
   try {
-    const response = await fetch(`${base}/api/v1/auth/refresh`, {
+    const response = await fetch(javaApiUrl("/api/v1/auth/refresh"), {
       method: "POST",
       cache: "no-store",
       signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),

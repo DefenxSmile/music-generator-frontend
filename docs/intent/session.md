@@ -41,7 +41,7 @@ booting (loading)
 1. `app.corsOrigins` содержит origin приложения (`http://localhost:3000`, Pages, позже `https://app.…`).
 2. `app.postLoginRedirect` указывает на `{origin}/oauth/callback`.
 3. Ответ `POST /api/v1/auth/oauth/token` и `/auth/refresh` ставят `Set-Cookie: refresh_token=…; HttpOnly; Secure; SameSite=None; Path=/api/v1/auth` (не на 302 callback Яндекса).
-4. Application origin ходит на API **напрямую** (fetch без `credentials: "include"` — по решению стенда).
+4. Application origin по умолчанию ходит на API напрямую. Для локалки без рабочего CORS: `JAVA_API_PROXY=1` — Next rewrite `/api/v1/*` → Java (same-origin). Яндекс по-прежнему открывается на абсолютном `JAVA_API_BASE_URL`.
 5. Сценарий: вход → F5 → `POST /refresh` 200 → `GET /me` с email; квалификация не открывается повторно.
 6. Выход → F5 → anonymous; другая вкладка тоже сбрасывает access.
 7. Без cookie / с плохим CORS: фронт уходит в `resume_failed` или anonymous, hold не залипает.

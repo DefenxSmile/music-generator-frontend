@@ -12,11 +12,15 @@ const securityHeaders = [
 
 const githubPages = process.env.GITHUB_PAGES === "1";
 const pagesBase = process.env.GITHUB_PAGES_BASE ?? "";
+const javaApiOrigin = (process.env.JAVA_API_BASE_URL ?? "").trim().replace(/\/+$/, "");
+/** Local/dev crutch: browser → same-origin `/api/v1` → Next rewrite → Java (avoids CORS). */
+const javaApiProxy = !githubPages && process.env.JAVA_API_PROXY === "1" && Boolean(javaApiOrigin);
 
 const nextConfig: NextConfig = {
   output: githubPages ? "export" : "standalone",
   env: {
-    JAVA_API_BASE_URL: process.env.JAVA_API_BASE_URL ?? "",
+    JAVA_API_BASE_URL: javaApiOrigin,
+    NEXT_PUBLIC_JAVA_API_PROXY: javaApiProxy ? "1" : "",
   },
   ...(githubPages
     ? {
@@ -25,6 +29,15 @@ const nextConfig: NextConfig = {
         trailingSlash: true,
       }
     : {
+        async rewrites() {
+          if (!javaApiProxy) return [];
+          return [
+            {
+              source: "/api/v1/:path*",
+              destination: `${javaApiOrigin}/api/v1/:path*`,
+            },
+          ];
+        },
         async headers() {
           return [
             {

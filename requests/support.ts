@@ -1,4 +1,4 @@
-import { javaApiBaseUrl } from "@/utils/java-api";
+import { javaApiConfigured, javaApiUrl } from "@/utils/java-api";
 
 export type SupportContactSource = "app" | "landing";
 
@@ -22,13 +22,12 @@ export type SupportContactResult =
 export async function submitSupportContact(
   payload: SupportContactPayload,
 ): Promise<SupportContactResult> {
-  const base = javaApiBaseUrl();
-  if (!base) {
+  if (!javaApiConfigured()) {
     return { ok: false, status: 0, message: "Не задан адрес API (JAVA_API_BASE_URL)." };
   }
 
   try {
-    const res = await fetch(`${base}/api/v1/support/contact`, {
+    const res = await fetch(javaApiUrl("/api/v1/support/contact"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
