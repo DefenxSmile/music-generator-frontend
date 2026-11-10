@@ -5,6 +5,7 @@ import { useMe } from "@/hooks/use-me";
 import { useSessionStatus } from "@/hooks/use-session-status";
 import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { ProfileControl } from "@/components/shell/profile-control";
+import { showAccountChrome } from "@/utils/session-status";
 
 /** Account control for the mobile bar and the header shown without the rail. */
 export function AccountActions() {
@@ -12,7 +13,7 @@ export function AccountActions() {
   const signedIn = useSignedInHint();
   const me = useMe();
   const openAuth = useOpenAuth();
-  const account = status === "authenticated" || (status === "loading" && signedIn);
+  const account = showAccountChrome(status, signedIn);
 
   if (!account) {
     return (

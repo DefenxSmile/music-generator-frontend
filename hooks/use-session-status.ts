@@ -1,27 +1,50 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAccessToken } from "@/hooks/use-access-token";
 import { useHydrated } from "@/hooks/use-hydrated";
-import { writeSignedInHint } from "@/hooks/use-signed-in-hint";
+import { readSignedInHint, writeSignedInHint } from "@/hooks/use-signed-in-hint";
 import { sessionQueryOptions } from "@/requests/session";
 import type { SessionStatus } from "@/types/session";
-import { DEV_ACCESS_TOKEN } from "@/utils/dev-oauth";
+import { readLoggedOutIntent } from "@/utils/logout-intent";
 
+/**
+ * Single owner of session phase for the tab.
+ * States: loading → authenticated | anonymous | resume_failed.
+ */
 export function useSessionStatus(): SessionStatus {
   const hydrated = useHydrated();
   const token = useAccessToken();
-  const resume = useQuery(sessionQueryOptions());
+  const pathname = usePathname();
+  const onOauthCallback = pathname.startsWith("/oauth");
+  const resume = useQuery(sessionQueryOptions(!onOauthCallback));
+  const [resumeFailed, setResumeFailed] = useState(false);
 
   useEffect(() => {
+    if (onOauthCallback) return;
     if (!resume.isFetched) return;
-    writeSignedInHint(Boolean(token));
-  }, [resume.isFetched, token]);
+
+    if (token) {
+      setResumeFailed(false);
+      writeSignedInHint(true);
+      return;
+    }
+
+    // Capture hint before clearing: previously signed-in tab that could not refresh.
+    if (readSignedInHint() && !readLoggedOutIntent()) {
+      setResumeFailed(true);
+    } else {
+      setResumeFailed(false);
+    }
+    writeSignedInHint(false);
+  }, [onOauthCallback, resume.isFetched, token]);
 
   if (!hydrated) return "loading";
-  // Dev sign-in writes the token while the first refresh may still be running.
-  if (token === DEV_ACCESS_TOKEN) return "authenticated";
+  if (onOauthCallback) return token ? "authenticated" : "loading";
   if (!resume.isFetched) return "loading";
-  return token ? "authenticated" : "anonymous";
+  if (token) return "authenticated";
+  if (resumeFailed) return "resume_failed";
+  return "anonymous";
 }

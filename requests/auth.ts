@@ -1,18 +1,43 @@
 import { fetchJson } from "@/requests/fetch-json";
-import { getAccessToken, setAccessToken } from "@/utils/access-token";
-import { clearDevOauth, DEV_ACCESS_TOKEN, readDevOauth } from "@/utils/dev-oauth";
+import type { AccessTokenResponse } from "@/types/auth";
+import { setAccessToken } from "@/utils/access-token";
+import { readAccessTokenResponse } from "@/utils/access-token-response";
+import { clearLoggedOutIntent, markLoggedOutIntent } from "@/utils/logout-intent";
+import { syncProactiveRefresh } from "@/utils/proactive-refresh";
+import { broadcastSessionLogout } from "@/utils/session-broadcast";
+
+/** Exchange `#code=` for access token + Java HttpOnly refresh cookie. */
+export async function exchangeOauthCode(code: string): Promise<string> {
+  const body = await fetchJson<AccessTokenResponse>(
+    "/api/v1/auth/oauth/token",
+    { method: "POST", body: JSON.stringify({ code }) },
+    { retryOnUnauthorized: false },
+  );
+  const parsed = readAccessTokenResponse(body);
+  if (!parsed) throw new Error("Нет accessToken");
+  clearLoggedOutIntent();
+  setAccessToken(parsed.accessToken, parsed.expiresIn);
+  syncProactiveRefresh();
+  return parsed.accessToken;
+}
+
+/**
+ * Best-effort Java logout, then always drop local access.
+ * Marks logout intent so a leftover refresh cookie cannot silently restore the session.
+ */
 export async function logoutAccount(): Promise<void> {
-  const dev = getAccessToken() === DEV_ACCESS_TOKEN || readDevOauth() !== null;
-  clearDevOauth();
   try {
-    if (!dev) {
-      await fetchJson<void>(
-        "/api/v1/auth/logout",
-        { method: "POST" },
-        { retryOnUnauthorized: false },
-      );
-    }
+    await fetchJson<void>(
+      "/api/v1/auth/logout",
+      { method: "POST" },
+      { retryOnUnauthorized: false },
+    );
   } finally {
+    markLoggedOutIntent();
     setAccessToken(null);
+    syncProactiveRefresh();
+    broadcastSessionLogout();
   }
 }
+
+export { refreshAccessToken } from "@/requests/refresh-access-token";

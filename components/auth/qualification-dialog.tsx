@@ -25,6 +25,7 @@ import {
   songJobNeedsDetail,
 } from "@/utils/qualification";
 import type { ContentPlace, GiftOccasion, SongJob } from "@/types/qualification";
+import { isAuthenticated, isSessionLoading } from "@/utils/session-status";
 
 export function QualificationDialog() {
   const pathname = usePathname();
@@ -43,18 +44,25 @@ export function QualificationDialog() {
     setContentPlace(readContentPlace());
   }, []);
 
-  const answered = status === "authenticated" && !QUALIFICATION_EVERY_SESSION && readQualificationDone();
-  const open = status === "authenticated" && !blocked && !released && !answered;
+  const answered = isAuthenticated(status) && !QUALIFICATION_EVERY_SESSION && readQualificationDone();
+  const open = isAuthenticated(status) && !blocked && !released && !answered;
 
   useEffect(() => {
     if (open) setStep("job");
   }, [open]);
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (open) document.documentElement.setAttribute("data-qualify-hold", "");
-    else document.documentElement.removeAttribute("data-qualify-hold");
-  }, [open, status]);
+    if (blocked) {
+      document.documentElement.removeAttribute("data-qualify-hold");
+      return;
+    }
+    // Hold only while resume is in flight or questions are open — never on resume_failed.
+    if (isSessionLoading(status) || open) {
+      document.documentElement.setAttribute("data-qualify-hold", "");
+    } else {
+      document.documentElement.removeAttribute("data-qualify-hold");
+    }
+  }, [blocked, open, status]);
 
   function dismiss() {
     if (!readQualificationDone()) {

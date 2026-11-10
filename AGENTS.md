@@ -8,7 +8,11 @@
 
 ```bash
 npm install
-npm run dev          # http://localhost:3010
+npm run dev          # http://localhost:3000
+npm test             # tests/unit + component + integration
+npm run test:unit
+npm run test:component
+npm run test:integration
 npm run typecheck
 npm run lint
 npm run build
@@ -26,11 +30,14 @@ GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request г�
 - `hooks/` — один хук на файл. Экраны не собирают `queryKey` сами
 - `requests/` — HTTP и опции TanStack Query, по одному ресурсу на файл
 - `types/` — типы доменов. `utils/` — чистые функции и локальное хранение: токен, лид, квалификация, идея, ссылки и статус песни, тарифы
+- `tests/` — пирамида: `unit/`, `component/`, `integration/`. Рядом с исходниками тесты не класть
 - `docs/intent/java-api.md` — контракт Java, как он есть в коде
+- `docs/intent/session.md` — сессия end-to-end и чеклист CORS/cookie
 - `docs/intent/product.md` — версии продукта, активация и экраны онбординга
 - `docs/decisions/` — принятые решения, в том числе регистрация без подтверждения почты
 - `.cursor/rules/project-memory.mdc` — уже принятые решения
 - `.cursor/rules/ui-quality.mdc` и `.cursor/skills/ui-quality/SKILL.md` — планка интерфейса на каждую правку вёрстки и новую фичу
+- `.cursor/rules/test-pyramid.mdc` и `.cursor/skills/test-pyramid/SKILL.md` — где и как писать тесты
 - `.cursor/skills/`, `.cursor/agents/` — навыки и субагенты; субагенты читают project memory
 
 ## Рядом, только чтение

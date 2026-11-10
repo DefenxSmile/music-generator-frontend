@@ -1,9 +1,7 @@
 import type { Generation } from "@/types/generation";
 import { fetchJson } from "@/requests/fetch-json";
-import { getAccessToken } from "@/utils/access-token";
-import { DEV_ACCESS_TOKEN } from "@/utils/dev-oauth";
+
 export function listGenerations(): Promise<Generation[]> {
-  if (getAccessToken() === DEV_ACCESS_TOKEN) return Promise.resolve([]);
   return fetchJson<Generation[]>("/api/v1/generations");
 }
 

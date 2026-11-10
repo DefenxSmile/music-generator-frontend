@@ -1,0 +1,39 @@
+---
+description: All automated tests live under tests/ and follow the unit → component → integration pyramid. Apply whenever adding or changing behavior.
+alwaysApply: true
+---
+
+# Пирамида тестов
+
+Тесты не класть рядом с исходниками. Колокация `*.test.ts(x)` в `components/`, `utils/`, `hooks/`, `requests/` запрещена.
+
+## Папки
+
+```
+tests/
+  unit/           # чистые функции, парсеры, флаги, без DOM и сети
+  component/      # React UI через Testing Library; зеркало областей (ui/, auth/, …)
+  integration/    # несколько модулей + мок fetch/storage; без реального Java
+```
+
+Имя файла: `<subject>.test.ts` или `<subject>.test.tsx`. Импорты только через `@/…`.
+
+## Что куда
+
+| Слой | Когда | Примеры |
+|------|--------|---------|
+| unit | чистая логика без React | `settleRefresh`, `logout-intent`, `oauth-callback-code`, `readAccessToken` |
+| component | кнопка, поле, модалка, видимое поведение | `tests/component/ui/Button.test.tsx` |
+| integration | HTTP-клиент, сессия, обмен кода, retry | `refreshAccessToken`, `fetchJson` + 401→refresh |
+
+E2E / браузерный прогон — отдельно через skill `browser-testing-with-devtools`, не в `tests/`.
+
+## Обязательно на каждое изменение поведения
+
+1. Открыть `.cursor/skills/test-pyramid/SKILL.md` и добавить тесты на затронутые слои.
+2. Новый util / request / hook с логикой → минимум unit или integration.
+3. Новый или изменённый UI-примитив в `components/ui` → component-тест.
+4. Багфикс → сначала failing-тест на том слое, где проявляется дефект.
+5. `npm test` (или слойный `test:unit` / `test:component` / `test:integration`) зелёный перед Done.
+
+Не подменять пирамиду одним «толстым» тестом на всё. Не мокать то, что проверяете.

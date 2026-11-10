@@ -7,6 +7,7 @@ import { useSessionStatus } from "@/hooks/use-session-status";
 import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { cn } from "@/utils/cn";
 import { creditsLabel } from "@/utils/credits";
+import { showAccountChrome } from "@/utils/session-status";
 
 export function CreditSlot({
   collapsed = false,
@@ -18,7 +19,7 @@ export function CreditSlot({
   const status = useSessionStatus();
   const signedIn = useSignedInHint();
   const me = useMe();
-  const account = status === "authenticated" || (status === "loading" && signedIn);
+  const account = showAccountChrome(status, signedIn);
   const balance = account ? me.data?.balance : 0;
   const known = balance !== undefined;
   const empty = known && balance <= 0;

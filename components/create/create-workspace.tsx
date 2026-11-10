@@ -11,7 +11,8 @@ import { persistHeroIdea, resolveInitialIdea } from "@/utils/hero-idea";
 import { descriptionDraft, persistSongDraft, readSongDraft } from "@/utils/song-draft";
 
 const EMPTY_DRAFT: SongDraft = { idea: "", lyrics: "" };
-const PREVIEW = process.env.NODE_ENV === "development";
+/** Opt-in local wait/result preview. Off by default so create hits Java like production. */
+const PREVIEW = process.env.NEXT_PUBLIC_CREATE_PREVIEW === "1";
 const PREVIEW_STEPS = [
   { status: "MODERATING", at: 1800 },
   { status: "RUNNING", at: 3600 },

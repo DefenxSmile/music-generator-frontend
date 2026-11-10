@@ -6,7 +6,8 @@ import { prefixedKey } from "@/utils/storage-prefix";
 const SIGNED_IN_HINT = prefixedKey("signed_in");
 const hintListeners = new Set<() => void>();
 
-function readSignedInHint(): boolean {
+export function readSignedInHint(): boolean {
+  if (typeof window === "undefined") return false;
   try {
     return window.sessionStorage.getItem(SIGNED_IN_HINT) === "1";
   } catch {

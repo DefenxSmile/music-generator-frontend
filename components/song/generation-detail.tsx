@@ -11,18 +11,19 @@ import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { apiErrorMessage } from "@/requests/api-error";
 import { generationQueryOptions } from "@/requests/generations-query";
 import { generationHref } from "@/utils/generation-href";
+import { isAuthenticated, isLoggedOut, isSessionLoading } from "@/utils/session-status";
 
 export function GenerationDetail() {
   const id = useSearchParams().get("id")?.trim() ?? "";
   const status = useSessionStatus();
   const signedIn = useSignedInHint();
-  const query = useQuery(generationQueryOptions(id, status === "authenticated"));
+  const query = useQuery(generationQueryOptions(id, isAuthenticated(status)));
 
   if (!id) {
     return <DetailMessage text="В ссылке нет песни." />;
   }
 
-  if (status === "anonymous" || (status === "loading" && !signedIn)) {
+  if (isLoggedOut(status) || (isSessionLoading(status) && !signedIn)) {
     return (
       <DetailMessage text="Войдите, чтобы открыть песню.">
         <OpenSongButton next={generationHref(id)} />
@@ -30,7 +31,7 @@ export function GenerationDetail() {
     );
   }
 
-  if (status === "loading" || query.isPending) {
+  if (isSessionLoading(status) || query.isPending) {
     return <GenerationCardSkeleton />;
   }
 

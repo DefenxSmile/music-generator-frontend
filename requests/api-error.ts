@@ -24,5 +24,6 @@ export function isApiError(error: unknown): error is ApiError {
 export function apiErrorMessage(error: unknown): string {
   if (isApiError(error)) return error.message;
   if (error instanceof TypeError) return "Нет связи с сервером";
+  if (error instanceof Error && error.message.trim()) return error.message;
   return "Не получилось выполнить запрос";
 }

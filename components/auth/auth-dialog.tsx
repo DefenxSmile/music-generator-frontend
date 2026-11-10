@@ -1,40 +1,30 @@
 "use client";
 
 import { X } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import { Suspense, useRef, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { Suspense, useState, type ReactNode } from "react";
 import { AuthQueryOpener } from "@/components/auth/auth-query-opener";
 import { VkIdButton } from "@/components/auth/vk-id-button";
 import { YandexIdButton } from "@/components/auth/yandex-id-button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Modal } from "@/components/ui/modal";
 import { OpenAuthContext } from "@/hooks/use-open-auth";
-import { setAccessToken } from "@/utils/access-token";
-import { rememberAuthNext, safeNext, takeAuthNext } from "@/utils/auth-next";
-import { DEV_ACCESS_TOKEN, devOauthEnabled, rememberDevOauth } from "@/utils/dev-oauth";
-import { javaApiBaseUrl } from "@/utils/java-api";
+import { rememberAuthNext, safeNext } from "@/utils/auth-next";
 import type { OpenAuthOptions } from "@/types/auth";
-import type { DevOauthProvider } from "@/types/dev-oauth";
+import { javaApiBaseUrl } from "@/utils/java-api";
 
 export function AuthDialogProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const afterClose = useRef<(() => void) | null>(null);
   const [open, setOpen] = useState(false);
   const [intent, setIntent] = useState<OpenAuthOptions["intent"]>("enter");
-  const [leaving, setLeaving] = useState<DevOauthProvider | null>(null);
-
-  function runAfterClose() {
-    const next = afterClose.current;
-    if (!next) return;
-    afterClose.current = null;
-    next();
-  }
+  const [leaving, setLeaving] = useState(false);
+  const [configError, setConfigError] = useState<string | null>(null);
 
   function openAuth(options?: OpenAuthOptions) {
     rememberAuthNext(safeNext(options?.next ?? pathname));
     setIntent(options?.intent ?? "enter");
-    setLeaving(null);
+    setLeaving(false);
+    setConfigError(null);
     setOpen(true);
   }
 
@@ -43,19 +33,16 @@ export function AuthDialogProvider({ children }: { children: ReactNode }) {
     setOpen(false);
   }
 
-  function start(provider: DevOauthProvider) {
-    if (devOauthEnabled()) {
-      afterClose.current = () => {
-        rememberDevOauth(provider);
-        setAccessToken(DEV_ACCESS_TOKEN);
-        router.replace(takeAuthNext());
-      };
-      setOpen(false);
+  function startYandex() {
+    const base = javaApiBaseUrl();
+    if (!base) {
+      setConfigError("Не задан адрес API. Проверьте JAVA_API_BASE_URL.");
       return;
     }
-    setLeaving(provider);
+    setLeaving(true);
     setOpen(false);
-    window.location.assign(`${javaApiBaseUrl()}/api/v1/auth/oauth/${provider}`);
+    // Full navigation to Java so PKCE cookies stay on the API host.
+    window.location.assign(`${base}/api/v1/auth/yandex`);
   }
 
   return (
@@ -64,7 +51,7 @@ export function AuthDialogProvider({ children }: { children: ReactNode }) {
       <Suspense fallback={null}>
         <AuthQueryOpener />
       </Suspense>
-      <Modal open={open} onClose={close} onClosed={runAfterClose} labelledBy="auth-dialog-title">
+      <Modal open={open} onClose={close} labelledBy="auth-dialog-title">
         <div
           aria-hidden
           className="lp-dialog-wash pointer-events-none absolute inset-x-0 top-0 h-36"
@@ -84,11 +71,16 @@ export function AuthDialogProvider({ children }: { children: ReactNode }) {
           </p>
           {leaving ? (
             <p role="status" className="mt-8 text-center text-sm text-text-muted">
-              {leaving === "yandex" ? "Открываем Яндекс" : "Открываем VK"}
+              Открываем Яндекс
             </p>
           ) : (
             <div className="mt-8 flex flex-col gap-4">
-              <YandexIdButton onClick={() => start("yandex")} />
+              {configError ? (
+                <p role="alert" className="text-center text-sm text-text-muted">
+                  {configError}
+                </p>
+              ) : null}
+              <YandexIdButton onClick={startYandex} />
               <div className="flex items-center gap-4" aria-hidden>
                 <span className="h-px flex-1 bg-gradient-to-r from-transparent to-overlay/20" />
                 <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-dim">
@@ -96,7 +88,7 @@ export function AuthDialogProvider({ children }: { children: ReactNode }) {
                 </span>
                 <span className="h-px flex-1 bg-gradient-to-l from-transparent to-overlay/20" />
               </div>
-              <VkIdButton onClick={() => start("vk")} />
+              <VkIdButton onClick={() => undefined} disabled />
             </div>
           )}
         </div>

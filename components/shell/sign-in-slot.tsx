@@ -8,6 +8,7 @@ import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { ProfileControl } from "@/components/shell/profile-control";
 import { ROW } from "@/components/shell/nav-row";
 import { cn } from "@/utils/cn";
+import { showAccountChrome } from "@/utils/session-status";
 
 export function SignInSlot({
   collapsed = false,
@@ -20,7 +21,7 @@ export function SignInSlot({
   const signedIn = useSignedInHint();
   const me = useMe();
   const openAuth = useOpenAuth();
-  const account = status === "authenticated" || (status === "loading" && signedIn);
+  const account = showAccountChrome(status, signedIn);
 
   if (account) {
     return <ProfileControl email={me.data?.email} collapsed={collapsed} onNavigate={onNavigate} />;

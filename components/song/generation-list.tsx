@@ -8,6 +8,7 @@ import { useSessionStatus } from "@/hooks/use-session-status";
 import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { generationsQueryOptions } from "@/requests/generations-query";
 import { generationHref } from "@/utils/generation-href";
+import { isAuthenticated, isLoggedOut, isSessionLoading } from "@/utils/session-status";
 
 export function GenerationList({
   limit,
@@ -26,9 +27,9 @@ export function GenerationList({
 }) {
   const status = useSessionStatus();
   const signedIn = useSignedInHint();
-  const query = useQuery(generationsQueryOptions(status === "authenticated"));
+  const query = useQuery(generationsQueryOptions(isAuthenticated(status)));
 
-  if (status === "anonymous" || (status === "loading" && !signedIn)) {
+  if (isLoggedOut(status) || (isSessionLoading(status) && !signedIn)) {
     return signIn ? (
       <AnonymousSongs next={authNext} />
     ) : (

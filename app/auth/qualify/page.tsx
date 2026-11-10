@@ -5,6 +5,8 @@ import { Suspense, useEffect } from "react";
 import { Loading } from "@/components/ui/loading";
 import { useSessionStatus } from "@/hooks/use-session-status";
 import { safeNext, takeAuthNext } from "@/utils/auth-next";
+import { isLoggedOut, isSessionLoading } from "@/utils/session-status";
+
 export default function QualifyPage() {
   return (
     <Suspense fallback={<Loading label="Открываем вопросы" />}>
@@ -20,8 +22,8 @@ function QualifyRedirect() {
   const status = useSessionStatus();
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (status === "anonymous") {
+    if (isSessionLoading(status)) return;
+    if (isLoggedOut(status)) {
       const next = searchParams.get("next");
       router.replace(next ? `/?auth=1&next=${encodeURIComponent(safeNext(next))}` : "/?auth=1");
       return;

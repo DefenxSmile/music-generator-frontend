@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Frame-Options", value: "DENY" },

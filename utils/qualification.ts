@@ -138,10 +138,10 @@ export function persistContentPlace(value: ContentPlace | null): void {
 }
 
 /**
- * Test switch. While this is true, the questions open on every signed-in session,
- * even after a skip was stored. Set it back to false to restore once per browser.
+ * When true, questions open on every signed-in session even after a skip was stored.
+ * Product rule: once per browser — keep false.
  */
-export const QUALIFICATION_EVERY_SESSION = true;
+export const QUALIFICATION_EVERY_SESSION = false;
 
 /** Java does not say whether OAuth created the account. This browser remembers the step. */
 export function readQualificationDone(): boolean {

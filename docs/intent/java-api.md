@@ -8,9 +8,11 @@
 
 `SecurityConfig` разрешает методы `GET`, `POST`, `DELETE`, `OPTIONS`, заголовки `Authorization`, `Content-Type`, `Idempotency-Key` и `allowCredentials`. Origin берётся из `app.corsOrigins` (строка через запятую).
 
-`npm run dev` слушает `http://localhost:3010`. Docker по-прежнему слушает `http://localhost:3000` (`PORT` в образе). В `application-dev.yml` уже записано `app.cors-origins: http://localhost:3000`. Для dev-сервера на 3010 этот origin нужно добавить в `app.corsOrigins`, иначе браузер отклонит запросы с cookie. Тестовый сайт GitHub Pages открывается с origin `https://defenxsmile.github.io` — его тоже нужно добавить. Java в этой задаче не меняется.
+Браузер всегда ходит в `JAVA_API_BASE_URL` напрямую (и на localhost, и на проде). Отдельного API-слоя Next для Java нет. Сессия: access в памяти вкладки, refresh — HttpOnly cookie Java (`Path=/api/v1/auth`, `Secure`, `SameSite=None`), `credentials: "include"`.
 
-Боевой хост приложения — поддомен `app`, не корень. Название продукта и домен еще не выбраны. В `app.corsOrigins` для продакшена нужен origin приложения. Корень сам по себе API не вызывает.
+`npm run dev` / `start` / Docker — `http://localhost:3000`, тот же origin, что в `app.postLoginRedirect`. В `app.corsOrigins` на стенде и в проде должны быть origin приложения: сейчас как минимум `http://localhost:3000`, позже `https://app.…`, для тестовых Pages — `https://defenxsmile.github.io`. Старт Яндекса — полный переход на хост Java (PKCE-cookie на домене API).
+
+Боевой хост приложения — поддомен `app`, не корень. Название продукта и домен еще не выбраны. Корень сам по себе API не вызывает.
 
 Другие заголовки (например `x-request-id`) клиент не шлёт: их нет в allow-list, preflight их отвергнет.
 
@@ -46,7 +48,14 @@
 
 Продуктовое решение другое: подтверждение почты и пароль в онбординг не входят, см. `docs/decisions/0001-no-email-confirmation.md`. Этот раздел описывает API, как он есть. Экраны больше не вызывают register, login и сброс пароля.
 
-Целевой вход, которого в контроллерах ещё нет: браузер открывает `GET /api/v1/auth/oauth/yandex` или `GET /api/v1/auth/oauth/vk`. После успеха Java ставит cookie `refresh_token` и возвращает на `{приложение}/oauth/callback`. Пока маршрутов нет, клик не создаёт сессию.
+Вход через Яндекс (как в Postman «Генератор музыки → Вход»):
+
+1. Браузер открывает `GET /api/v1/auth/yandex` на `JAVA_API_BASE_URL` (302 на oauth.yandex.ru, PKCE и state в cookie API).
+2. Callback на стороне Java: `GET /api/v1/auth/yandex/callback` → редирект на `{приложение}/oauth/callback#code=…` (`app.postLoginRedirect`).
+3. Фронт читает `#code=`, сразу убирает его из адреса и вызывает `POST /api/v1/auth/oauth/token` с телом `{ "code" }`. Ответ `200`: `accessToken`, `expiresIn`; ставится cookie `refresh_token`. Код одноразовый (~2 минуты).
+4. Дальше как обычно: `POST /api/v1/auth/refresh` и `POST /api/v1/auth/logout` с cookie.
+
+VK в OpenAPI стенда нет. Маршрута `/api/v1/auth/oauth/yandex` нет — старт только `/api/v1/auth/yandex`.
 
 `POST /api/v1/auth/login`  
 Тело: `email`, `password`. Ответ `200`: `accessToken`, `expiresIn` (секунды). Ставит cookie `refresh_token`: HttpOnly, Secure, SameSite=None, path=`/api/v1/auth`, max-age = `app.jwt.refresh-ttl` (в dev-профиле 30 дней). Access TTL в dev-профиле 15 минут; клиент опирается на `expiresIn` и на 401, а не на зашитые числа.
@@ -63,11 +72,11 @@
 `POST /api/v1/auth/password/reset`  
 Тело: `token`, `password` (8–72). Успех `204`. Негодный или просроченный токен — `400 INVALID_TOKEN` «Ссылка недействительна». Активные refresh отзываются.
 
-Access token хранится только в памяти вкладки. Refresh token JavaScript не читает и в `localStorage` не пишет. На 401 защищённого запроса клиент один раз вызывает refresh и повторяет запрос. Параллельные 401 делят один refresh: Java при каждом refresh отзывает предыдущую cookie.
+Access token хранится только в памяти вкладки (плюс `expiresIn` → proactive refresh). Refresh token JavaScript не читает и в `localStorage` не пишет. На 401 защищённого запроса клиент один раз вызывает refresh и повторяет запрос. Параллельные 401 делят один refresh: Java при каждом refresh отзывает предыдущую cookie. Полный поток и чеклист деплоя: `docs/intent/session.md`.
 
-Cookie с флагом Secure браузер не сохранит на `http://localhost`. Обход через свой refresh в JavaScript не делается. Пока API открыт по HTTP на localhost, после перезагрузки страницы сессию не возобновить; до перезагрузки работает access token из памяти.
+Cookie ставит Java на свой хост; фронт её не читает и не переписывает. Chrome на `http://localhost` принимает `Secure` + `SameSite=None` с HTTPS API при credentialed fetch. Отдельной сессии Next нет.
 
-`app.postLoginRedirect` есть в свойствах (`application-dev.yml`: `http://localhost:3000/oauth/callback`) и ни одним контроллером не читается. Маршрута OAuth в приложении нет.
+`app.postLoginRedirect` на стенде: `http://localhost:3000/oauth/callback`. Локальный `npm run dev` слушает тот же порт, поэтому после Яндекса callback попадает в это приложение.
 
 ## Профиль и баланс
 

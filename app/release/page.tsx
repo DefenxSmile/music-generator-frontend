@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/soon/coming-soon";
+import { ReleaseScreen } from "@/components/release/release-screen";
 
 export default function ReleasePage() {
-  return (
-    <ComingSoon
-      title="Релиз"
-      lead="Готовую песню можно будет выложить на площадки. Обложка и видео идут следом."
-    />
-  );
+  return <ReleaseScreen />;
 }

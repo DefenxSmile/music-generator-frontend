@@ -12,7 +12,7 @@ JAVA_API_BASE_URL=http://localhost:8080
 
 Значение вшивается в клиентский бандл при `next dev` / `next build`. Это адрес, который видит браузер, а не сеть контейнера.
 
-`npm run dev` открывает приложение на `http://localhost:3010`. `npm run start` и Docker остаются на `http://localhost:3000`. В dev-профиле Java в `app.cors-origins` записан `http://localhost:3000`: origin `http://localhost:3010` нужно добавить в `app.corsOrigins`, иначе браузер отклонит запросы с cookie. Подробности и ограничение cookie `Secure` на `http://localhost` — в `docs/intent/java-api.md`.
+`npm run dev`, `npm run start` и Docker открывают приложение на `http://localhost:3000` — как `app.postLoginRedirect` и CORS Java-стенда. Подробности и ограничение cookie `Secure` на `http://localhost` — в `docs/intent/java-api.md`.
 
 Ключи OpenRouter и RunPod этому приложению не нужны. В `.env.example` они пустые и относятся к Java.
 
@@ -24,7 +24,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Лендинг в соседнем репозитории занимает порт 3000. Этот dev-сервер слушает 3010, поэтому их можно поднять вместе.
+Лендинг в соседнем репозитории тоже по умолчанию на 3000 — одновременно с этим приложением не поднимать.
 
 ## Docker
 

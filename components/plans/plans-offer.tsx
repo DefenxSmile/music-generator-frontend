@@ -12,6 +12,7 @@ import { generationQuoteQueryOptions } from "@/requests/billing-query";
 import { cn } from "@/utils/cn";
 import { creditsLabel } from "@/utils/credits";
 import { PRICING_PLANS } from "@/utils/pricing-plans";
+import { isAuthenticated, isLoggedOut, showAccountChrome } from "@/utils/session-status";
 
 /** The three preview tariffs. The page and the create paywall show this same block. */
 export function PlansOffer({
@@ -27,11 +28,11 @@ export function PlansOffer({
   const signedIn = useSignedInHint();
   const openAuth = useOpenAuth();
   const [chosenId, setChosenId] = useState<string | null>(null);
-  const quote = useQuery(generationQuoteQueryOptions(status === "authenticated"));
+  const quote = useQuery(generationQuoteQueryOptions(isAuthenticated(status)));
   const Title = titleAs;
 
   function choose(id: string) {
-    if (status === "anonymous") {
+    if (isLoggedOut(status)) {
       openAuth({ next: "/plans" });
       return;
     }
@@ -51,7 +52,7 @@ export function PlansOffer({
         </div>
         {toolbar}
       </div>
-      {status === "authenticated" || (status === "loading" && signedIn) ? (
+      {showAccountChrome(status, signedIn) ? (
         quote.isError ? (
           <p className="mt-3 text-sm text-text-primary">{apiErrorMessage(quote.error)}</p>
         ) : (

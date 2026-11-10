@@ -8,14 +8,15 @@ import { useOpenAuth } from "@/hooks/use-open-auth";
 import { useSessionStatus } from "@/hooks/use-session-status";
 import { useSignedInHint } from "@/hooks/use-signed-in-hint";
 import { generationsQueryOptions } from "@/requests/generations-query";
+import { isAuthenticated, isLoggedOut, isSessionLoading } from "@/utils/session-status";
 
 export function SongsScreen() {
   const openAuth = useOpenAuth();
   const status = useSessionStatus();
   const signedIn = useSignedInHint();
-  const query = useQuery(generationsQueryOptions(status === "authenticated"));
-  const anonymous = status === "anonymous" || (status === "loading" && !signedIn);
-  const empty = status === "authenticated" && query.isSuccess && query.data.length === 0;
+  const query = useQuery(generationsQueryOptions(isAuthenticated(status)));
+  const anonymous = isLoggedOut(status) || (isSessionLoading(status) && !signedIn);
+  const empty = isAuthenticated(status) && query.isSuccess && query.data.length === 0;
 
   if (anonymous) {
     return (

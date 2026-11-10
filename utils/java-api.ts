@@ -1,5 +1,8 @@
-/** Browser-facing Java origin. Inlined from JAVA_API_BASE_URL at build time. */
+/**
+ * Java API origin (`JAVA_API_BASE_URL`), no trailing slash.
+ * Browser calls this host directly in every environment.
+ * Java `app.corsOrigins` must include the app origin.
+ */
 export function javaApiBaseUrl(): string {
-  const raw = process.env.JAVA_API_BASE_URL?.trim() ?? "";
-  return raw.replace(/\/+$/, "");
+  return (process.env.JAVA_API_BASE_URL?.trim() ?? "").replace(/\/+$/, "");
 }

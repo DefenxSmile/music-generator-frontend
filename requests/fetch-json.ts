@@ -1,10 +1,14 @@
 import { ApiError } from "@/requests/api-error";
-import { getAccessToken, setAccessToken } from "@/utils/access-token";
-import { DEV_ACCESS_TOKEN, readDevOauth } from "@/utils/dev-oauth";
+import { refreshAccessToken } from "@/requests/refresh-access-token";
+import { getAccessToken } from "@/utils/access-token";
 import { javaApiBaseUrl } from "@/utils/java-api";
-const PUBLIC_AUTH_PATHS = new Set(["/api/v1/auth/refresh", "/api/v1/auth/logout"]);
 
-let refreshInFlight: Promise<string | null> | null = null;
+const NO_REFRESH_PATHS = new Set(["/api/v1/auth/refresh", "/api/v1/auth/logout"]);
+
+type FetchJsonOptions = {
+  /** Protected calls retry once after refresh. Refresh and logout do not. */
+  retryOnUnauthorized?: boolean;
+};
 
 function apiUrl(path: string): string {
   const base = javaApiBaseUrl();
@@ -41,72 +45,7 @@ async function readBody<T>(response: Response): Promise<T> {
   return JSON.parse(text) as T;
 }
 
-/** One refresh for parallel 401s. Java rotates the cookie, so a second call would revoke the first. */
-export function refreshAccessToken(): Promise<string | null> {
-  if (!refreshInFlight) {
-    refreshInFlight = performRefresh().finally(() => {
-      refreshInFlight = null;
-    });
-  }
-  return refreshInFlight;
-}
-
-/** A dev sign-in can happen while the first refresh is still in flight. That refresh must not wipe it. */
-function keepDevSession(): boolean {
-  if (!readDevOauth()) return false;
-  setAccessToken(DEV_ACCESS_TOKEN);
-  return true;
-}
-
-async function performRefresh(): Promise<string | null> {
-  if (keepDevSession()) return DEV_ACCESS_TOKEN;
-  const base = javaApiBaseUrl();
-  if (!base) {
-    if (keepDevSession()) return DEV_ACCESS_TOKEN;
-    setAccessToken(null);
-    return null;
-  }
-  try {
-    const response = await fetch(`${base}/api/v1/auth/refresh`, {
-      method: "POST",
-      credentials: "include",
-      cache: "no-store",
-    });
-    if (keepDevSession()) return DEV_ACCESS_TOKEN;
-    if (!response.ok) {
-      setAccessToken(null);
-      return null;
-    }
-    const body = (await response.json()) as { accessToken?: unknown };
-    if (keepDevSession()) return DEV_ACCESS_TOKEN;
-    if (typeof body.accessToken !== "string" || !body.accessToken) {
-      setAccessToken(null);
-      return null;
-    }
-    setAccessToken(body.accessToken);
-    return body.accessToken;
-  } catch {
-    if (keepDevSession()) return DEV_ACCESS_TOKEN;
-    setAccessToken(null);
-    return null;
-  }
-}
-
-type FetchJsonOptions = {
-  /** Protected calls retry once after refresh. Refresh and logout do not. */
-  retryOnUnauthorized?: boolean;
-};
-
-/**
- * Browser call to JAVA_API_BASE_URL.
- * Sends credentials so the HttpOnly refresh cookie can travel.
- * Does not attach headers outside the Java CORS allow-list.
- */
-export async function fetchJson<T>(
-  path: string,
-  init?: RequestInit,
-  options?: FetchJsonOptions,
-): Promise<T> {
+function buildHeaders(init?: RequestInit): Headers {
   const headers = new Headers(init?.headers);
   const token = getAccessToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -117,29 +56,40 @@ export async function fetchJson<T>(
   ) {
     headers.set("Content-Type", "application/json");
   }
+  return headers;
+}
 
-  const response = await fetch(apiUrl(path), {
+function request(path: string, init: RequestInit | undefined, headers: Headers): Promise<Response> {
+  return fetch(apiUrl(path), {
     ...init,
     headers,
     credentials: "include",
     cache: "no-store",
   });
+}
+
+/**
+ * Browser call to Java (`JAVA_API_BASE_URL`) with credentials for the refresh cookie.
+ * Does not send headers outside the Java CORS allow-list.
+ */
+export async function fetchJson<T>(
+  path: string,
+  init?: RequestInit,
+  options?: FetchJsonOptions,
+): Promise<T> {
+  const headers = buildHeaders(init);
+  const response = await request(path, init, headers);
 
   const mayRefresh =
     response.status === 401 &&
     options?.retryOnUnauthorized !== false &&
-    !PUBLIC_AUTH_PATHS.has(path);
+    !NO_REFRESH_PATHS.has(path);
 
   if (mayRefresh) {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
       headers.set("Authorization", `Bearer ${refreshed}`);
-      const retried = await fetch(apiUrl(path), {
-        ...init,
-        headers,
-        credentials: "include",
-        cache: "no-store",
-      });
+      const retried = await request(path, init, headers);
       if (!retried.ok) throw await parseError(retried);
       return readBody<T>(retried);
     }

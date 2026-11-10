@@ -18,7 +18,9 @@ import type { SongDraft } from "@/types/song-draft";
 import { createWorkspaceHref } from "@/utils/generation-href";
 import { PROMPT_MAX } from "@/utils/hero-idea";
 import { rememberLead } from "@/utils/lead";
+import { isAuthenticated, isLoggedOut, isSessionLoading } from "@/utils/session-status";
 import { composePrompt, promptFits } from "@/utils/song-draft";
+import { shouldOpenPaywall } from "@/utils/paywall";
 
 export function SongComposer({
   draft,
@@ -39,7 +41,7 @@ export function SongComposer({
   const [paywallOpen, setPaywallOpen] = useState(false);
   const lyricsButtonRef = useRef<HTMLButtonElement>(null);
 
-  const quote = useQuery(generationQuoteQueryOptions(status === "authenticated"));
+  const quote = useQuery(generationQuoteQueryOptions(isAuthenticated(status)));
   const create = useCreateGeneration();
   const prompt = composePrompt(draft);
   const tooLong = prompt.length > PROMPT_MAX;
@@ -47,8 +49,8 @@ export function SongComposer({
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = prompt.trim();
-    if (!value || tooLong || status === "loading") return;
-    if (status === "anonymous") {
+    if (!value || tooLong || isSessionLoading(status)) return;
+    if (isLoggedOut(status)) {
       rememberLead("auth", null, value);
       openAuth({ intent: "create", next: createWorkspaceHref() });
       return;
@@ -62,12 +64,16 @@ export function SongComposer({
       return;
     }
     if (create.isPending) return;
-    create.mutate(value);
+    create.mutate(value, {
+      onError: (error) => {
+        if (shouldOpenPaywall(error)) setPaywallOpen(true);
+      },
+    });
   }
 
   function onGenerateLyrics() {
-    if (status === "loading") return;
-    if (status === "anonymous") {
+    if (isSessionLoading(status)) return;
+    if (isLoggedOut(status)) {
       const idea = draft.idea.trim();
       rememberLead("auth", null, idea || undefined);
       openAuth({ next: createWorkspaceHref() });
@@ -103,10 +109,10 @@ export function SongComposer({
 
   const canSubmit =
     promptFits(draft) &&
-    status !== "loading" &&
+    !isSessionLoading(status) &&
     !previewBusy &&
     !create.isPending &&
-    (Boolean(onPreview) || status === "anonymous" || quote.isSuccess);
+    (Boolean(onPreview) || isLoggedOut(status) || quote.isSuccess);
 
   return (
     <>
