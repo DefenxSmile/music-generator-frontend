@@ -52,8 +52,8 @@
 
 1. Браузер открывает `GET /api/v1/auth/yandex` на `JAVA_API_BASE_URL` (302 на oauth.yandex.ru, PKCE и state в cookie API).
 2. Callback на стороне Java: `GET /api/v1/auth/yandex/callback` → редирект на `{приложение}/oauth/callback#code=…` (`app.postLoginRedirect`).
-3. Фронт читает `#code=`, сразу убирает его из адреса и вызывает `POST /api/v1/auth/oauth/token` с телом `{ "code" }`. Ответ `200`: `accessToken`, `expiresIn` + `Set-Cookie: refresh_token` (HttpOnly). Код одноразовый (~2 минуты). Refresh на 302 callback Яндекса не ставится.
-4. Дальше как обычно: `POST /api/v1/auth/refresh` и `POST /api/v1/auth/logout` с cookie.
+3. Фронт читает `#code=`, сразу убирает его из адреса и вызывает `POST /api/v1/auth/oauth/token` с телом `{ "code" }`. Ответ `200`: `accessToken`, `expiresIn`, `refreshToken`. Код одноразовый (~2 минуты).
+4. `POST /api/v1/auth/refresh` и `POST /api/v1/auth/logout` принимают JSON `{ "refreshToken" }` (cookie optional на стенде). Refresh в ответе ротируется.
 
 VK в OpenAPI стенда нет. Маршрута `/api/v1/auth/oauth/yandex` нет — старт только `/api/v1/auth/yandex`.
 

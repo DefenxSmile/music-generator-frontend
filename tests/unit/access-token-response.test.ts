@@ -2,10 +2,17 @@ import { describe, expect, it } from "vitest";
 import { readAccessToken, readAccessTokenResponse } from "@/utils/access-token-response";
 
 describe("readAccessTokenResponse", () => {
-  it("reads accessToken and positive expiresIn", () => {
-    expect(readAccessTokenResponse({ accessToken: "abc", expiresIn: 60 })).toEqual({
+  it("reads accessToken, expiresIn and refreshToken", () => {
+    expect(
+      readAccessTokenResponse({
+        accessToken: "abc",
+        expiresIn: 60,
+        refreshToken: " r1 ",
+      }),
+    ).toEqual({
       accessToken: "abc",
       expiresIn: 60,
+      refreshToken: "r1",
     });
   });
 

@@ -7,11 +7,11 @@
 | Что | Где |
 | --- | --- |
 | Access token | Память вкладки (`utils/access-token.ts`), опционально `expiresAt` из `expiresIn` |
-| Refresh token | HttpOnly cookie Java (`Path=/api/v1/auth`, `Secure`, `SameSite=None`) |
+| Refresh token | JSON body (`refreshToken`) + `localStorage` `lp_refresh_token` (текущий стенд); cookie optional |
 | Logout intent | `localStorage` `lp_logged_out` — не восстанавливать сессию после выхода |
 | Signed-in hint | `sessionStorage` `lp_signed_in` — ранний qualify-hold и хром аккаунта на этой вкладке |
 
-JavaScript **не** читает refresh cookie и **не** кладёт access в `localStorage`.
+Access в `localStorage` не кладём. Refresh на стенде приходит в теле `/oauth/token` и `/auth/refresh`; клиент шлёт его обратно как `{ "refreshToken" }`.
 
 ## Фазы (`SessionStatus`)
 

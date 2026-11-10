@@ -7,6 +7,7 @@ import { writeSignedInHint } from "@/hooks/use-signed-in-hint";
 import { refreshAccessToken } from "@/requests/refresh-access-token";
 import { queryKeys } from "@/requests/query-keys";
 import { getAccessExpiresAt, getAccessToken, setAccessToken } from "@/utils/access-token";
+import { clearRefreshToken } from "@/utils/refresh-token";
 import {
   bindProactiveRefresh,
   cancelProactiveRefresh,
@@ -42,6 +43,7 @@ export function SessionLifecycle() {
         return;
       }
       setAccessToken(null);
+      clearRefreshToken();
       cancelProactiveRefresh();
       writeSignedInHint(false);
       queryClient.clear();

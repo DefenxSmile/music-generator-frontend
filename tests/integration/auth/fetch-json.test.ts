@@ -2,17 +2,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/requests/api-error";
 import { fetchJson } from "@/requests/fetch-json";
 import { setAccessToken } from "@/utils/access-token";
+import { clearRefreshToken, setRefreshToken } from "@/utils/refresh-token";
 
 describe("fetchJson", () => {
   beforeEach(() => {
     vi.stubEnv("JAVA_API_BASE_URL", "https://api.example.test");
     setAccessToken("access-1");
+    setRefreshToken("refresh-1");
   });
 
   afterEach(() => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
     setAccessToken(null);
+    clearRefreshToken();
   });
 
   it("retries once after a successful refresh on 401", async () => {
@@ -22,10 +25,13 @@ describe("fetchJson", () => {
         new Response(JSON.stringify({ errorCode: "UNAUTHORIZED" }), { status: 401 }),
       )
       .mockResolvedValueOnce(
-        new Response(JSON.stringify({ accessToken: "access-2", expiresIn: 60 }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
+        new Response(
+          JSON.stringify({ accessToken: "access-2", expiresIn: 60, refreshToken: "refresh-2" }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
       )
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ id: "me-1" }), {
