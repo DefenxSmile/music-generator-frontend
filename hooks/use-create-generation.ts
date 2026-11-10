@@ -15,6 +15,7 @@ export function useCreateGeneration() {
     mutationKey: [...queryKeys.generations, "create"] as const,
     mutationFn: (prompt: string) => createGeneration(prompt, crypto.randomUUID()),
     onSuccess: async (generation) => {
+      queryClient.setQueryData(queryKeys.generation(generation.id), generation);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.generations }),
         queryClient.invalidateQueries({ queryKey: queryKeys.quote }),

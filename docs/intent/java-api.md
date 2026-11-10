@@ -90,6 +90,8 @@ Cookie ставит Java на свой хост; фронт её не читае
 
 ## Генерации
 
+Коллекция Postman «Генератор музыки» совпадает с экранами: создать → статус → список; плюс «Я» и «Хватает ли кредита». Локального mock create на фронте нет.
+
 `POST /api/v1/generations`  
 Тело: `prompt`, не пустой, до 2000 символов, на сервере обрезаются края. Необязательный заголовок `Idempotency-Key` (после trim не длиннее 200; иначе `400 VALIDATION_ERROR` «Idempotency-Key длиннее 200 символов»). Ответ `202` и одна `GenerationResponse`. Тот же ключ у того же пользователя возвращает уже созданную запись.  
 `403 EMAIL_NOT_VERIFIED`.  
@@ -101,7 +103,7 @@ Cookie ставит Java на свой хост; фронт её не читае
 
 Поля `GenerationResponse`: `id`, `status`, `prompt`, `caption`, `lyrics`, `durationSeconds`, `vocalLanguage`, `instrumental`, `errorCode`, `audioUrl`, `audioUrlExpiresAt`, `expiresAt`, `createdAt`. Пустые ссылки и тексты приходят как `null`.
 
-Статусы в работе, их опрашивают: `PENDING`, `WRITING`, `MODERATING`, `QUEUED`, `RUNNING`. Конечные: `READY`, `REJECTED`, `FAILED`, `EXPIRED`. Если файл READY уже старше `expiresAt`, ответ показывает статус `EXPIRED` и без `audioUrl`. `audioUrl` — временная ссылка; в `application.yml` `app.generation.audio-url-ttl: 15m`, хранение `retention-days: 30`.
+Статусы в работе, их опрашивают каждые 2 с: `PENDING`, `WRITING`, `MODERATING`, `QUEUED`, `RUNNING`. Конечные: `READY`, `REJECTED`, `FAILED`, `EXPIRED`. Если файл READY уже старше `expiresAt`, ответ показывает статус `EXPIRED` и без `audioUrl`. `audioUrl` — временная ссылка; в `application.yml` `app.generation.audio-url-ttl: 15m`, хранение `retention-days: 30`.
 
 Коды на самой записи, которые ставит процессор: `CONTENT_REJECTED` (статус `REJECTED`), `SONG_DRAFT_INVALID`, `GENERATION_FAILED` (статус `FAILED`).
 

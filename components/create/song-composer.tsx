@@ -18,21 +18,16 @@ import type { SongDraft } from "@/types/song-draft";
 import { createWorkspaceHref } from "@/utils/generation-href";
 import { PROMPT_MAX } from "@/utils/hero-idea";
 import { rememberLead } from "@/utils/lead";
+import { shouldOpenPaywall } from "@/utils/paywall";
 import { isAuthenticated, isLoggedOut, isSessionLoading } from "@/utils/session-status";
 import { composePrompt, promptFits } from "@/utils/song-draft";
-import { shouldOpenPaywall } from "@/utils/paywall";
 
 export function SongComposer({
   draft,
   onDraft,
-  onPreview,
-  previewBusy = false,
 }: {
   draft: SongDraft;
   onDraft: (draft: SongDraft) => void;
-  /** Local preview of the wait and the two variants. Skips the quote and Java. */
-  onPreview?: (draft: SongDraft) => void;
-  previewBusy?: boolean;
 }) {
   const openAuth = useOpenAuth();
   const status = useSessionStatus();
@@ -53,10 +48,6 @@ export function SongComposer({
     if (isLoggedOut(status)) {
       rememberLead("auth", null, value);
       openAuth({ intent: "create", next: createWorkspaceHref() });
-      return;
-    }
-    if (onPreview) {
-      onPreview(draft);
       return;
     }
     if (!quote.data?.sufficient) {
@@ -110,9 +101,8 @@ export function SongComposer({
   const canSubmit =
     promptFits(draft) &&
     !isSessionLoading(status) &&
-    !previewBusy &&
     !create.isPending &&
-    (Boolean(onPreview) || isLoggedOut(status) || quote.isSuccess);
+    (isLoggedOut(status) || quote.isSuccess);
 
   return (
     <>
@@ -160,36 +150,36 @@ export function SongComposer({
           </div>
 
           <div className="lp-composer-actions flex shrink-0 flex-col gap-3 px-3.5 py-4">
-          {tooLong ? (
-            <FormMessage>
-              Стиль и текст вместе длиннее 2000 символов. Сократите один из них.
-            </FormMessage>
-          ) : null}
-          {quote.isError ? <FormMessage>{apiErrorMessage(quote.error)}</FormMessage> : null}
-          {create.isError ? (
-            <FormMessage>
-              {apiErrorMessage(create.error)}
-              {inProgressId ? (
-                <>
-                  {" "}
-                  <Link href={createWorkspaceHref(inProgressId)} className="underline">
-                    Открыть песню в работе
-                  </Link>
-                </>
-              ) : null}
-            </FormMessage>
-          ) : null}
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={!canSubmit}
-              className="min-h-12 shrink-0"
-            >
-              {previewBusy ? "Собираем…" : create.isPending ? "Отправляем…" : "Создать песню"}
-            </Button>
-          </div>
+            {tooLong ? (
+              <FormMessage>
+                Стиль и текст вместе длиннее 2000 символов. Сократите один из них.
+              </FormMessage>
+            ) : null}
+            {quote.isError ? <FormMessage>{apiErrorMessage(quote.error)}</FormMessage> : null}
+            {create.isError ? (
+              <FormMessage>
+                {apiErrorMessage(create.error)}
+                {inProgressId ? (
+                  <>
+                    {" "}
+                    <Link href={createWorkspaceHref(inProgressId)} className="underline">
+                      Открыть песню в работе
+                    </Link>
+                  </>
+                ) : null}
+              </FormMessage>
+            ) : null}
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={!canSubmit}
+                className="min-h-12 shrink-0"
+              >
+                {create.isPending ? "Отправляем…" : "Создать песню"}
+              </Button>
+            </div>
           </div>
           <div aria-hidden className="min-h-0 flex-1" />
         </div>
