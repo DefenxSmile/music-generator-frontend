@@ -7,12 +7,16 @@
  */
 
 import { useEffect, useId, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { ArrowUpRight, MessageCircle, Send, X } from "lucide-react";
 import { SupportProactiveNudge } from "@/components/support/support-proactive-nudge";
 import Button from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useSupportProactiveNudge } from "@/hooks/use-support-proactive-nudge";
+import {
+  supportNudgeAllowedOnPath,
+  useSupportProactiveNudge,
+} from "@/hooks/use-support-proactive-nudge";
 import { submitSupportContact } from "@/requests/support";
 import { SUPPORT_CONTACT_EMAIL } from "@/utils/support";
 import { cn } from "@/utils/cn";
@@ -188,6 +192,7 @@ export function SupportWidget({
   hideMobileLauncher = false,
 }: SupportWidgetProps) {
   const titleId = useId();
+  const pathname = usePathname();
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = openProp !== undefined;
   const open = isControlled ? Boolean(openProp) : uncontrolledOpen;
@@ -205,6 +210,7 @@ export function SupportWidget({
   const [error, setError] = useState<string | null>(null);
   const [hasSubmittedThisSession, setHasSubmittedThisSession] = useState(false);
   const { showNudge, markNudgeHandled } = useSupportProactiveNudge({
+    enabled: supportNudgeAllowedOnPath(pathname),
     isWidgetOpen: open,
     hasSubmitted: hasSubmittedThisSession,
     isLauncherVisible: mounted,

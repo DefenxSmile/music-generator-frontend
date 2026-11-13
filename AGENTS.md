@@ -37,8 +37,11 @@ GitHub Actions (`.github/workflows/ci.yml`) на `main` и на pull request г�
 - `docs/decisions/` — принятые решения, в том числе регистрация без подтверждения почты
 - `.cursor/rules/project-memory.mdc` — уже принятые решения
 - `.cursor/rules/ui-quality.mdc` и `.cursor/skills/ui-quality/SKILL.md` — планка интерфейса на каждую правку вёрстки и новую фичу
+- `.cursor/skills/design-taste-frontend`, `frontend-design`, `impeccable`, `interface-design` — вкус, иерархия, critique/polish
+- `.cursor/skills/mobbin-*` — поиск и редизайн по референсам Mobbin (нужен Mobbin MCP + Pro)
 - `.cursor/rules/test-pyramid.mdc` и `.cursor/skills/test-pyramid/SKILL.md` — где и как писать тесты
 - `.cursor/skills/`, `.cursor/agents/` — навыки и субагенты; субагенты читают project memory
+- `.cursor/mcp.json` — Mobbin MCP (`https://api.mobbin.com/mcp`); после добавления нужен OAuth в Cursor
 
 ## Рядом, только чтение
 

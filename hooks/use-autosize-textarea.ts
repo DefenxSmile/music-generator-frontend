@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 
-/** Grow a textarea to its text so the field itself never scrolls. */
+/** Grow a textarea to its text; stop at CSS max-height and scroll inside. */
 export function useAutosizeTextarea(value: string) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -13,7 +13,15 @@ export function useAutosizeTextarea(value: string) {
 
     function fit() {
       field.style.height = "auto";
-      field.style.height = `${field.scrollHeight}px`;
+      const max = Number.parseFloat(getComputedStyle(field).maxHeight);
+      const next = field.scrollHeight;
+      if (Number.isFinite(max) && max > 0) {
+        field.style.height = `${Math.min(next, max)}px`;
+        field.style.overflowY = next > max ? "auto" : "hidden";
+        return;
+      }
+      field.style.height = `${next}px`;
+      field.style.overflowY = "hidden";
     }
 
     fit();

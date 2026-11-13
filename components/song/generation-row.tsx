@@ -5,6 +5,7 @@ import type { Generation } from "@/types/generation";
 import { cn } from "@/utils/cn";
 import { formatWhen } from "@/utils/format";
 import { generationStatusLabel, isActiveGenerationStatus } from "@/utils/generation-status";
+import { styleCoverId } from "@/utils/song-styles";
 
 export function GenerationRow({
   generation,
@@ -18,7 +19,9 @@ export function GenerationRow({
   const title = generation.caption?.trim() || generation.prompt;
   const active = isActiveGenerationStatus(generation.status);
   const ready = generation.status === "READY";
+  const failed = !active && !ready;
   const created = formatWhen(generation.createdAt);
+  const coverId = styleCoverId(generation.caption ?? generation.prompt, generation.id);
 
   return (
     <li>
@@ -31,8 +34,10 @@ export function GenerationRow({
         )}
       >
         <MediaFrame
-          toneId={generation.id}
-          className={cn("size-11", !ready && !active && "opacity-40")}
+          toneId={coverId}
+          busy={active}
+          disabled={failed}
+          className="size-11"
         />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[0.9375rem] font-medium text-text-primary">

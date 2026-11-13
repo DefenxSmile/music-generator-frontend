@@ -3,12 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { prefixedKey } from "@/utils/storage-prefix";
 
-/** One prompt per browser session. Timing matches ViralThumblify. */
+/** One prompt per browser session. Timing quieter than ViralThumblify. */
 export const SUPPORT_NUDGE_SESSION_KEY = prefixedKey("support_nudge_seen");
-const TIME_ON_SITE_MS = 60_000;
-const IDLE_MS = 45_000;
+const TIME_ON_SITE_MS = 90_000;
+const IDLE_MS = 75_000;
 const CHECK_INTERVAL_MS = 5_000;
 const ACTIVITY_THROTTLE_MS = 1_000;
+
+/** Skip the nudge on draft-heavy screens where it covers content. */
+export function supportNudgeAllowedOnPath(pathname: string): boolean {
+  const path = pathname.split("?")[0] ?? pathname;
+  return path !== "/release" && !path.startsWith("/release/");
+}
 
 type UseSupportProactiveNudgeParams = {
   enabled?: boolean;

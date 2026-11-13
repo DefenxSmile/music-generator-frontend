@@ -13,5 +13,5 @@ When acting as the parent/orchestrator in this repo:
 4. When launching subagents (`codebase-explorer`, `full-stack-engineer`, `qa-engineer`), include in the Task prompt:
    - goal and constraints;
    - paths of applicable rules, including `.cursor/rules/project-memory.mdc`, for layout or a new feature `.cursor/rules/ui-quality.mdc`, and for any behavior change `.cursor/rules/test-pyramid.mdc`;
-   - paths of applicable skills, including `.cursor/skills/ui-quality/SKILL.md` when the task changes layout or adds a feature, and `.cursor/skills/test-pyramid/SKILL.md` when behavior changes or tests are added.
+   - paths of applicable skills, including `.cursor/skills/ui-quality/SKILL.md` when the task changes layout or adds a feature, `.cursor/skills/design-taste-frontend/SKILL.md` / `impeccable` / `interface-design` for craft passes, `mobbin-*` when using Mobbin references, and `.cursor/skills/test-pyramid/SKILL.md` when behavior changes or tests are added.
 5. Subagents start with a clean context — they will not see this chat unless you hand off that detail.

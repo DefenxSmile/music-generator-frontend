@@ -32,8 +32,8 @@ export function CreditSlot({
   return (
     <div
       className={cn(
-        "mt-3 shrink-0 overflow-hidden rounded-xl border border-overlay/10 bg-bg-elevated transition-colors duration-150",
-        collapsed ? "px-1.5 py-2" : "p-3",
+        "mt-3 shrink-0 overflow-hidden rounded-xl border border-overlay/6 transition-colors duration-150",
+        collapsed ? "px-1.5 py-2" : "px-3 py-2.5",
       )}
     >
       <Link
@@ -81,11 +81,11 @@ export function CreditSlot({
                 strokeWidth={1.75}
               />
             </span>
-            <span className="mt-2.5 text-[1.75rem] font-semibold tabular-nums leading-none tracking-tight text-text-primary">
+            <span className="mt-2 text-xl font-semibold tabular-nums leading-none tracking-tight text-text-primary">
               {displayBalance}
             </span>
-            <span className="mt-1.5 text-xs text-text-muted">{word}</span>
-            <span className="mt-3 border-t border-overlay/10 pt-2.5 text-xs text-text-dim transition-colors duration-150 group-hover:text-text-primary">
+            <span className="mt-1 text-xs text-text-muted">{word}</span>
+            <span className="mt-2.5 border-t border-overlay/6 pt-2 text-xs text-text-dim transition-colors duration-150 group-hover:text-text-primary">
               {empty ? "Пополнить" : "К тарифам"}
             </span>
           </>

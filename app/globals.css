@@ -514,7 +514,31 @@ html[data-player] .lp-support-dock {
 }
 
 .lp-composer textarea {
-  overscroll-behavior: auto;
+  overscroll-behavior: contain;
+}
+
+/* Quiet section / panel labels — weight + tracking, not size noise. */
+.lp-kicker {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  color: var(--color-text-dim);
+}
+
+/* Simple-mode idea: inset element inside the section panel, kin to home without gold. */
+.lp-composer-idea {
+  margin: 0.5rem 0.625rem 0.375rem;
+  border-radius: calc(var(--radius-xl) - 2px);
+  background-color: color-mix(in srgb, var(--color-bg) 42%, var(--color-bg-elevated));
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-overlay) 7%, transparent) 0%,
+    transparent 52%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 9%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-overlay) 4%, transparent);
 }
 
 .lp-composer-fields {
@@ -525,6 +549,131 @@ html[data-player] .lp-support-dock {
 
 .lp-composer-fields::-webkit-scrollbar {
   display: none;
+}
+
+/* Segmented controls (mode, gender): selected leaf sits on elevated with a quiet inset rim. */
+.lp-segment {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in srgb, var(--color-overlay) 6%, transparent);
+  padding: 0.125rem;
+}
+
+.lp-segment-option {
+  border-radius: calc(var(--radius-lg) - 1px);
+  outline: none;
+  transition:
+    color var(--duration-move) var(--ease-move),
+    background-color var(--duration-move) var(--ease-move),
+    box-shadow var(--duration-move) var(--ease-move);
+}
+
+.lp-segment-option:focus-visible {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-overlay) 30%, transparent);
+}
+
+.lp-segment-option[aria-pressed="true"] {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 10%, transparent),
+    0 1px 0 color-mix(in srgb, var(--color-overlay) 4%, transparent);
+}
+
+.lp-segment-option[aria-pressed="false"] {
+  color: var(--color-text-muted);
+}
+
+.lp-segment-option[aria-pressed="false"]:hover {
+  color: var(--color-text-primary);
+}
+
+/* Style chips as instruments, not pill spam. */
+.lp-style-chip {
+  border-radius: 9999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25;
+  outline: none;
+  transition:
+    color var(--duration-move) var(--ease-move),
+    background-color var(--duration-move) var(--ease-move),
+    box-shadow var(--duration-move) var(--ease-move);
+}
+
+.lp-style-chip:focus-visible {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-overlay) 30%, transparent);
+}
+
+.lp-style-chip[aria-pressed="true"] {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-overlay) 12%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-overlay) 10%, transparent);
+}
+
+.lp-style-chip[aria-pressed="false"] {
+  background-color: color-mix(in srgb, var(--color-overlay) 6%, transparent);
+  color: var(--color-text-muted);
+}
+
+.lp-style-chip[aria-pressed="false"]:hover {
+  background-color: color-mix(in srgb, var(--color-overlay) 10%, transparent);
+  color: var(--color-text-primary);
+}
+
+/* Result row enter + generating rail + ready actions. */
+.lp-result-enter {
+  animation: lp-result-in var(--duration-move) var(--ease-move);
+}
+
+.lp-status-rail {
+  position: relative;
+  height: 1px;
+  margin-top: 0.875rem;
+  overflow: hidden;
+  background-color: color-mix(in srgb, var(--color-overlay) 12%, transparent);
+}
+
+.lp-status-rail::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-accent) 45%,
+    var(--color-accent-warm) 100%
+  );
+  animation: lp-status-sweep 1.6s var(--ease-move) infinite;
+}
+
+.lp-actions-ready {
+  animation: lp-actions-in var(--duration-move) var(--ease-move);
+}
+
+/* Empty create result: quiet studio idle, still one empty kit. */
+.lp-studio-idle {
+  position: relative;
+  isolation: isolate;
+}
+
+.lp-studio-idle::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 12% 18% 18%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-overlay) 7%, transparent) 0%,
+    transparent 100%
+  );
 }
 
 @media (min-width: 64rem) {
@@ -564,6 +713,37 @@ html[data-player] .lp-support-dock {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes lp-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lp-actions-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lp-status-sweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(280%);
   }
 }
 
@@ -640,11 +820,23 @@ html[data-player] .lp-support-dock {
   .lp-lyrics-space {
     transition: none;
   }
-  .lp-player-bar {
+  .lp-player-bar,
+  .lp-result-enter,
+  .lp-actions-ready {
     animation: none;
     transition: none;
   }
+  .lp-status-rail::after {
+    animation: none;
+    width: 42%;
+    transform: none;
+    opacity: 0.7;
+  }
   html[data-player] .lp-support-dock {
+    transition: none;
+  }
+  .lp-segment-option,
+  .lp-style-chip {
     transition: none;
   }
 }

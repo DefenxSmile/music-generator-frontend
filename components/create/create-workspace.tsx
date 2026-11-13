@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ResultStage } from "@/components/create/result-stage";
 import { SongComposer } from "@/components/create/song-composer";
-import { GenerationDetail } from "@/components/song/generation-detail";
+import { Section } from "@/components/ui/section";
 import { useSessionStatus } from "@/hooks/use-session-status";
 import { generationQueryOptions } from "@/requests/generations-query";
 import type { SongDraft } from "@/types/song-draft";
@@ -15,17 +15,16 @@ import { isAuthenticated } from "@/utils/session-status";
 import {
   applyGenerationLyrics,
   descriptionDraft,
+  emptySongDraft,
   persistSongDraft,
   readSongDraft,
 } from "@/utils/song-draft";
-
-const EMPTY_DRAFT: SongDraft = { idea: "", lyrics: "" };
 
 export function CreateWorkspace() {
   const id = useSearchParams().get("id")?.trim() ?? "";
   const status = useSessionStatus();
   const generation = useQuery(generationQueryOptions(id, isAuthenticated(status)));
-  const [draft, setDraft] = useState<SongDraft>(EMPTY_DRAFT);
+  const [draft, setDraft] = useState<SongDraft>(emptySongDraft);
   const sourceRef = useRef("");
   const lyricsAppliedForId = useRef("");
 
@@ -34,7 +33,12 @@ export function CreateWorkspace() {
     const stored = readSongDraft();
     if (stored && stored.source === hero) {
       sourceRef.current = stored.source;
-      setDraft({ idea: stored.idea, lyrics: stored.lyrics });
+      setDraft({
+        idea: stored.idea,
+        lyrics: stored.lyrics,
+        style: stored.style,
+        vocalGender: stored.vocalGender,
+      });
       return;
     }
     const next = descriptionDraft(hero);
@@ -71,9 +75,9 @@ export function CreateWorkspace() {
     <main className="flex flex-col lg:h-[100dvh] lg:flex-row lg:overflow-hidden">
       <section
         aria-label="Конструктор"
-        className="lp-composer-pane flex flex-col border-b border-overlay/6 lg:h-full lg:min-h-0 lg:w-[28rem] lg:shrink-0 lg:overflow-hidden lg:border-b-0 lg:border-r xl:w-[34rem]"
+        className="lp-composer-pane flex max-h-[min(72dvh,40rem)] flex-col border-b border-overlay/6 lg:h-full lg:max-h-none lg:min-h-0 lg:w-[28rem] lg:shrink-0 lg:overflow-hidden lg:border-b-0 lg:border-r xl:w-[34rem]"
       >
-        <div className="flex flex-col p-4 sm:p-5 lg:min-h-0 lg:flex-1">
+        <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-4 lg:p-5">
           <h1 className="sr-only">Песня</h1>
           <SongComposer
             draft={draft}
@@ -86,17 +90,17 @@ export function CreateWorkspace() {
       </section>
       <section
         aria-label="Результат"
-        className="flex min-w-0 flex-1 flex-col lg:min-h-0 lg:overflow-y-auto"
+        className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-hidden"
       >
-        <div className="flex min-h-full flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6">
-          {id ? (
-            <>
-              <h2 className="mb-4 text-sm font-semibold text-text-primary">Результат</h2>
-              <GenerationDetail />
-            </>
-          ) : (
-            <ResultStage />
-          )}
+        <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-4 lg:p-5">
+          <Section className="flex min-h-0 flex-1 flex-col overflow-hidden border-overlay/8">
+            <div className="flex shrink-0 items-center px-4 py-3">
+              <h2 className="lp-kicker">Результат</h2>
+            </div>
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+              <ResultStage id={id} />
+            </div>
+          </Section>
         </div>
       </section>
     </main>

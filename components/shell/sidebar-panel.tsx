@@ -84,8 +84,9 @@ export function SidebarPanel({
                   className={cn(
                     ROW,
                     active
-                      ? "bg-overlay/8 text-text-primary"
+                      ? "bg-overlay/10 font-medium text-text-primary"
                       : "text-text-muted hover:bg-overlay/5 hover:text-text-primary",
+                    item.soon && !active && "text-text-dim",
                   )}
                 >
                   <span className="grid size-5 shrink-0 place-items-center">
@@ -93,8 +94,8 @@ export function SidebarPanel({
                   </span>
                   <span className="whitespace-nowrap">{item.label}</span>
                   {item.soon ? (
-                    <span className="ml-auto rounded-md bg-overlay/8 px-1.5 py-0.5 text-[11px] font-medium leading-none text-text-dim">
-                      Скоро
+                    <span className="ml-auto text-[10px] font-medium tracking-wide text-text-dim/70">
+                      скоро
                     </span>
                   ) : null}
                 </Link>

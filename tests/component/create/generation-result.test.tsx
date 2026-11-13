@@ -52,12 +52,12 @@ function renderResult(value: Generation) {
 }
 
 describe("GenerationResult", () => {
-  it("shows two busy covers while the song is in progress", () => {
-    renderResult(generation());
-    expect(screen.getByText("Собираем два варианта")).toBeInTheDocument();
-    expect(screen.getAllByText("upbeat Russian pop-rock")).toHaveLength(2);
+  it("shows one busy cover, visible status, and a generating rail", () => {
+    const { container } = renderResult(generation());
+    expect(screen.getAllByText("Собираем трек").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("upbeat Russian pop-rock")).toHaveLength(1);
     expect(screen.queryByText("Песня в работе")).toBeNull();
-    expect(screen.queryByText(/Можно закрыть страницу/)).toBeNull();
+    expect(container.querySelector(".lp-status-rail")).not.toBeNull();
   });
 
   it("unlocks quiet actions when audio is ready", () => {
@@ -67,8 +67,22 @@ describe("GenerationResult", () => {
         audioUrl: "https://example.com/track.mp3",
       }),
     );
-    expect(screen.getAllByRole("link", { name: "Выпустить" })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: "Скачать" })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: /Слушать:/ })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "Выпустить" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Скачать" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /Слушать:/ })).toHaveLength(1);
+  });
+
+  it("keeps a song-shaped failed row with a quiet retry", () => {
+    renderResult(
+      generation({
+        status: "FAILED",
+        errorCode: "GENERATION_FAILED",
+        audioUrl: null,
+        caption: "Сломалось",
+      }),
+    );
+    expect(screen.getByText("Сломалось")).toBeInTheDocument();
+    expect(screen.getByText("Не получилось собрать песню")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Создать заново" })).toBeVisible();
   });
 });

@@ -2,12 +2,17 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { AdvancedOptions } from "@/components/create/advanced-options";
 import { ComposerField } from "@/components/create/composer-field";
+import { ComposerModeToggle } from "@/components/create/composer-mode-toggle";
+import { ComposerSection } from "@/components/create/composer-section";
 import { CreatePaywallDialog } from "@/components/create/create-paywall-dialog";
 import { LyricsPrompt } from "@/components/create/lyrics-prompt";
+import { StyleField } from "@/components/create/style-field";
 import { FormMessage } from "@/components/ui/field";
 import Button from "@/components/ui/Button";
+import { Section } from "@/components/ui/section";
 import { useCreateGeneration } from "@/hooks/use-create-generation";
 import { useOpenAuth } from "@/hooks/use-open-auth";
 import { useSessionStatus } from "@/hooks/use-session-status";
@@ -15,12 +20,24 @@ import { useSongPlaceholder } from "@/hooks/use-song-placeholder";
 import { apiErrorMessage, isApiError } from "@/requests/api-error";
 import { generationQuoteQueryOptions } from "@/requests/billing-query";
 import type { SongDraft } from "@/types/song-draft";
+import {
+  persistComposerMode,
+  readComposerMode,
+  resolveComposerMode,
+  type ComposerMode,
+} from "@/utils/composer-mode";
 import { createWorkspaceHref } from "@/utils/generation-href";
 import { PROMPT_MAX } from "@/utils/hero-idea";
 import { rememberLead } from "@/utils/lead";
 import { shouldOpenPaywall } from "@/utils/paywall";
 import { isAuthenticated, isLoggedOut, isSessionLoading } from "@/utils/session-status";
 import { composePrompt, promptFits } from "@/utils/song-draft";
+import { cn } from "@/utils/cn";
+
+function previewLine(value: string, empty: string): string {
+  const line = value.replace(/\r\n/g, "\n").trim().split("\n")[0]?.trim() ?? "";
+  return line || empty;
+}
 
 export function SongComposer({
   draft,
@@ -37,12 +54,43 @@ export function SongComposer({
   const placeholder = useSongPlaceholder();
   const [lyricsOpen, setLyricsOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [mode, setMode] = useState<ComposerMode>("simple");
+  const [ideaOpen, setIdeaOpen] = useState(true);
+  const [styleOpen, setStyleOpen] = useState(true);
+  const [lyricsSectionOpen, setLyricsSectionOpen] = useState(false);
   const lyricsButtonRef = useRef<HTMLButtonElement>(null);
+  const modeReady = useRef(false);
 
   const quote = useQuery(generationQuoteQueryOptions(isAuthenticated(status)));
   const create = useCreateGeneration();
   const prompt = composePrompt(draft);
   const tooLong = prompt.length > PROMPT_MAX;
+  const advanced = mode === "advanced";
+
+  useEffect(() => {
+    if (!modeReady.current) {
+      modeReady.current = true;
+      const next = resolveComposerMode(draft.lyrics, readComposerMode());
+      setMode(next);
+      if (next === "advanced" && draft.lyrics.trim()) setLyricsSectionOpen(true);
+      return;
+    }
+    if (draft.lyrics.trim()) {
+      setMode("advanced");
+      setLyricsSectionOpen(true);
+    }
+  }, [draft.lyrics]);
+
+  function onModeChange(next: ComposerMode) {
+    setMode(next);
+    persistComposerMode(next);
+    if (next === "advanced") {
+      setIdeaOpen(true);
+      setStyleOpen(true);
+    } else {
+      setLyricsOpen(false);
+    }
+  }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,6 +121,7 @@ export function SongComposer({
       openAuth({ next: createWorkspaceHref() });
       return;
     }
+    setLyricsSectionOpen(true);
     setLyricsOpen((current) => !current);
   }
 
@@ -110,57 +159,130 @@ export function SongComposer({
 
   return (
     <>
-      <form onSubmit={onSubmit} className="lp-composer flex min-h-0 flex-1 flex-col">
-        <div className="flex min-h-0 flex-1 flex-col rounded-xl border border-overlay/10 bg-bg-card transition-colors duration-150 focus-within:border-overlay/24">
-          <div className="lp-composer-fields flex min-h-0 flex-col overflow-y-auto">
-            <ComposerField
-              id="song-style"
-              label="Стиль и идея"
-              value={draft.idea}
-              onChange={(idea) => onDraft({ ...draft, idea })}
-              onKeyDown={onKeyDown}
-              placeholder={placeholder}
-              minHeightClass="min-h-32"
-            />
+      <form onSubmit={onSubmit} className="lp-composer flex min-h-0 flex-1 flex-col gap-3">
+        <ComposerModeToggle value={mode} onChange={onModeChange} />
 
-            <div className="relative border-t border-overlay/10" data-lyrics-field="">
-              <ComposerField
-                id="song-lyrics"
-                label="Текст песни"
-                value={draft.lyrics}
-                onChange={(lyrics) => onDraft({ ...draft, lyrics })}
+        <Section className="flex min-h-0 flex-1 flex-col border-overlay/8">
+          <div className="lp-composer-fields flex min-h-0 max-h-full flex-col divide-y divide-overlay/6 overflow-y-auto">
+            {advanced ? (
+              <ComposerSection
+                title="О чём песня"
+                open={ideaOpen}
+                onOpenChange={setIdeaOpen}
+                summary={previewLine(draft.idea, "Добавьте идею")}
+                hero
+              >
+                <ComposerField
+                  id="song-idea"
+                  label="О чём песня"
+                  value={draft.idea}
+                  onChange={(idea) => onDraft({ ...draft, idea })}
+                  onKeyDown={onKeyDown}
+                  placeholder={placeholder}
+                  minHeightClass="min-h-28"
+                  hideLabel
+                />
+              </ComposerSection>
+            ) : (
+              <div className="lp-composer-idea px-3.5 py-3">
+                <p className="lp-kicker">О чём песня</p>
+                <ComposerField
+                  id="song-idea"
+                  label="О чём песня"
+                  value={draft.idea}
+                  onChange={(idea) => onDraft({ ...draft, idea })}
+                  onKeyDown={onKeyDown}
+                  placeholder={placeholder}
+                  minHeightClass="min-h-32"
+                  hideLabel
+                />
+              </div>
+            )}
+
+            {advanced ? (
+              <ComposerSection
+                title="Стили"
+                open={styleOpen}
+                onOpenChange={setStyleOpen}
+                summary={previewLine(draft.style, "Поп, баллада, гитара…")}
+              >
+                <StyleField
+                  value={draft.style}
+                  onChange={(style) => onDraft({ ...draft, style })}
+                  onKeyDown={onKeyDown}
+                  hideLabel
+                />
+              </ComposerSection>
+            ) : (
+              <StyleField
+                value={draft.style}
+                onChange={(style) => onDraft({ ...draft, style })}
                 onKeyDown={onKeyDown}
-                placeholder="Оставьте пустым, слова напишет песня."
-                minHeightClass="min-h-16"
-                footer={
-                  <div
-                    aria-hidden
-                    data-open={lyricsOpen ? "true" : "false"}
-                    className="lp-lyrics-space"
-                  />
-                }
-                action={
-                  <Button
-                    ref={lyricsButtonRef}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    data-lyrics-prompt-toggle=""
-                    aria-expanded={lyricsOpen}
-                    onClick={onGenerateLyrics}
-                  >
-                    Сгенерировать текст
-                  </Button>
-                }
               />
-              <LyricsPrompt open={lyricsOpen} onClose={closeLyrics} onSubmit={onPromptLyrics} />
-            </div>
+            )}
+
+            {advanced ? (
+              <>
+                <div className="relative" data-lyrics-field="">
+                  <ComposerSection
+                    title="Текст песни"
+                    open={lyricsSectionOpen}
+                    onOpenChange={setLyricsSectionOpen}
+                    summary={previewLine(draft.lyrics, "Слова напишет песня")}
+                  >
+                    <ComposerField
+                      id="song-lyrics"
+                      label="Текст песни"
+                      value={draft.lyrics}
+                      onChange={(lyrics) => onDraft({ ...draft, lyrics })}
+                      onKeyDown={onKeyDown}
+                      placeholder="Оставьте пустым, слова напишет песня."
+                      minHeightClass="min-h-16"
+                      maxHeightClass="max-h-48"
+                      hideLabel
+                      footer={
+                        <div
+                          aria-hidden
+                          data-open={lyricsOpen ? "true" : "false"}
+                          className="lp-lyrics-space"
+                        />
+                      }
+                      action={
+                        <Button
+                          ref={lyricsButtonRef}
+                          type="button"
+                          variant="quiet"
+                          size="sm"
+                          data-lyrics-prompt-toggle=""
+                          aria-expanded={lyricsOpen}
+                          onClick={onGenerateLyrics}
+                        >
+                          Сгенерировать текст
+                        </Button>
+                      }
+                    />
+                  </ComposerSection>
+                  <LyricsPrompt open={lyricsOpen} onClose={closeLyrics} onSubmit={onPromptLyrics} />
+                </div>
+
+                <AdvancedOptions
+                  vocalGender={draft.vocalGender}
+                  onVocalGender={(vocalGender) => onDraft({ ...draft, vocalGender })}
+                />
+              </>
+            ) : null}
           </div>
 
-          <div className="lp-composer-actions flex shrink-0 flex-col gap-3 px-3.5 py-4">
+          <div aria-hidden className="min-h-0 flex-1" />
+
+          <div
+            className={cn(
+              "lp-composer-actions flex shrink-0 flex-col gap-3 border-t border-overlay/8 px-3.5 py-3",
+            )}
+          >
             {tooLong ? (
               <FormMessage>
-                Стиль и текст вместе длиннее 2000 символов. Сократите один из них.
+                Стиль, идея и текст вместе длиннее 2000 символов. Сократите один из них.
               </FormMessage>
             ) : null}
             {quote.isError ? <FormMessage>{apiErrorMessage(quote.error)}</FormMessage> : null}
@@ -193,8 +315,7 @@ export function SongComposer({
               </Button>
             </div>
           </div>
-          <div aria-hidden className="min-h-0 flex-1" />
-        </div>
+        </Section>
       </form>
       <CreatePaywallDialog open={paywallOpen} onClose={() => setPaywallOpen(false)} />
     </>

@@ -7,6 +7,7 @@ export function ComingSoon({ title, lead }: { title: string; lead: string }) {
       <EmptyState
         title={title}
         lead={lead}
+        mark="slot"
         action={
           <Button href="/create" variant="outline">
             Создать песню

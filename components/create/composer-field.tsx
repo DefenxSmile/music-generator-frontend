@@ -12,31 +12,48 @@ export function ComposerField({
   value,
   placeholder,
   minHeightClass,
+  maxHeightClass,
   onChange,
   onKeyDown,
   action,
   footer,
+  hideLabel = false,
 }: {
   id: string;
   label: string;
   value: string;
   placeholder: string;
   minHeightClass: string;
+  /** Cap growth; the field scrolls vertically past this height. */
+  maxHeightClass?: string;
   onChange: (value: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
   action?: ReactNode;
   footer?: ReactNode;
+  /** When nested under ComposerSection, the section title is enough. */
+  hideLabel?: boolean;
 }) {
   const ref = useAutosizeTextarea(value);
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 pt-3">
-        <label htmlFor={id} className="text-xs font-medium text-text-dim">
-          {label}
-        </label>
-        {action}
-      </div>
+      {hideLabel && !action ? null : (
+        <div
+          className={cn(
+            "flex items-center justify-between gap-3 px-3.5",
+            hideLabel ? "pt-0" : "pt-3",
+          )}
+        >
+          {hideLabel ? (
+            <span className="min-w-0" />
+          ) : (
+            <label htmlFor={id} className="lp-kicker min-w-0 truncate">
+              {label}
+            </label>
+          )}
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </div>
+      )}
       <Textarea
         ref={ref}
         id={id}
@@ -46,9 +63,13 @@ export function ComposerField({
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         autoComplete="off"
+        aria-label={hideLabel ? label : undefined}
         className={cn(
-          "overflow-hidden px-3.5 py-3 text-[0.9375rem] leading-relaxed",
+          "px-3.5 text-[0.9375rem] leading-relaxed",
+          hideLabel ? "py-2" : "py-3",
+          maxHeightClass ? "overscroll-contain" : "overflow-hidden",
           minHeightClass,
+          maxHeightClass,
         )}
       />
       {footer}

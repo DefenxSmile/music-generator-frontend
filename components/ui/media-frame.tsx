@@ -63,7 +63,7 @@ export function MediaFrame({
   );
   const classes = cn(
     "relative grid shrink-0 place-items-center overflow-hidden rounded-xl border border-overlay/10 bg-bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-    playing && "border-overlay/24",
+    playing && "border-accent/70",
     disabled && "opacity-50",
     className,
   );

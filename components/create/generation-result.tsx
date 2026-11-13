@@ -9,13 +9,12 @@ import Button from "@/components/ui/Button";
 import { MediaFrame } from "@/components/ui/media-frame";
 import type { Generation } from "@/types/generation";
 import { cn } from "@/utils/cn";
-import { isActiveGenerationStatus } from "@/utils/generation-status";
+import {
+  generationStatusLabel,
+  isActiveGenerationStatus,
+} from "@/utils/generation-status";
+import { styleCoverId } from "@/utils/song-styles";
 import { formatClock } from "@/utils/song-visual";
-
-/** Landing promises two vocal takes; Java still returns one audio — both rows share it until the API splits. */
-function variantIds(generationId: string): [string, string] {
-  return [generationId, `${generationId}-b`];
-}
 
 function pauseAudio(audio: HTMLAudioElement | null) {
   if (!audio) return;
@@ -53,11 +52,11 @@ export function GenerationResult({ generation }: { generation: Generation }) {
   const ready = generation.status === "READY" && Boolean(generation.audioUrl);
   const failed = !active && !ready;
   const durationHint = generation.durationSeconds ?? 0;
-  const ids = variantIds(generation.id);
+  const coverId = styleCoverId(generation.caption ?? generation.prompt, generation.id);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selected, setSelected] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(durationHint);
@@ -69,7 +68,7 @@ export function GenerationResult({ generation }: { generation: Generation }) {
 
   useEffect(() => {
     if (active || failed) {
-      setSelectedId(null);
+      setSelected(false);
       setPlaying(false);
       setCurrent(0);
       pauseAudio(audioRef.current);
@@ -77,10 +76,10 @@ export function GenerationResult({ generation }: { generation: Generation }) {
   }, [active, failed, generation.id]);
 
   useEffect(() => {
-    if (!selectedId) return;
+    if (!selected) return;
     document.documentElement.setAttribute("data-player", "");
     return () => document.documentElement.removeAttribute("data-player");
-  }, [selectedId]);
+  }, [selected]);
 
   function playFromGesture(audio: HTMLAudioElement | null) {
     if (!audio) {
@@ -102,26 +101,23 @@ export function GenerationResult({ generation }: { generation: Generation }) {
     playFromGesture(audio);
   }
 
-  function choose(id: string) {
+  function choose() {
     if (!ready || failedAudio) return;
-    if (selectedId === id) {
+    if (selected) {
       togglePlayback();
       return;
     }
     const audio = audioRef.current;
-    setSelectedId(id);
+    setSelected(true);
     setCurrent(0);
     if (audio) audio.currentTime = 0;
     playFromGesture(audio);
   }
 
-  function step(direction: -1 | 1) {
-    if (!selectedId || !ready || failedAudio) return;
-    const index = ids.indexOf(selectedId as (typeof ids)[number]);
-    const next = ids[(index + direction + ids.length) % ids.length];
-    if (!next) return;
+  function restart() {
+    if (!ready || failedAudio) return;
     const audio = audioRef.current;
-    setSelectedId(next);
+    setSelected(true);
     setCurrent(0);
     if (audio) audio.currentTime = 0;
     playFromGesture(audio);
@@ -135,43 +131,100 @@ export function GenerationResult({ generation }: { generation: Generation }) {
   }
 
   if (failed) {
-    return <SongUnavailable generation={generation} />;
+    return (
+      <ul className="lp-result-enter flex flex-col">
+        <li className="border-b border-overlay/8 py-4">
+          <SongUnavailable generation={generation} />
+        </li>
+      </ul>
+    );
   }
 
+  const clock = (duration || durationHint) > 0 ? formatClock(duration || durationHint) : "—:—";
+  const statusLabel = generationStatusLabel(generation.status);
+
   return (
-    <div className={selectedId ? "pb-28" : undefined}>
-      <ul aria-busy={active} className="flex flex-col">
-        {ids.map((id) => (
-          <ResultRow
-            key={id}
-            id={id}
-            title={title}
-            style={style}
-            duration={duration || durationHint}
-            active={active}
-            playing={playing && selectedId === id}
-            onPlay={() => choose(id)}
-            onDownload={() => setPaywallOpen(true)}
-          />
-        ))}
+    <div className={selected ? "pb-28" : undefined}>
+      <ul aria-busy={active} className="lp-result-enter flex flex-col">
+        <li className="border-b border-overlay/8 py-4">
+          <div className="flex items-start gap-4">
+            <MediaFrame
+              toneId={coverId}
+              corner={active ? undefined : clock}
+              busy={active}
+              playing={playing && selected}
+              onClick={active ? undefined : choose}
+              label={playing && selected ? `Пауза: ${title}` : `Слушать: ${title}`}
+              className="size-24 sm:size-[7.5rem]"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="flex min-h-7 min-w-0 items-center">
+                <span className="truncate text-[1.0625rem] font-medium leading-6 tracking-[-0.01em] text-text-primary sm:text-lg">
+                  {title}
+                </span>
+              </p>
+              <p className="mt-0.5 flex h-5 min-w-0 items-center gap-2 text-xs text-text-muted">
+                {active ? (
+                  <>
+                    <span aria-hidden className="size-1.5 shrink-0 animate-pulse rounded-full bg-accent" />
+                    <span className="text-text-muted">{statusLabel}</span>
+                  </>
+                ) : (
+                  <>
+                    {style ? <span className="min-w-0 truncate">{style}</span> : null}
+                    {style ? (
+                      <span aria-hidden className="text-text-dim">
+                        ·
+                      </span>
+                    ) : null}
+                    <span className="shrink-0 tabular-nums text-text-dim">{clock}</span>
+                  </>
+                )}
+              </p>
+              <div
+                className={cn(
+                  "lp-song-actions",
+                  active && "invisible",
+                  ready && !active && "lp-actions-ready",
+                )}
+                aria-hidden={active || undefined}
+              >
+                <Button href="/release" variant="quiet" size="sm" disabled={active}>
+                  Выпустить
+                </Button>
+                <Button
+                  type="button"
+                  variant="quiet"
+                  size="sm"
+                  disabled={active}
+                  onClick={() => setPaywallOpen(true)}
+                >
+                  <Download aria-hidden className="size-3.5" strokeWidth={1.75} />
+                  Скачать
+                </Button>
+              </div>
+            </div>
+          </div>
+          {active ? <div aria-hidden className="lp-status-rail" /> : null}
+        </li>
       </ul>
-      {active ? <p className="sr-only">Собираем два варианта</p> : null}
+      {active ? <p className="sr-only">{statusLabel}</p> : null}
       {failedAudio ? (
         <p role="alert" className="mt-3 text-sm text-text-muted">
           Аудио не загрузилось. Ссылка временная, обновите страницу.
         </p>
       ) : null}
-      {selectedId && ready ? (
+      {selected && ready ? (
         <PreviewPlayerBar
           title={title}
-          coverId={selectedId}
+          coverId={coverId}
           current={current}
           duration={duration || durationHint}
           playing={playing}
           onToggle={togglePlayback}
           onSeek={seek}
-          onPrevious={() => step(-1)}
-          onNext={() => step(1)}
+          onPrevious={restart}
+          onNext={restart}
         />
       ) : null}
       {ready && generation.audioUrl ? (
@@ -198,81 +251,18 @@ export function GenerationResult({ generation }: { generation: Generation }) {
   );
 }
 
-function ResultRow({
-  id,
-  title,
-  style,
-  duration,
-  active,
-  playing,
-  onPlay,
-  onDownload,
-}: {
-  id: string;
-  title: string;
-  style: string;
-  duration: number;
-  active: boolean;
-  playing: boolean;
-  onPlay: () => void;
-  onDownload: () => void;
-}) {
-  const clock = duration > 0 ? formatClock(duration) : "—:—";
-
-  return (
-    <li className="border-b border-overlay/8 py-4">
-      <div className="flex items-start gap-4">
-        <MediaFrame
-          toneId={id}
-          corner={active ? undefined : clock}
-          busy={active}
-          playing={playing}
-          onClick={active ? undefined : onPlay}
-          label={playing ? `Пауза: ${title}` : `Слушать: ${title}`}
-          className="size-24 sm:size-[7.5rem]"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="flex min-h-7 min-w-0 items-center">
-            <span className="truncate text-lg font-medium leading-6 text-text-primary">{title}</span>
-          </p>
-          <p className="mt-0.5 flex h-5 min-w-0 items-center gap-2 text-xs text-text-muted">
-            {style ? <span className="min-w-0 truncate">{style}</span> : null}
-            {style ? (
-              <span aria-hidden className="text-text-dim">
-                ·
-              </span>
-            ) : null}
-            <span className="shrink-0 tabular-nums">{clock}</span>
-          </p>
-          <div className={cn("lp-song-actions", active && "invisible")} aria-hidden={active || undefined}>
-            <Button href="/release" variant="quiet" size="sm" disabled={active}>
-              Выпустить
-            </Button>
-            <Button type="button" variant="quiet" size="sm" disabled={active} onClick={onDownload}>
-              <Download aria-hidden className="size-3.5" strokeWidth={1.75} />
-              Скачать
-            </Button>
-          </div>
-        </div>
-      </div>
-    </li>
-  );
-}
-
 export function GenerationResultSkeleton() {
   return (
     <ul aria-busy="true" aria-label="Загружаем песню" className="flex flex-col">
-      {[0, 1].map((index) => (
-        <li key={index} className="border-b border-overlay/8 py-4">
-          <div className="flex items-start gap-4">
-            <span className="lp-skeleton size-24 shrink-0 rounded-[var(--radius-xl)] sm:size-[7.5rem]" />
-            <div className="min-w-0 flex-1 space-y-2">
-              <span className="lp-skeleton block h-6 w-2/3 rounded-md" />
-              <span className="lp-skeleton block h-4 w-1/3 rounded-md" />
-            </div>
+      <li className="border-b border-overlay/8 py-4">
+        <div className="flex items-start gap-4">
+          <span className="lp-skeleton size-24 shrink-0 rounded-[var(--radius-xl)] sm:size-[7.5rem]" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <span className="lp-skeleton block h-6 w-2/3 rounded-md" />
+            <span className="lp-skeleton block h-4 w-1/3 rounded-md" />
           </div>
-        </li>
-      ))}
+        </div>
+      </li>
     </ul>
   );
 }

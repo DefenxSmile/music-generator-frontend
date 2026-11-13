@@ -24,6 +24,7 @@ export function SongsScreen() {
         <EmptyState
           title="Мои песни"
           lead="Песни появятся здесь после входа."
+          mark="slot"
           action={
             <Button type="button" variant="outline" onClick={() => openAuth()}>
               Войти
@@ -40,6 +41,7 @@ export function SongsScreen() {
         <EmptyState
           title="Мои песни"
           lead="Пока ни одной песни."
+          mark="slot"
           action={
             <Button href="/create" variant="outline">
               Создать песню
